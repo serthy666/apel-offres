@@ -1,18 +1,33 @@
 // Mise en cache pour un chargement rapide et un usage hors connexion.
 // Changer VERSION à chaque publication (garder le préfixe apel-offres-) pour que les téléphones récupèrent la nouvelle version.
-const VERSION = 'apel-offres-v4';
+const VERSION = 'apel-offres-v5';
 // Indispensables : sans eux, pas d'installation. Les autres sont mis en cache s'ils existent.
 const ESSENTIELS = ['index.html', 'donnees.js'];
 const SECONDAIRES = ['assets/logo-96.webp', 'assets/logo-192.webp',
   'polices/inter-Regular.woff2', 'polices/inter-SemiBold.woff2', 'polices/inter-ExtraBold.woff2'];
 
 // cache: 'no-cache' : le navigateur revérifie auprès du serveur (réponse 304 légère si rien n'a changé)
-// au lieu de reprendre sa copie de 10 minutes de GitHub Pages.
+// au lieu de reprendre une copie gardée par le navigateur.
 const frais = u => new Request(u, { cache: 'no-cache' });
+
+// Une réponse obtenue après une redirection (ex. Cloudflare Pages renvoie /index.html vers /) ne peut pas
+// servir de page : le navigateur la refuse. On en garde une copie « propre ».
+function propre(r) {
+  return r.redirected ? new Response(r.body, { status: r.status, statusText: r.statusText, headers: r.headers }) : r;
+}
+// La page est demandée à l'adresse du dossier (./), jamais par index.html.
+const SOURCE = { 'index.html': './' };
+function mettreEnCache(c, u) {
+  return fetch(frais(SOURCE[u] || u)).then(r => {
+    if (!r.ok) throw new Error(u + ' : ' + r.status);
+    return c.put(u, propre(r));
+  });
+}
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION)
-    .then(c => c.addAll(ESSENTIELS.map(frais)).then(() => Promise.all(SECONDAIRES.map(u => c.add(frais(u)).catch(() => {})))))
+    .then(c => Promise.all(ESSENTIELS.map(u => mettreEnCache(c, u)))
+      .then(() => Promise.all(SECONDAIRES.map(u => mettreEnCache(c, u).catch(() => {})))))
     .then(() => self.skipWaiting()));
 });
 
@@ -32,15 +47,16 @@ let retire = false;
 // N'enregistre qu'une réponse correcte et du bon type (jamais une page d'erreur ou une image à la place de la page).
 function garder(cle, r, type) {
   if (!retire && r && r.ok && (r.headers.get('content-type') || '').indexOf(type) !== -1) {
-    const copie = r.clone();
+    const copie = propre(r.clone());
     caches.open(VERSION).then(c => retire ? null : c.put(cle, copie));
   }
 }
 
-// La redirection mène-t-elle à une adresse qui répond (nom de domaine, certificat, https) ?
-// Sinon, on garde la copie actuelle et on réessaiera à la visite suivante.
-function redirectionValide() {
-  return fetch(new URL('./', self.registration.scope).href, { mode: 'no-cors', cache: 'no-store' }).then(() => true, () => false);
+// La redirection mène-t-elle vers une autre adresse (autre nom de domaine) qui répond (certificat, https) ?
+// Une redirection interne à l'hébergeur (ex. /index.html vers /) aboutit sur la même origine : on l'ignore.
+// Si la nouvelle adresse ne répond pas, on garde la copie actuelle et on réessaiera à la visite suivante.
+function redirectionValide(url) {
+  return fetch(url, { mode: 'no-cors', cache: 'no-store' }).then(r => r.type === 'opaque', () => false);
 }
 
 // Si l'adresse de l'appli redirige ailleurs (passage à un nom de domaine), ce service worker se retire
@@ -72,7 +88,7 @@ function cacheDAbord(e, cle, type) {
   const reseau = fetch(req).then(r => { garder(cle, r, type); return r; });
   e.waitUntil(Promise.all([reseau, enCache]).then(([r, copie]) => {
     if (cle === 'index.html' && r.type === 'opaqueredirect') {
-      return redirectionValide().then(ok => ok ? quitter(e, !!copie) : null);
+      return redirectionValide(e.request.url).then(ok => ok ? quitter(e, !!copie) : null);
     }
   }).catch(() => {}));
   return enCache.then(copie => copie || reseau);
@@ -92,7 +108,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   e.respondWith(caches.match(req).then(r => r || fetch(req).then(res => {
-    if (!retire && res.ok && res.type === 'basic') { const copie = res.clone(); caches.open(VERSION).then(c => retire ? null : c.put(req, copie)); }
+    if (!retire && res.ok && res.type === 'basic') { const copie = propre(res.clone()); caches.open(VERSION).then(c => retire ? null : c.put(req, copie)); }
     return res;
   })));
 });
