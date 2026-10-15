@@ -227,6 +227,40 @@ p{margin:0 0 10px}
 .livre3d .tranche{position:absolute;top:0;bottom:0;left:-11px;width:22px;transform:rotateY(-90deg);background:linear-gradient(90deg,#052E21,#0B6E4F)}
 .ombre-livre{width:150px;height:18px;margin:-6px auto 0;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),rgba(0,0,0,0))}
 .livre-infos{text-align:center}
+
+/* Bibliothèque : couvertures en relief (tranche ombrée, reflet de verre) */
+.couv{position:relative;display:block;height:0;border-radius:3px 8px 8px 3px;box-shadow:0 16px 26px -14px rgba(0,0,0,.9),0 2px 6px -2px rgba(0,0,0,.6)}
+.couv img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.couv::before,.couv::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;border-radius:inherit;pointer-events:none;z-index:1}
+.couv::before{background:linear-gradient(90deg,rgba(0,0,0,.42),rgba(255,255,255,.22) 3.5%,rgba(0,0,0,.08) 7%,rgba(0,0,0,0) 12%)}
+.couv::after{background:linear-gradient(120deg,rgba(255,255,255,.24),rgba(255,255,255,0) 38%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.couv .badge{position:absolute;top:-9px;right:-9px;z-index:2;margin:0;font-size:11px;padding:3px 8px;box-shadow:0 4px 10px -3px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.75)}
+.couv-repli{position:absolute;top:0;right:0;bottom:0;left:0;display:flex;flex-direction:column;justify-content:space-between;gap:6px;padding:14% 10% 10% 16%;border-radius:inherit;overflow:hidden;text-align:left;color:#fff;
+  background:radial-gradient(90% 50% at 100% 0%,rgba(242,183,5,.28),rgba(242,183,5,0) 70%),linear-gradient(165deg,#0A6046,#063D2C 72%)}
+.couv-repli b{font-size:13px;line-height:1.2;font-weight:800;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.couv-repli small{font-size:10.5px;font-weight:700;color:var(--jaune-clair)}
+.livre3d .couv-repli{transform:translateZ(11px);border-radius:2px 6px 6px 2px;padding:16% 10% 10% 14%}
+.livre3d .couv-repli b{font-size:17px}
+.livre3d .couv-repli small{font-size:12px}
+.livre-carte{display:flex;flex-direction:column;text-decoration:none;color:var(--texte);min-width:0}
+.livre-carte>b,.livre-carte>span+span{margin-top:4px}
+.livre-carte .couv{margin-bottom:8px;transition:transform .25s ease}
+.livre-carte:active .couv{transform:scale(.97)}
+.couv-titre{font-size:14px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-wrap:break-word;overflow-wrap:anywhere}
+.couv-auteur{font-size:13px;color:var(--texte-2);word-wrap:break-word;overflow-wrap:anywhere}
+.couv-prix{font-size:14px;font-weight:800;color:var(--jaune-clair)}
+.etagere{padding:8px 0 16px;overflow:hidden}
+.etagere-rang{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scroll-padding-left:16px;scroll-padding-right:16px;padding:16px 16px 14px;scrollbar-width:thin}
+/* Largeur choisie pour qu'une vignette dépasse toujours à droite : on devine qu'il y en a d'autres. */
+.etagere-rang .livre-carte{flex:0 0 31%;min-width:104px;max-width:132px;scroll-snap-align:start}
+.etagere-rang .livre-carte+.livre-carte{margin-left:18px}
+.etagere>.btn{margin:4px 16px 0;width:calc(100% - 32px)}
+.rayon{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 16px}
+.rayon .livre-carte{padding:12px 12px 14px}
+.prix-livre{flex-direction:column;align-items:stretch;gap:6px}
+.prix-livre span{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.fiche-livre .livre-infos .badge{margin:0 auto 8px}
+.fiche-livre h1{margin-bottom:6px}
 .temoin blockquote{margin:0 0 8px;font-style:italic}
 .temoin cite{font-style:normal;font-weight:800;font-size:14px}
 
@@ -260,6 +294,7 @@ details>div{padding:0 16px 16px;color:var(--texte-2)}
 @media (max-width:340px){.marque b{letter-spacing:.04em}.pack .actions .btn svg{display:none}}
 @media (orientation:landscape) and (max-height:480px){.entete{position:static}.voile{overflow-y:auto;align-items:flex-start}}
 
+@media (min-width:520px){.rayon{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (min-width:600px){h1{font-size:32px}.heros h1{font-size:36px}main{padding-top:26px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}.livre3d{transform:rotateY(-20deg)}}
 @media (prefers-reduced-transparency:reduce){
@@ -316,6 +351,8 @@ var CONFIG = {
   // Onglet des offres : 0 = identifiant (gid) du premier onglet du tableur, quel que soit son nom.
   // Onglets facultatifs : mettre leur nom exact (ex. 'FAQ') une fois créés ; null = non lu.
   onglets: { packs: 0, faq: null, temoignages: null, reglages: null },
+  // Tableur des livres de la bibliothèque (premier onglet). Vide = livres intégrés seulement.
+  livresSheetId: '1PVpsnt00vKxuuXXzicPNqQzhrBK1KvZshq1vP_l2tZw',
   delaiSheetMs: 7000,
   // Délai minimal entre deux lectures du Google Sheet sur un même téléphone (1 heure).
   rafraichirMs: 3600000,
@@ -345,7 +382,8 @@ var IC = {
   fl: '<path d="M9 6l6 6-6 6"/>',
   retour: '<path d="M15 6l-6 6 6 6"/>',
   web: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.5 5.8 3.5 9s-1 6.2-3.5 9c-2.5-2.8-3.5-5.8-3.5-9s1-6.2 3.5-9z"/>',
-  lien: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'
+  lien: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  biblio: '<rect x="3" y="4" width="4.5" height="16" rx="1"/><rect x="9.5" y="4" width="4.5" height="16" rx="1"/><path d="M15.6 5.6l3.9-1.1 3.3 14.4-3.9 1.1z"/>'
 };
 function svg(n, taille) { return '<svg viewBox="0 0 24 24"' + (taille ? ' width="' + taille + '" height="' + taille + '"' : '') + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (IC[n] || '') + '</svg>'; }
 var TEINTE = { auteur: 'o-jaune', enseignant: 'o-vert', ecole: 'o-rouge', entreprise: 'o-jaune', association: 'o-vert', particulier: 'o-rouge' };
@@ -412,11 +450,22 @@ var T = {
     v2a: 'Sélection par notre comité de lecture', v2b: 'Frais de lecture : 10 000 FCFA, avec une fiche de lecture écrite remise dans tous les cas', v2c: 'Manuscrit terminé et déjà relu par vous',
     v2btn: 'Soumettre mon manuscrit',
     v2note: 'Une prestation payante n’est jamais une sélection : seule une réponse écrite du comité de lecture engage APEL Éditions. Un manuscrit non retenu peut toujours être publié par la voie 1.',
-    realTitre: 'Nos réalisations', livreTitre: 'Le scénario pédagogique de l’enseignant augmenté',
-    livreSous: 'Guide pratique pour les enseignants du secondaire au Cameroun',
-    livreAuteur: 'Serthy AYISSI · APEL Éditions, Yaoundé, 2026', livreFormat: '21 × 27 cm · 160 pages · couleur · 56 illustrations',
-    livreEtude: 'Ouvrage en cours d’étude à la coordination nationale des enseignements secondaires, en vue de son intégration dans le programme de formation des enseignants.',
-    commanderLivre: 'Commander le livre', offreEtab: 'Offre établissement',
+    realTitre: 'Nos réalisations', offreEtab: 'Offre établissement',
+    bibliotheque: 'Notre bibliothèque', bibliothequeD: 'Nos livres, à commander sur WhatsApp',
+    bibliothequeIntro: 'Les livres publiés par APEL Éditions. Commandez-les sur WhatsApp.',
+    bibliothequeIntroMixte: 'Les livres de notre bibliothèque : commandez sur WhatsApp ceux qui sont en vente.',
+    bibliothequeIntroNum: 'Certains existent aussi en version numérique.',
+    partageLivreTexteAutre: 'Découvrez ce livre : ', voirLivre: 'Voir le livre',
+    numeriqueCourt: 'numérique', obtenirNum: 'Obtenir la version numérique',
+    msgCommandeNum: 'Je souhaite acheter la version numérique du livre « {titre} »{de} ({prix}).', msgVersion: 'Version souhaitée (papier, ou numérique à {num}) : ',
+    pied1Livres: 'Prix publics, payables à la commande. Livraison hors Yaoundé : frais en plus.',
+    voirBibliotheque: 'Voir toute la bibliothèque', nosLivres: 'Nos livres', nouveau: 'Nouveau', couvertureDe: 'Couverture du livre : ',
+    resume: 'Résumé', papier: 'Version papier', numerique: 'Version numérique', prixSurDemande: 'Prix sur demande', prixAConfirmer: 'prix à confirmer',
+    commanderWa: 'Commander sur WhatsApp', versionNum: 'Lire en version numérique', partagerLivre: 'Partager ce livre', autresLivres: 'Voir les autres livres',
+    livreInteresse: 'Ce livre m’intéresse', de: ' de ',
+    msgCommandeLivre: 'Je souhaite commander le livre « {titre} »{de} ({prix}).', msgInteretLivre: 'Je suis intéressé(e) par le livre « {titre} »{de}.',
+    partageLivreTexte: 'Découvrez ce livre publié par APEL Éditions : ',
+    ecrivezVous: 'Vous écrivez ?', ecrivezVousD: 'Votre livre peut rejoindre notre bibliothèque. Découvrez nos deux façons de publier.',
     afficheTitre: 'Affiche de lancement', afficheD: 'Conception graphique APEL Éditions, format réseaux sociaux.',
     temoignages: 'Ils nous ont fait confiance',
     votreProjet: 'Votre projet pourrait être le prochain', votreProjetD: 'Présentez-le-nous : le devis est gratuit.',
@@ -426,7 +475,7 @@ var T = {
     msgBonjour: 'Bonjour APEL Éditions,', msgGeneral: 'J’aimerais des informations sur vos offres.',
     msgPack: 'Je suis intéressé(e) par l’offre « {titre} » ({prix}).', msgProjet: 'Mon projet : ',
     msgProfil: 'Je suis : ', msgBesoin: 'Mon besoin : ', msgQuand: 'Échéance : ', msgReco: 'Pack proposé par l’appli : ',
-    msgLivre: 'Je souhaite commander le livre « Le scénario pédagogique de l’enseignant augmenté ».', msgExemplaires: 'Nombre d’exemplaires : ', msgVille: 'Ville de livraison : ',
+    msgExemplaires: 'Nombre d’exemplaires : ', msgVille: 'Ville de livraison : ',
     msgV2: 'Je souhaite soumettre mon manuscrit au comité de lecture.', msgV2Titre: 'Titre : ', msgV2Genre: 'Genre : ', msgV2Pages: 'Nombre de pages : ',
     msgQuestion: 'J’ai une question : ',
     msgVia: '(Envoyé depuis l’appli APEL', msgSource: ' · source : ', msgParrain: ' · recommandé par : ',
@@ -497,11 +546,22 @@ var T = {
     v2a: 'Selected by our reading committee', v2b: 'Reading fee: 10,000 FCFA, with a written reading report in every case', v2c: 'Finished manuscript, already reread by you',
     v2btn: 'Submit my manuscript',
     v2note: 'A paid service is never a selection: only a written answer from the reading committee commits APEL Éditions. A manuscript that is not selected can still be published through route 1.',
-    realTitre: 'Our work', livreTitre: 'Le scénario pédagogique de l’enseignant augmenté',
-    livreSous: 'A practical AI guide for secondary school teachers in Cameroon (in French)',
-    livreAuteur: 'Serthy AYISSI · APEL Éditions, Yaoundé, 2026', livreFormat: '21 × 27 cm · 160 pages · full colour · 56 illustrations',
-    livreEtude: 'Currently being reviewed by the national coordination for secondary education, with a view to including it in the teacher training programme.',
-    commanderLivre: 'Order the book', offreEtab: 'School offer',
+    realTitre: 'Our work', offreEtab: 'School offer',
+    bibliotheque: 'Our library', bibliothequeD: 'Our books, available to order on WhatsApp',
+    bibliothequeIntro: 'Books published by APEL Éditions. Order them on WhatsApp.',
+    bibliothequeIntroMixte: 'The books in our library: order the ones on sale on WhatsApp.',
+    bibliothequeIntroNum: 'Some are also available as e-books.',
+    partageLivreTexteAutre: 'Discover this book: ', voirLivre: 'See the book',
+    numeriqueCourt: 'e-book', obtenirNum: 'Get the e-book',
+    msgCommandeNum: 'I would like to buy the e-book of “{titre}”{de} ({prix}).', msgVersion: 'Edition wanted (print, or e-book at {num}): ',
+    pied1Livres: 'Public prices, payable when you order. Delivery outside Yaoundé: extra cost.',
+    voirBibliotheque: 'See the whole library', nosLivres: 'Our books', nouveau: 'New', couvertureDe: 'Book cover: ',
+    resume: 'Summary', papier: 'Print edition', numerique: 'E-book', prixSurDemande: 'Price on request', prixAConfirmer: 'price to be confirmed',
+    commanderWa: 'Order on WhatsApp', versionNum: 'Read the e-book', partagerLivre: 'Share this book', autresLivres: 'See other books',
+    livreInteresse: 'I’m interested in this book', de: ' by ',
+    msgCommandeLivre: 'I would like to order the book “{titre}”{de} ({prix}).', msgInteretLivre: 'I am interested in the book “{titre}”{de}.',
+    partageLivreTexte: 'Discover this book published by APEL Éditions: ',
+    ecrivezVous: 'Are you an author?', ecrivezVousD: 'Your book could join our library. Discover our two ways to publish.',
     afficheTitre: 'Launch poster', afficheD: 'Graphic design by APEL Éditions, social media format.',
     temoignages: 'They trusted us',
     votreProjet: 'Your project could be next', votreProjetD: 'Tell us about it: the quote is free.',
@@ -511,7 +571,7 @@ var T = {
     msgBonjour: 'Hello APEL Éditions,', msgGeneral: 'I would like some information about your offers.',
     msgPack: 'I am interested in the “{titre}” offer ({prix}).', msgProjet: 'My project: ',
     msgProfil: 'I am: ', msgBesoin: 'My need: ', msgQuand: 'Deadline: ', msgReco: 'Package suggested by the app: ',
-    msgLivre: 'I would like to order the book “Le scénario pédagogique de l’enseignant augmenté”.', msgExemplaires: 'Number of copies: ', msgVille: 'Delivery town: ',
+    msgExemplaires: 'Number of copies: ', msgVille: 'Delivery town: ',
     msgV2: 'I would like to submit my manuscript to the reading committee.', msgV2Titre: 'Title: ', msgV2Genre: 'Genre: ', msgV2Pages: 'Number of pages: ',
     msgQuestion: 'I have a question: ',
     msgVia: '(Sent from the APEL app', msgSource: ' · source: ', msgParrain: ' · referred by: ',
@@ -527,8 +587,8 @@ var T = {
 var PROFILS = ['auteur', 'enseignant', 'ecole', 'entreprise', 'association', 'particulier'];
 
 /* ---------- État ---------- */
-var etat = { lang: 'fr', d: { packs: [], faq: [], temoignages: [], reglages: {} }, pret: false, src: '', parrain: '', guide: {} };
-var pile = [], positions = {};
+var etat = { lang: 'fr', d: { packs: [], faq: [], temoignages: [], reglages: {}, livres: [] }, pret: false, src: '', parrain: '', guide: {} };
+var pile = [], positions = {}, dernierLien = '';
 var LIBRES = { accueil: 1, etapes: 1, publier: 1, contact: 1 };
 
 function stock(cle, val) { try { if (val === undefined) return localStorage.getItem(cle); localStorage.setItem(cle, val); } catch (e) { return null; } }
@@ -536,6 +596,8 @@ function t(k, v) { var s = (T[etat.lang] && T[etat.lang][k]) || T.fr[k] || k; if
 // Espaces insécables : montants, unités et ponctuation française ne sont jamais coupés en fin de ligne.
 function typo(s) {
   s = s.replace(/(\d) (?=\d{3}(?!\d))/g, '$1 ').replace(/(\d) (?=(FCFA|F\b|%|h\b|mots|pages|page\b|exemplaires|fiches|enseignants|participants|minute|min\b|jours|semaines|mois|heures|Go\b|Mo\b|cm\b))/g, '$1 ');
+  // Un nombre reste avec le mot qui le suit ; « × » et « · » ne commencent jamais une ligne.
+  s = s.replace(/(\d) (?=[A-Za-zÀ-ÿ])/g, '$1\u00a0').replace(/ ([×·])/g, '\u00a0$1');
   if (etat.lang === 'fr') s = s.replace(/ ([:;!?»%])/g, ' $1').replace(/« /g, '« ');
   return s;
 }
@@ -559,7 +621,11 @@ function lienWa(lignes) {
   return 'https://wa.me/' + numeroWa() + '?text=' + encodeURIComponent(texte);
 }
 function aWa(lignes, libelle, classe) { return '<a class="btn ' + (classe || 'btn-primaire') + '" href="' + esc(lienWa(lignes)) + '" target="_blank" rel="noopener">' + svg('wa') + '<span>' + esc(libelle) + '</span></a>'; }
-function lignesPack(p) { return [t('msgPack', { titre: champ(p, 'titre'), prix: prixTexte(p) }), t('msgProjet')]; }
+function lignesPack(p) {
+  var l = offreVersLivre[p.id] && livreParId(offreVersLivre[p.id]);
+  if (l) return lignesLivre(l);
+  return [t('msgPack', { titre: champ(p, 'titre'), prix: prixTexte(p) }), t('msgProjet')];
+}
 
 /* ---------- Données ---------- */
 function packsDe(profil) {
@@ -600,8 +666,52 @@ function normaliserPacks(packs) {
     return q;
   }).filter(function (p) { return p.titre_fr || p.titre_en; }));
 }
+// Valeur « non » d'une case OUI/NON (espaces tolérées) ; vide = valeur par défaut.
+function faux(v) { return v === false || v === 0 || /^(non|no|0|false|faux)$/i.test(String(v == null ? '' : v).trim()); }
+function vrai(v) { return v === true || /^(oui|yes|1|true|vrai)$/i.test(String(v == null ? '' : v).trim()); }
+function normaliserLivres(livres) {
+  var vus = {};
+  return trier((livres || []).filter(function (l) {
+    return l && l.id && (l.titre || l.titre_fr) && !faux(l.afficher);
+  }).map(function (l) {
+    var q = {}; Object.keys(l).forEach(function (k) { q[k] = l[k]; });
+    q.id = String(q.id).toLowerCase().replace(/[^a-z0-9-]/g, '');
+    q.prix = lirePrix(q.prix); q.prix_num = lirePrix(q.prix_num);
+    // « En vente » vide : en vente seulement si un prix est indiqué (sinon vitrine).
+    q.vente = vrai(q.vente) || (!faux(q.vente) && !!(q.prix || q.prix_num));
+    q.nouveau = vrai(q.nouveau);
+    return q;
+  }).filter(function (q) {
+    // Deux livres avec le même code : seul le premier est gardé.
+    if (!q.id || vus[q.id]) return false;
+    vus[q.id] = 1; return true;
+  }));
+}
+// Offres qui vendent un livre (« offre_livre » : code de l'offre au prix unitaire, puis éventuellement d'autres
+// offres du même livre, séparés par des virgules). Le tableur Livres fait foi :
+// - livre masqué, retiré ou plus en vente → ces offres disparaissent de l'appli (accueil, profils, guide) ;
+// - sinon la première offre prend le prix papier du livre (vide = « Prix sur devis »).
+var offreVersLivre = {};
+function lierOffresLivres(livresBruts) {
+  var liens = {};
+  ((window.APEL_DEFAUT && window.APEL_DEFAUT.livres) || []).concat(livresBruts || []).forEach(function (x) {
+    if (!x || !x.offre_livre || !x.id) return;
+    var id = String(x.id).toLowerCase().replace(/[^a-z0-9-]/g, '');
+    String(x.offre_livre).split(/\s*[,;]\s*/).forEach(function (code, i) { if (code) liens[code] = { id: id, premier: i === 0 }; });
+  });
+  offreVersLivre = {};
+  etat.d.packs = etat.d.packs.filter(function (pk) {
+    var lien = liens[pk.id];
+    if (!lien) return true;
+    var l = livreParId(lien.id);
+    if (!l || !l.vente) return false;
+    if (lien.premier) { pk.prix = l.prix; offreVersLivre[pk.id] = l.id; }
+    return true;
+  });
+}
 function prendre(d) {
-  etat.d = { packs: normaliserPacks(d.packs), faq: trier(d.faq || []), temoignages: trier(d.temoignages || []), reglages: d.reglages || {} };
+  etat.d = { packs: normaliserPacks(d.packs), faq: trier(d.faq || []), temoignages: trier(d.temoignages || []), reglages: d.reglages || {}, livres: normaliserLivres(d.livres) };
+  lierOffresLivres(d.livres);
   etat.pret = true;
 }
 
@@ -628,7 +738,11 @@ var ENTETES = {
   prixfcfa: 'prix', prix: 'prix', apartirde: 'apartirde', unitefr: 'unite_fr', uniteen: 'unite_en', vedette: 'vedette',
   questionfr: 'question_fr', questionen: 'question_en', reponsefr: 'reponse_fr', reponseen: 'reponse_en',
   nom: 'nom', textefr: 'texte_fr', texteen: 'texte_en', qualitefr: 'qualite_fr', qualiteen: 'qualite_en',
-  cle: 'cle', valeurfr: 'fr', valeuren: 'en'
+  cle: 'cle', valeurfr: 'fr', valeuren: 'en',
+  titre: 'titre', auteur: 'auteur', annee: 'annee', prixpapier: 'prix', prixnumerique: 'prix_num', liennumerique: 'lien_num',
+  couverture: 'couverture', couvertureliendrive: 'couverture', envente: 'vente', vente: 'vente', nouveau: 'nouveau',
+  soustitrefr: 'sous_fr', soustitreen: 'sous_en', resumefr: 'resume_fr', resumeen: 'resume_en',
+  detailsfr: 'details_fr', detailsen: 'details_en', notefr: 'note_fr', noteen: 'note_en', offreliee: 'pack', offredulivre: 'offre_livre', editeur: 'editeur'
 };
 function cleEntete(h) {
   var n = String(h).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
@@ -643,10 +757,10 @@ function enObjets(lignes) {
     return !vide && !/^(non|no|0|false|faux)$/i.test(o.afficher || '');
   });
 }
-var REQUIS = { packs: 'titre_fr', faq: 'question_fr', temoignages: 'texte_fr', reglages: 'cle' };
+var REQUIS = { packs: 'titre_fr', faq: 'question_fr', temoignages: 'texte_fr', reglages: 'cle', livres: 'titre' };
 // Google renvoie le premier onglet quand le nom demandé n'existe pas : la colonne requise permet de le détecter.
-function lireOnglet(nom, requis) {
-  var url = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(CONFIG.sheetId) + '/gviz/tq?tqx=out:csv&headers=1&' + (typeof nom === 'number' ? 'gid=' + nom : 'sheet=' + encodeURIComponent(nom));
+function lireOnglet(nom, requis, sheetId) {
+  var url = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(sheetId || CONFIG.sheetId) + '/gviz/tq?tqx=out:csv&headers=1&' + (typeof nom === 'number' ? 'gid=' + nom : 'sheet=' + encodeURIComponent(nom));
   var ctl = window.AbortController ? new AbortController() : null;
   var minuteur = setTimeout(function () { if (ctl) ctl.abort(); }, CONFIG.delaiSheetMs);
   return fetch(url, { signal: ctl ? ctl.signal : undefined, cache: 'no-cache' }).then(function (r) {
@@ -672,20 +786,35 @@ function fusion(def, s) {
     packs: s.packs && s.packs.length ? s.packs : def.packs || [],
     faq: s.faq || def.faq || [],
     temoignages: s.temoignages || def.temoignages || [],
-    reglages: s.reglages || def.reglages || {}
+    reglages: s.reglages || def.reglages || {},
+    livres: s.livres ? completerLivres(s.livres, def.livres || []) : def.livres || []
   };
 }
-function chargerSheet() {
-  if (!CONFIG.sheetId || APERCU || !window.fetch) return;
+// Un livre du tableur garde la couverture intégrée à l'appli qui porte le même code (si la case Couverture est vide).
+function completerLivres(livres, integres) {
+  return livres.map(function (l) {
+    var q = {}, id = String(l.id || '').replace(/[^a-z0-9-]/gi, '');
+    Object.keys(l).forEach(function (k) { q[k] = l[k]; });
+    integres.forEach(function (x) { if (x.id === id.toLowerCase()) { q.ratio = q.ratio || x.ratio; q.largeur = q.largeur || x.largeur; q.offre_livre = q.offre_livre || x.offre_livre; q.editeur = q.editeur || x.editeur; } });
+    return q;
+  });
+}
+// force : relire même si la dernière lecture date de moins d'une heure (lien vers un livre encore inconnu).
+// fini : appelé une fois la lecture terminée, réussie ou non.
+function chargerSheet(force, fini) {
+  fini = fini || function () {};
+  if (!CONFIG.sheetId || APERCU || !window.fetch) { fini(); return; }
   var ancien = cacheSheet();
   // Un âge négatif (horloge du téléphone avancée puis corrigée) force une nouvelle lecture.
-  if (ancien && ancien.t) { var age = Date.now() - ancien.t; if (age >= 0 && age < CONFIG.rafraichirMs) return; }
+  if (!force && ancien && ancien.t) { var age = Date.now() - ancien.t; if (age >= 0 && age < CONFIG.rafraichirMs) { fini(); return; } }
   var o = CONFIG.onglets;
-  Promise.all(['packs', 'faq', 'temoignages', 'reglages'].map(function (k) {
+  var lectures = ['packs', 'faq', 'temoignages', 'reglages'].map(function (k) {
     return o[k] == null ? null : lireOnglet(o[k], REQUIS[k]).catch(function () { return null; });
-  }))
+  });
+  lectures.push(CONFIG.livresSheetId ? lireOnglet(0, REQUIS.livres, CONFIG.livresSheetId).catch(function () { return null; }) : null);
+  Promise.all(lectures)
     .then(function (res) {
-      if (!res[0] && !res[1] && !res[2] && !res[3]) return;
+      if (!res[0] && !res[1] && !res[2] && !res[3] && !res[4]) { fini(); return; }
       // Un onglet illisible cette fois garde sa dernière version lue.
       var sh = (ancien && ancien.s) || {};
       var packs = res[0] && normaliserPacks(res[0].filter(function (p) { return p.titre_fr; }));
@@ -694,12 +823,16 @@ function chargerSheet() {
       if (faq && faq.length) sh.faq = faq;
       if (res[2]) sh.temoignages = trier(res[2].filter(function (x) { return x.texte_fr; }));
       if (res[3]) { var r = {}; res[3].forEach(function (x) { if (x.cle) r[x.cle.toLowerCase().trim()] = { fr: x.fr, en: x.en }; }); if (Object.keys(r).length) sh.reglages = r; }
+      // Livres : un tableur lisible fait foi, même vide (tous les livres masqués).
+      if (res[4]) sh.livres = completerLivres(res[4].filter(function (x) { return x.id && x.titre; }), (window.APEL_DEFAUT && window.APEL_DEFAUT.livres) || []);
+      if (!CONFIG.livresSheetId) delete sh.livres;
       ['faq', 'temoignages', 'reglages'].forEach(function (k) { if (o[k] == null) delete sh[k]; });
       stock('apel-sheet', JSON.stringify({ t: Date.now(), s: sh }));
       var avant = JSON.stringify(etat.d);
       prendre(fusion(window.APEL_DEFAUT, sh));
       if (JSON.stringify(etat.d) !== avant) afficher(true);
-    });
+      fini();
+    }, function () { fini(); });
 }
 
 /* ---------- Vues ---------- */
@@ -736,6 +869,92 @@ function etapeGuide(arg) {
   return Math.min(e, n);
 }
 
+/* ---------- Bibliothèque ---------- */
+var relusLivres = {};
+function livreParId(id) { for (var i = 0; i < etat.d.livres.length; i++) if (etat.d.livres[i].id === id) return etat.d.livres[i]; return null; }
+function ratioLivre(l) { var r = parseFloat(l.ratio); return r >= 1 && r <= 1.8 ? r : 1.414; }
+// Dans l'aperçu en un seul fichier, les couvertures sont intégrées (window.APEL_IMAGES).
+function srcImage(p) { return (window.APEL_IMAGES && window.APEL_IMAGES[p]) || p; }
+// Lien de partage Google Drive (…/d/ID/…, …?id=ID ou l'identifiant seul) → identifiant du fichier.
+function idDrive(u) {
+  u = String(u || '').trim();
+  var m = u.match(/\/d\/([\w-]{20,})/) || u.match(/[?&]id=([\w-]{20,})/) || u.match(/^([\w-]{25,})$/);
+  return m ? m[1] : '';
+}
+function couvExterne(l, w) {
+  var c = String(l.couverture || '').trim(), id = idDrive(c);
+  if (id) return { src: 'https://lh3.googleusercontent.com/d/' + id + '=w' + w, repli: 'https://drive.google.com/thumbnail?id=' + id + '&sz=w' + w };
+  c = urlSure(c);
+  return /^https:\/\//i.test(c) ? { src: c, repli: '' } : null;
+}
+// Couverture de secours (titre et auteur sur fond APEL), visible si l'image manque ou ne se charge pas.
+function couvRepli(l) {
+  return '<span class="couv-repli" aria-hidden="true"><b>' + esc(champ(l, 'titre')) + '</b>' + (l.auteur ? '<small>' + esc(l.auteur) + '</small>' : '<small>APEL Éditions</small>') + '</span>';
+}
+function imgCouv(l, taille, prioritaire) {
+  var charge = prioritaire ? ' fetchpriority="high"' : ' loading="lazy" decoding="async"';
+  var h = Math.round(300 * ratioLivre(l)), ext = couvExterne(l, taille > 150 ? 600 : 300);
+  if (ext) return couvRepli(l) + '<img src="' + esc(ext.src) + '"' + (ext.repli ? ' data-repli="' + esc(ext.repli) + '"' : '') +
+    ' width="300" height="' + h + '" alt="" referrerpolicy="no-referrer" onload="APEL_couvOk(this)" onerror="APEL_couvErreur(this)"' + charge + '>';
+  if (!l.largeur) return couvRepli(l);
+  var p = 'assets/livres/' + l.id + '-300.webp', g = 'assets/livres/' + l.id + '-600.webp';
+  return couvRepli(l) + '<img src="' + esc(srcImage(taille > 150 ? g : p)) + '"' +
+    (window.APEL_IMAGES ? '' : ' srcset="' + esc(p) + ' 300w, ' + esc(g) + ' ' + (parseInt(l.largeur, 10) || 600) + 'w" sizes="' + taille + 'px"') +
+    ' width="300" height="' + h + '" alt="" onerror="APEL_couvErreur(this)"' + charge + '>';
+}
+// Image chargée : la vignette prend les proportions réelles de la couverture.
+window.APEL_couvOk = function (img) {
+  var r = img.naturalHeight / img.naturalWidth;
+  if (!(r >= 1 && r <= 1.8)) return;
+  var c = img.parentNode;
+  if (c && /\bcouv\b/.test(c.className)) c.style.paddingTop = (r * 100).toFixed(1) + '%';
+  if (c && /\blivre3d\b/.test(c.className)) c.style.height = Math.round(c.offsetWidth * r) + 'px';
+};
+// Image introuvable : on essaie l'adresse de secours, puis on laisse la couverture de secours.
+window.APEL_couvErreur = function (img) {
+  var repli = img.getAttribute('data-repli');
+  if (repli) { img.removeAttribute('data-repli'); img.src = repli; return; }
+  if (img.parentNode) img.parentNode.removeChild(img);
+};
+function fcfa(n) { return montant(n) + ' ' + t('fcfa'); }
+// « de Paul », « d’Emmanuel » ; « by » en anglais.
+function deAuteur(a) {
+  if (!a) return '';
+  if (etat.lang !== 'fr') return t('de') + a;
+  return (/^[aeiouyhàâäéèêëîïôöûüœ]/i.test(a) ? ' d’' : ' de ') + a;
+}
+// Les livres sont en français : en anglais, leurs textes non traduits sont annoncés comme du français.
+function langFr(l, k) { return etat.lang !== 'fr' && !(l[k + '_' + etat.lang] && String(l[k + '_' + etat.lang]).trim()) ? ' lang="fr"' : ''; }
+// Prix court des vignettes : papier, sinon numérique, sinon « Prix sur demande ».
+// Livre publié par APEL Éditions (case Éditeur vide ou mentionnant APEL).
+function deApel(l) { return !l.editeur || /apel/i.test(l.editeur); }
+function prixCourt(l) { return l.prix ? fcfa(l.prix) : l.prix_num ? fcfa(l.prix_num) + ' · ' + t('numeriqueCourt') : t('prixSurDemande'); }
+function lignesLivre(l) {
+  var v = { titre: champ(l, 'titre'), de: deAuteur(l.auteur), prix: l.prix ? fcfa(l.prix) : t('prixAConfirmer') };
+  if (!l.vente) return [t('msgInteretLivre', v)];
+  if (!l.prix && l.prix_num) return [t('msgCommandeNum', { titre: v.titre, de: v.de, prix: fcfa(l.prix_num) })];
+  var lignes = [t('msgCommandeLivre', v)];
+  if (l.prix && l.prix_num) lignes.push(t('msgVersion', { num: fcfa(l.prix_num) }));
+  return lignes.concat([t('msgExemplaires'), t('msgVille')]);
+}
+function carteLivre(l) {
+  var prix = l.vente ? '<span class="couv-prix">' + esc(prixCourt(l)) + '</span>' : '';
+  return '<a class="livre-carte" href="#/livre/' + encodeURIComponent(l.id) + '">' +
+    '<span class="couv" style="padding-top:' + (ratioLivre(l) * 100).toFixed(1) + '%">' + imgCouv(l, 132) + (l.nouveau ? '<span class="badge">' + esc(t('nouveau')) + '</span>' : '') + '</span>' +
+    '<b class="couv-titre"' + langFr(l, 'titre') + '>' + esc(champ(l, 'titre')) + '</b>' + (l.auteur ? '<span class="couv-auteur">' + esc(l.auteur) + '</span>' : '') + prix + '</a>';
+}
+function etagere(livres) {
+  return '<div class="etagere verre"><div class="etagere-rang">' + livres.map(carteLivre).join('') + '</div>' +
+    '<a class="btn btn-verre" href="#/bibliotheque">' + svg('biblio') + esc(t('voirBibliotheque')) + '</a></div>';
+}
+function blocPrixLivre(l) {
+  if (!l.vente) return '';
+  if (!l.prix && !l.prix_num) return '<p class="prix"><strong>' + esc(t('prixSurDemande')) + '</strong></p>';
+  return '<div class="prix prix-livre">' +
+    (l.prix ? '<span><small>' + esc(t('papier')) + '</small><strong>' + fcfa(l.prix) + '</strong></span>' : '') +
+    (l.prix_num ? '<span><small>' + esc(t('numerique')) + '</small><strong>' + fcfa(l.prix_num) + '</strong></span>' : '') + '</div>';
+}
+
 var VUES = {
   accueil: function () {
     var vedettes = etat.d.packs.filter(function (p) { return p.vedette; }).slice(0, 3);
@@ -744,10 +963,12 @@ var VUES = {
       aWa([t('msgGeneral')], t('ecrireWa'), 'btn-verre') + '</div></section>' +
       '<h2>' + esc(t('jeSuis')) + '</h2><div class="profils">' + PROFILS.map(carteProfil).join('') + '</div>' +
       (vedettes.length ? '<h2>' + esc(t('enVedette')) + '</h2><div class="pile">' + vedettes.map(function (x) { return cartePack(x); }).join('') + '</div>' : '') +
+      (etat.d.livres.length ? '<h2>' + esc(t('bibliotheque')) + '</h2>' + etagere(etat.d.livres) : '') +
       '<h2>' + esc(t('mieuxConnaitre')) + '</h2><ul class="liens verre">' +
       lienRapide('#/etapes', 'etapes', t('commentCaMarche'), t('commentCaMarcheD')) +
       lienRapide('#/publier', 'livre', t('publier'), t('publierD')) +
       lienRapide('#/offres', 'grille', t('toutesOffres'), t('toutesOffresD')) +
+      (etat.d.livres.length ? lienRapide('#/bibliotheque', 'biblio', t('bibliotheque'), t('bibliothequeD')) : '') +
       lienRapide('#/realisations', 'etoile', t('realisations'), t((etat.d.temoignages || []).length ? 'realisationsD' : 'realisationsD0')) +
       lienRapide('#/faq', 'question', t('faq'), t('faqD')) +
       lienRapide('#/contact', 'tel', t('contact'), t('contactD')) + '</ul>';
@@ -778,6 +999,7 @@ var VUES = {
       (options.length ? '<div class="verre panneau"><h2 class="h3">' + esc(t('options')) + '</h2><ul class="plus">' + options.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>' : '') +
       '<p class="info">' + svg('info') + '<span>' + esc(t(p.exact ? 'notePrixFerme' : 'notePrix')) + '</span></p>' +
       aWa(lignesPack(p), p.prix ? t('demanderPack') : t('demanderDevis'), 'btn-primaire btn-plein') +
+      (offreVersLivre[p.id] ? '<a class="btn btn-verre btn-plein" href="#/livre/' + encodeURIComponent(offreVersLivre[p.id]) + '">' + svg('livre') + esc(t('voirLivre')) + '</a>' : '') +
       '<button type="button" class="btn btn-verre btn-plein" data-partage="pack:' + esc(p.id) + '">' + svg('partage') + esc(t('partagerPack')) + '</button>' +
       '<a class="btn btn-verre btn-plein" href="#/profil/' + profil + '">' + esc(t('autresOffres')) + '</a>' +
       '</article>';
@@ -806,7 +1028,8 @@ var VUES = {
     var p = g.besoin !== 'autre' ? packParId(g.besoin) : null;
     var lignes = [t('msgProfil') + t('p_' + g.profil), t('msgBesoin') + (p ? (champ(p, 'besoin') || champ(p, 'titre')) : t('autreBesoin')), t('msgQuand') + t(g.quand)];
     if (p) lignes.push(t('msgReco') + champ(p, 'titre') + ' (' + prixTexte(p) + ')');
-    lignes.push(t('msgProjet'));
+    // Offre qui vend un livre : demander directement le nombre d'exemplaires et la ville.
+    if (p && offreVersLivre[p.id]) lignes.push(t('msgExemplaires'), t('msgVille')); else lignes.push(t('msgProjet'));
     return tete + titrePage(t('resultat')) +
       (p ? '<p class="muet intro">' + esc(t('resultatTexte')) + '</p>' + cartePack(p, 2) : '<div class="verre panneau"><p style="margin:0">' + esc(t('resultatSurMesure')) + '</p></div>') +
       '<div class="pile" style="margin-top:14px">' + aWa(lignes, t('envoyerReponses'), 'btn-primaire btn-plein') +
@@ -835,19 +1058,54 @@ var VUES = {
     var tem = (etat.d.temoignages || []).map(function (x) {
       return '<figure class="verre panneau temoin" style="margin:0"><blockquote>« ' + esc(champ(x, 'texte')) + ' »</blockquote><figcaption><cite>' + esc(x.nom || '') + '</cite>' + (champ(x, 'qualite') ? '<span class="muet"> · ' + esc(champ(x, 'qualite')) + '</span>' : '') + '</figcaption></figure>';
     }).join('');
-    var livre = packParId('livre-scenario');
-    var etab = packParId('ecole-livre') || packParId('livre-etablissement');
     return retour() + titrePage(t('realTitre')) + '<div class="pile">' +
-      '<article class="verre panneau"><div class="scene"><div class="livre3d" role="img" tabindex="0" aria-label="' + esc(t('livreTitre')) + '"><span class="dos"></span><span class="tranche"></span><span class="pages"></span>' +
-      '<img src="assets/livre-couverture-264.webp" srcset="assets/livre-couverture-264.webp 264w, assets/livre-couverture.webp 480w" sizes="132px" width="132" height="170" fetchpriority="high" alt=""></div></div><div class="ombre-livre"></div>' +
-      '<div class="livre-infos" style="margin-top:14px"><h2 class="h3">' + esc(t('livreTitre')) + '</h2><p class="muet" style="margin:6px 0 2px">' + esc(t('livreSous')) + '</p><p class="muet" style="margin:0;font-size:14px">' + esc(t('livreAuteur')) + '</p>' +
-      '<p class="muet" style="margin:4px 0 0;font-size:14px">' + esc(t('livreFormat')) + '</p></div>' + (livre ? blocPrix(livre) : '') +
-      '<p class="info">' + svg('info') + '<span>' + esc(t('livreEtude')) + '</span></p>' +
-      '<div class="pile" style="margin-top:12px">' + aWa([t('msgLivre'), t('msgExemplaires'), t('msgVille')], t('commanderLivre'), 'btn-primaire btn-plein') +
-      (etab ? '<a class="btn btn-verre btn-plein" href="#/pack/' + encodeURIComponent(etab.id) + '">' + esc(t('offreEtab')) + '</a>' : '') + '</div></article>' +
+      (etat.d.livres.length ? '<section><h2 class="h3" style="margin:4px 4px 10px">' + esc(t('nosLivres')) + '</h2>' + etagere(etat.d.livres) + '</section>' : '') +
       '<figure class="verre panneau" style="margin:0"><img src="assets/affiche-livre-600.webp" srcset="assets/affiche-livre-600.webp 600w, assets/affiche-livre.webp 720w" sizes="(min-width:600px) 492px, calc(100vw - 68px)" width="720" height="900" loading="lazy" alt="' + esc(t('afficheTitre')) + '" style="border-radius:14px;box-shadow:0 14px 30px -14px rgba(0,0,0,.8)"><figcaption style="margin-top:12px"><b>' + esc(t('afficheTitre')) + '</b><br><span class="muet" style="font-size:14px">' + esc(t('afficheD')) + '</span></figcaption></figure>' +
       (tem ? '<h2>' + esc(t('temoignages')) + '</h2>' + tem : '') +
       '<div class="verre panneau"><h2 class="h3" style="margin-bottom:6px">' + esc(t('votreProjet')) + '</h2><p class="muet">' + esc(t('votreProjetD')) + '</p>' + aWa([t('msgProjet')], t('ecrireWa'), 'btn-primaire btn-plein') + '</div></div>';
+  },
+  bibliotheque: function () {
+    var livres = etat.d.livres;
+    var num = livres.some(function (l) { return l.prix_num || urlSure(l.lien_num); });
+    var tousApel = livres.every(function (l) { return deApel(l) && l.vente; });
+    var intro = (tousApel ? t('bibliothequeIntro') : t('bibliothequeIntroMixte')) + (num ? ' ' + t('bibliothequeIntroNum') : '');
+    return retour() + titrePage(t('bibliotheque'), intro) +
+      (livres.length ? '<div class="rayon">' + livres.map(function (l) { return carteLivre(l).replace('class="livre-carte"', 'class="livre-carte verre"'); }).join('') + '</div>' : '') +
+      '<div class="verre panneau" style="margin-top:22px"><h2 class="h3" style="margin-bottom:6px">' + esc(t('ecrivezVous')) + '</h2><p class="muet">' + esc(t('ecrivezVousD')) + '</p>' +
+      '<a class="btn btn-verre btn-plein" href="#/publier">' + svg('livre') + esc(t('publier')) + '</a></div>';
+  },
+  livre: function (id) {
+    var cle = decoder(id), l = livreParId(cle);
+    if (!l) {
+      var attente = '<p class="muet" aria-busy="true" style="margin:24px 4px">' + esc(t('chargement')) + '</p>';
+      // Données intégrées pas encore arrivées : patienter.
+      if (!etat.donneesVues) return attente;
+      // Livre peut-être ajouté depuis la dernière lecture du tableur : une relecture immédiate, une seule fois.
+      if (CONFIG.livresSheetId && !APERCU && !relusLivres[cle]) {
+        relusLivres[cle] = 1;
+        setTimeout(function () { chargerSheet(true, function () { if (route().nom === 'livre') afficher(true); }); }, 0);
+        return attente;
+      }
+      return VUES.bibliotheque();
+    }
+    var w = 168, h = Math.round(w * ratioLivre(l)), titre = champ(l, 'titre');
+    var num = urlSure(l.lien_num), pk = l.pack && l.vente ? packParId(l.pack) : null;
+    var resume = champ(l, 'resume'), details = champ(l, 'details'), note = champ(l, 'note');
+    return retour('#/bibliotheque') + '<article class="pile fiche-livre">' +
+      '<div class="scene"><div class="livre3d" role="img" tabindex="0" aria-label="' + esc(t('couvertureDe') + titre) + '" style="width:' + w + 'px;height:' + h + 'px">' +
+      '<span class="dos"></span><span class="tranche"></span><span class="pages"></span>' + imgCouv(l, w, true) + '</div></div><div class="ombre-livre" style="width:' + (w + 18) + 'px"></div>' +
+      '<div class="livre-infos">' + (l.nouveau ? '<span class="badge">' + esc(t('nouveau')) + '</span>' : '') + '<h1 class="titre-page"' + langFr(l, 'titre') + '>' + esc(titre) + '</h1>' +
+      (champ(l, 'sous') ? '<p class="muet" style="margin:0 0 4px"' + langFr(l, 'sous') + '>' + esc(champ(l, 'sous')) + '</p>' : '') +
+      '<p class="muet" style="margin:0;font-size:14px">' + esc([l.auteur, l.editeur || 'APEL Éditions', l.annee].filter(Boolean).join(' · ')) + '</p></div>' +
+      blocPrixLivre(l) +
+      (resume ? '<div class="verre panneau"><h2 class="h3" style="margin-bottom:8px">' + esc(t('resume')) + '</h2><p style="margin:0"' + langFr(l, 'resume') + '>' + esc(resume).replace(/\n/g, '<br>') + '</p>' +
+        (details ? '<p class="muet" style="margin:10px 0 0;font-size:14px"' + langFr(l, 'details') + '>' + esc(details) + '</p>' : '') + '</div>' : '') +
+      (note ? '<p class="info">' + svg('info') + '<span' + langFr(l, 'note') + '>' + esc(note) + '</span></p>' : '') +
+      aWa(lignesLivre(l), t(l.vente ? 'commanderWa' : 'livreInteresse'), 'btn-primaire btn-plein') +
+      (num ? '<a class="btn btn-verre btn-plein" href="' + esc(num) + '" target="_blank" rel="noopener">' + svg('web') + esc(t(l.prix_num ? 'obtenirNum' : 'versionNum')) + '</a>' : '') +
+      (pk ? '<a class="btn btn-verre btn-plein" href="#/pack/' + encodeURIComponent(pk.id) + '">' + esc(t('offreEtab')) + '</a>' : '') +
+      '<button type="button" class="btn btn-verre btn-plein" data-partage="livre:' + esc(l.id) + '">' + svg('partage') + esc(t('partagerLivre')) + '</button>' +
+      '<a class="btn btn-verre btn-plein" href="#/bibliotheque">' + esc(t('autresLivres')) + '</a></article>';
   },
   faq: function () {
     var f = (etat.d.faq || []).map(function (x) { return '<details class="verre"><summary>' + esc(champ(x, 'question')) + '</summary><div>' + esc(champ(x, 'reponse')).replace(/\n/g, '<br>') + '</div></details>'; }).join('');
@@ -877,6 +1135,7 @@ function route() {
 }
 function messageBarre(r) {
   if (r.nom === 'pack') { var pk = packParId(decoder(r.arg)); if (pk) return lignesPack(pk); }
+  if (r.nom === 'livre') { var lv = livreParId(decoder(r.arg)); if (lv) return lignesLivre(lv); }
   if (r.nom === 'profil' && PROFILS.indexOf(r.arg) !== -1) return [t('msgProfil') + t('p_' + r.arg), t('msgProjet')];
   return [t('msgGeneral')];
 }
@@ -887,7 +1146,7 @@ function afficher(silencieux, y) {
   if (!etat.pret && !libre) html = '<p class="muet" aria-busy="true" style="margin:24px 4px">' + esc(t('chargement')) + '</p>';
   else { try { html = VUES[r.nom](r.arg); } catch (e) { html = VUES.accueil(); } }
   main.innerHTML = html;
-  document.getElementById('pied').innerHTML = '<p>' + esc(t('pied1')) + '</p><p>' + esc(t('pied2')) + '</p>';
+  document.getElementById('pied').innerHTML = '<p>' + esc(t(r.nom === 'livre' || r.nom === 'bibliotheque' ? 'pied1Livres' : 'pied1')) + '</p><p>' + esc(t('pied2')) + '</p>';
   var wa = document.getElementById('barre-wa');
   wa.href = lienWa(messageBarre(r)); wa.innerHTML = svg('wa') + '<span>' + esc(t('ecrireWa')) + '</span>';
   document.getElementById('barre-partage').innerHTML = svg('partage') + '<span>' + esc(t('partager')) + '</span>';
@@ -895,7 +1154,12 @@ function afficher(silencieux, y) {
   bd.hidden = !b; bd.textContent = b || '';
   var h1 = main.querySelector('h1');
   document.getElementById('vivant').textContent = h1 ? h1.textContent : '';
-  if (silencieux) { window.scrollTo(0, garde); return; }
+  if (silencieux) {
+    window.scrollTo(0, garde);
+    // Le contenu remplacé a emporté le focus : le rendre au titre de la page.
+    if (document.activeElement === document.body && r.nom !== 'accueil' && h1) { h1.setAttribute('tabindex', '-1'); h1.focus({ preventScroll: true }); }
+    return;
+  }
   window.scrollTo(0, y || 0);
   if (r.nom !== 'accueil' && h1) { h1.setAttribute('tabindex', '-1'); h1.focus({ preventScroll: true }); }
 }
@@ -912,9 +1176,9 @@ function changerLangue(l, sansRendu, memoriser) {
 }
 
 /* ---------- Partage ---------- */
-function adressePartage(packId) {
+function adressePartage(packId, livreId) {
   var base = /^https?:/.test(location.protocol) ? location.origin + location.pathname : CONFIG.adresse;
-  return base + '?src=partage' + (etat.lang === 'en' ? '&lang=en' : '') + (packId ? '&pack=' + encodeURIComponent(packId) : '');
+  return base + '?src=partage' + (etat.lang === 'en' ? '&lang=en' : '') + (packId ? '&pack=' + encodeURIComponent(packId) : '') + (livreId ? '&livre=' + encodeURIComponent(livreId) : '');
 }
 function message(txt) {
   var el = document.createElement('div'); el.className = 'toast verre flottant'; el.setAttribute('role', 'status'); el.textContent = txt;
@@ -922,8 +1186,9 @@ function message(txt) {
 }
 function partager(cible) {
   var p = cible && cible.indexOf('pack:') === 0 ? packParId(cible.slice(5)) : null;
-  var url = adressePartage(p ? p.id : '');
-  var texte = p ? t('partagePackTexte') + champ(p, 'titre') : t('partageTexte');
+  var lv = !p && cible && cible.indexOf('livre:') === 0 ? livreParId(cible.slice(6)) : null;
+  var url = adressePartage(p ? p.id : '', lv ? lv.id : '');
+  var texte = p ? t('partagePackTexte') + champ(p, 'titre') : lv ? t(deApel(lv) ? 'partageLivreTexte' : 'partageLivreTexteAutre') + champ(lv, 'titre') : t('partageTexte');
   // Feuille du téléphone sur écran tactile ; sur ordinateur, la feuille de l'appli propose WhatsApp et Facebook.
   var ua = navigator.userAgent || '';
   var mobile = (window.matchMedia && matchMedia('(pointer: coarse)').matches) || /Android|iPhone|iPad|iPod/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
@@ -1007,8 +1272,8 @@ function demarrer() {
   if (window.APEL_DEFAUT || (sh && sh.packs && sh.packs.length)) prendre(fusion(window.APEL_DEFAUT, sh));
 
   etat.lang = langue(params.get('lang')) || langue(stock('apel-langue')) || ((navigator.language || 'fr').slice(0, 2) === 'en' ? 'en' : 'fr');
-  var pk = params.get('pack');
-  if (pk && !location.hash) { try { history.replaceState(null, '', location.pathname + location.search + '#/pack/' + encodeURIComponent(pk)); } catch (e) {} }
+  var pk = params.get('pack'), lp = params.get('livre');
+  if ((pk || lp) && !location.hash) { try { history.replaceState(null, '', location.pathname + location.search + (pk ? '#/pack/' + encodeURIComponent(pk) : '#/livre/' + encodeURIComponent(lp))); } catch (e) {} }
   pile = [location.hash || '#/'];
 
   document.addEventListener('click', function (e) {
@@ -1018,6 +1283,10 @@ function demarrer() {
     if (b) { changerLangue(b.getAttribute('data-lang'), false, true); return; }
     var rt = e.target.closest('a.retour');
     if (rt && pile.length > 1) { e.preventDefault(); history.back(); return; }
+    // Arrivée directe (lien partagé) : l'écran parent remplace l'écran d'arrivée, pour que « Retour » mène ensuite à l'accueil.
+    if (rt) { e.preventDefault(); pile = []; location.replace(rt.getAttribute('href') || '#/'); return; }
+    var lienContenu = e.target.closest('#contenu a[href^="#/"]');
+    if (lienContenu) dernierLien = lienContenu.getAttribute('href');
     var g = e.target.closest('[data-guide]');
     if (g) {
       var k = g.getAttribute('data-guide'), v = g.getAttribute('data-val');
@@ -1028,19 +1297,31 @@ function demarrer() {
     }
     var s = e.target.closest('[data-partage]');
     if (s) { partager(s.getAttribute('data-partage')); return; }
-    if (e.target.closest('#barre-partage')) { var rr = route(); partager(rr.nom === 'pack' ? 'pack:' + decoder(rr.arg) : ''); }
+    if (e.target.closest('#barre-partage')) { var rr = route(); partager(rr.nom === 'pack' ? 'pack:' + decoder(rr.arg) : rr.nom === 'livre' ? 'livre:' + decoder(rr.arg) : ''); }
   });
   window.addEventListener('hashchange', function () {
-    positions[pile[pile.length - 1]] = window.scrollY;
+    var depart = pile[pile.length - 1];
+    positions[depart] = window.scrollY;
+    positions[depart + '|etagere'] = [].map.call(document.querySelectorAll('.etagere-rang'), function (x) { return x.scrollLeft; });
+    positions[depart + '|lien'] = dernierLien;
     var h = location.hash || '#/';
     var arriere = pile.length > 1 && pile[pile.length - 2] === h;
     if (arriere) pile.pop(); else pile.push(h);
     afficher(false, arriere ? positions[h] : 0);
+    if (arriere) {
+      // Retour : l'étagère revient où on l'avait laissée et le focus sur la vignette ouverte.
+      var rangs = document.querySelectorAll('.etagere-rang'), g = positions[h + '|etagere'] || [];
+      [].forEach.call(rangs, function (x, i) { if (g[i]) x.scrollLeft = g[i]; });
+      var lien = positions[h + '|lien'], cible = null;
+      if (lien) [].forEach.call(document.querySelectorAll('#contenu a'), function (a) { if (!cible && a.getAttribute('href') === lien) cible = a; });
+      if (cible) cible.focus({ preventScroll: true });
+    }
   });
   changerLangue(etat.lang, true);
   afficher();
   activerInclinaison();
   quandDonnees(function (d) {
+    etat.donneesVues = true;
     var avant = etat.pret ? JSON.stringify(etat.d) : '';
     if (d) prendre(fusion(d, sh)); else etat.pret = true;
     if (JSON.stringify(etat.d) !== avant) afficher(true);

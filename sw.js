@@ -1,6 +1,6 @@
 // Mise en cache pour un chargement rapide et un usage hors connexion.
 // Changer VERSION à chaque publication (garder le préfixe apel-offres-) pour que les téléphones récupèrent la nouvelle version.
-const VERSION = 'apel-offres-v5';
+const VERSION = 'apel-offres-v6';
 // Indispensables : sans eux, pas d'installation. Les autres sont mis en cache s'ils existent.
 const ESSENTIELS = ['index.html', 'donnees.js'];
 const SECONDAIRES = ['assets/logo-96.webp', 'assets/logo-192.webp',
@@ -32,9 +32,17 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
+  let avantBibliotheque = false;
   e.waitUntil(caches.keys()
-    .then(cles => Promise.all(cles.filter(k => k.indexOf('apel-offres-') === 0 && k !== VERSION).map(k => caches.delete(k))))
-    .then(() => self.clients.claim()));
+    .then(cles => {
+      // Versions antérieures à la bibliothèque (v1 à v5) : elles ne connaissent pas les liens ?livre=.
+      avantBibliotheque = cles.some(k => /^apel-offres-v[1-5]$/.test(k));
+      return Promise.all(cles.filter(k => k.indexOf('apel-offres-') === 0 && k !== VERSION).map(k => caches.delete(k)));
+    })
+    .then(() => self.clients.claim())
+    .then(() => avantBibliotheque ? self.clients.matchAll({ type: 'window' }) : [])
+    // Une page ouverte par un lien de livre avec l'ancienne version est rechargée avec la nouvelle.
+    .then(fen => Promise.all(fen.filter(c => /[?&]livre=/.test(c.url)).map(c => c.navigate(c.url).catch(() => {})))));
 });
 
 function estPageAppli(url) {
@@ -108,7 +116,9 @@ self.addEventListener('fetch', e => {
     return;
   }
   e.respondWith(caches.match(req).then(r => r || fetch(req).then(res => {
-    if (!retire && res.ok && res.type === 'basic') { const copie = propre(res.clone()); caches.open(VERSION).then(c => retire ? null : c.put(req, copie)); }
+    // Jamais une page HTML à la place d'un fichier (Cloudflare répond par la page d'accueil quand un fichier manque).
+    const html = (res.headers.get('content-type') || '').indexOf('text/html') !== -1;
+    if (!retire && res.ok && res.type === 'basic' && !html) { const copie = propre(res.clone()); caches.open(VERSION).then(c => retire ? null : c.put(req, copie)); }
     return res;
   })));
 });
