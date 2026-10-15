@@ -1,6 +1,6 @@
 // Mise en cache pour un chargement rapide et un usage hors connexion.
 // Changer VERSION à chaque publication (garder le préfixe apel-offres-) pour que les téléphones récupèrent la nouvelle version.
-const VERSION = 'apel-offres-v6';
+const VERSION = 'apel-offres-v7';
 // Indispensables : sans eux, pas d'installation. Les autres sont mis en cache s'ils existent.
 const ESSENTIELS = ['index.html', 'donnees.js'];
 const SECONDAIRES = ['assets/logo-96.webp', 'assets/logo-192.webp',
@@ -102,11 +102,23 @@ function cacheDAbord(e, cle, type) {
   return enCache.then(copie => copie || reseau);
 }
 
+// Page relais d'un lien partagé (/l/<code> livre, /o/<code> offre) : hors connexion, on ouvre directement l'appli.
+function adresseHorsLigne(url) {
+  const m = url.pathname.match(/\/(l|o)\/([^/]+)\/?$/);
+  if (!m) return null;
+  const p = new URLSearchParams(url.search);
+  if (!p.has('src')) p.set('src', 'partage');
+  p.set(m[1] === 'l' ? 'livre' : 'pack', decodeURIComponent(m[2]));
+  return new URL('./?' + p.toString(), self.registration.scope).href;
+}
+
 self.addEventListener('fetch', e => {
   const req = e.request;
   const url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== self.location.origin) return;
   if (req.mode === 'navigate') {
+    const horsLigne = adresseHorsLigne(url);
+    if (horsLigne) { e.respondWith(fetch(req).catch(() => Response.redirect(horsLigne, 302))); return; }
     if (estPageAppli(url)) e.respondWith(cacheDAbord(e, 'index.html', 'text/html'));
     else e.respondWith(fetch(req).catch(() => caches.match('index.html')));
     return;

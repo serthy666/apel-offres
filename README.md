@@ -7,5 +7,6 @@ Adresse : **https://apel-offres.pages.dev/** (publiée par Cloudflare Pages à c
 L'ancienne adresse https://serthy666.github.io/apel-offres/ renvoie vers la nouvelle : certains opérateurs, dont Orange Cameroun, bloquent les adresses `github.io`.
 
 - Les offres et les prix se modifient dans le Google Sheet « APEL – Offres de l'appli (prix à modifier ici) », sans toucher à ce dépôt.
+- Le dossier `functions/` produit les liens partagés `/l/<code>` (livre) et `/o/<code>` (offre) : aperçu WhatsApp et Facebook avec la couverture, le titre et le prix, puis ouverture de la fiche dans l'appli.
 - Ce dépôt est public : il ne doit contenir que les fichiers du site, jamais de manuscrit, de contrat ni de données de client.
 - Avant chaque nouvelle publication des fichiers, changer `VERSION` dans `sw.js`.

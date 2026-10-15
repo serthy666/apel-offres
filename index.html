@@ -1176,9 +1176,14 @@ function changerLangue(l, sansRendu, memoriser) {
 }
 
 /* ---------- Partage ---------- */
+// Un livre ou une offre se partage par une page relais (/l/<code>, /o/<code>) qui donne à WhatsApp et Facebook
+// l'aperçu du livre ou de l'offre (titre, prix, couverture), puis ouvre l'appli. Voir functions/_partage.js.
 function adressePartage(packId, livreId) {
   var base = /^https?:/.test(location.protocol) ? location.origin + location.pathname : CONFIG.adresse;
-  return base + '?src=partage' + (etat.lang === 'en' ? '&lang=en' : '') + (packId ? '&pack=' + encodeURIComponent(packId) : '') + (livreId ? '&livre=' + encodeURIComponent(livreId) : '');
+  var racine = base.replace(/[^\/]*$/, ''), q = '?src=partage' + (etat.lang === 'en' ? '&lang=en' : '');
+  if (livreId) return racine + 'l/' + encodeURIComponent(livreId) + q;
+  if (packId) return racine + 'o/' + encodeURIComponent(packId) + q;
+  return base + q;
 }
 function message(txt) {
   var el = document.createElement('div'); el.className = 'toast verre flottant'; el.setAttribute('role', 'status'); el.textContent = txt;
