@@ -1,0 +1,15 @@
+{
+  "name": "APEL Éditions · Nos offres",
+  "short_name": "APEL Offres",
+  "description": "Packs, prix et démarches d'APEL Éditions. Devis gratuit sur WhatsApp.",
+  "lang": "fr",
+  "start_url": "./?src=appli",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#063D2C",
+  "theme_color": "#063D2C",
+  "icons": [
+    { "src": "assets/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>APEL Éditions · Nos offres</title>
+<meta name="description" content="Packs, prix et démarches d'APEL Éditions (Yaoundé) : édition de livres, formation à l'IA, communication. Demandez votre devis sur WhatsApp.">
+<meta name="theme-color" content="#063D2C">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://serthy666.github.io/apel-offres/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="APEL Éditions">
+<meta property="og:title" content="APEL Éditions · Nos offres en 1 minute">
+<meta property="og:description" content="Publier un livre, se former à l'IA, communiquer : trouvez votre pack, voyez les prix et écrivez-nous sur WhatsApp.">
+<meta property="og:url" content="https://serthy666.github.io/apel-offres/">
+<meta property="og:image" content="https://serthy666.github.io/apel-offres/assets/apercu-partage.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="APEL Éditions : nos offres en 1 minute">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:locale:alternate" content="en_GB">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/icone-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preload" href="polices/inter-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="polices/inter-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<script src="donnees.js" async id="s-donnees"></script>
+<style>
+@font-face{font-family:"Inter APEL";src:url("polices/inter-Regular.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Inter APEL";src:url("polices/inter-SemiBold.woff2") format("woff2");font-weight:600 700;font-display:swap}
+@font-face{font-family:"Inter APEL";src:url("polices/inter-ExtraBold.woff2") format("woff2");font-weight:800 900;font-display:swap}
+
+:root{
+  /* Charte APEL : vert, jaune, rouge (affiche et fiche produit), encre, police Inter */
+  --vert:#0B6E4F;--vert-vif:#1FB384;--vert-fonce:#063D2C;--vert-nuit:#03251B;
+  --jaune:#F2B705;--jaune-clair:#FFD34D;--jaune-fonce:#D69A00;
+  --rouge:#C0392B;--rouge-clair:#E2574A;--encre:#1F2A37;
+  --texte:#FFFFFF;--texte-2:rgba(255,255,255,.92);--texte-3:rgba(255,255,255,.80);
+  --filet:rgba(255,255,255,.12);
+  --r:22px;--r-grand:28px;
+  --police:"Inter APEL",Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  /* Verre fumé : reflet, teinte claire, fumée sombre (garde le texte blanc lisible) */
+  --verre:radial-gradient(140% 90% at 0% 0%,rgba(255,255,255,.17),rgba(255,255,255,0) 52%),
+          linear-gradient(150deg,rgba(255,255,255,.11),rgba(255,255,255,.03) 48%,rgba(255,255,255,.06)),
+          linear-gradient(rgba(2,32,23,.46),rgba(2,32,23,.46));
+  --relief:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -12px 24px -14px rgba(0,0,0,.45),0 22px 44px -22px rgba(0,0,0,.75),0 4px 10px -3px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:88px;scroll-padding-bottom:96px;scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom));background:var(--vert-nuit)}
+body{margin:0;color:var(--texte);font-family:var(--police);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;background:transparent}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--jaune-clair)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--jaune);outline-offset:3px;border-radius:12px}
+h1[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sr:focus{position:fixed;left:16px;top:16px;width:auto;height:auto;clip:auto;z-index:99;background:var(--jaune);color:var(--encre);padding:10px 14px;border-radius:12px;font-weight:700}
+
+/* Décor : fond vert profond et halos aux couleurs de la charte (fixe, sans animation pour économiser la batterie) */
+.decor{position:fixed;top:0;right:0;bottom:0;left:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(55vmax 55vmax at 92% -8%,rgba(242,183,5,.18),rgba(242,183,5,0) 62%),
+    radial-gradient(48vmax 48vmax at -12% 38%,rgba(192,57,43,.20),rgba(192,57,43,0) 62%),
+    radial-gradient(70vmax 70vmax at 108% 88%,rgba(31,179,132,.42),rgba(31,179,132,0) 62%),
+    radial-gradient(40vmax 40vmax at 20% 105%,rgba(242,183,5,.12),rgba(242,183,5,0) 60%),
+    linear-gradient(168deg,#0A6447 0%,#095C42 26%,#063D2C 68%,#03251B 100%)}
+
+/* Verre liquide : surface fumée, reflet en haut à gauche, liseré lumineux qui réfracte sur les bords */
+.verre{position:relative;background:var(--verre);border-radius:var(--r);box-shadow:var(--relief)}
+.verre::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(150deg,rgba(255,255,255,.75),rgba(255,255,255,.14) 28%,rgba(255,255,255,.04) 60%,rgba(255,255,255,.38));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+/* Éléments flottants : vrai flou d'arrière-plan (limité à l'en-tête, la barre du bas et les fenêtres) */
+.flottant{background:radial-gradient(140% 120% at 0% 0%,rgba(255,255,255,.16),rgba(255,255,255,0) 55%),linear-gradient(rgba(3,38,27,.58),rgba(3,38,27,.58));
+  -webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%)}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){.flottant{background:linear-gradient(rgba(4,44,32,.96),rgba(4,44,32,.96))}}
+.panneau{padding:18px}
+
+/* En-tête flottant en capsule */
+.entete{position:sticky;top:0;z-index:20;padding:10px 12px 0}
+.entete-in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:6px 6px 6px 7px;border-radius:999px}
+.marque{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--texte);min-width:0;flex:1}
+.marque img{width:40px;height:40px;border-radius:50%;flex:none;box-shadow:0 0 0 1.5px rgba(255,255,255,.55),0 6px 14px -4px rgba(0,0,0,.6)}
+.marque b{display:block;font-size:15px;font-weight:800;letter-spacing:.08em;line-height:1.1}
+.marque span{display:block;font-size:12px;color:var(--texte-2);line-height:1.25}
+.langues{display:flex;gap:2px;background:rgba(0,0,0,.28);border-radius:999px;padding:3px;flex:none;box-shadow:inset 0 1px 2px rgba(0,0,0,.4)}
+.langues button{position:relative;border:0;background:none;padding:7px 12px;border-radius:999px;font-size:13px;font-weight:800;cursor:pointer;color:var(--texte-2);min-height:34px;min-width:44px}
+.langues button::before{content:"";position:absolute;top:-5px;bottom:-5px;left:-1px;right:-1px}
+.langues button[aria-pressed="true"]{color:var(--encre);background:radial-gradient(120% 90% at 50% -10%,rgba(255,255,255,.7),rgba(255,255,255,0) 55%),linear-gradient(180deg,var(--jaune-clair),var(--jaune) 55%,var(--jaune-fonce));box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 3px 8px -2px rgba(242,183,5,.6)}
+.bandeau{max-width:560px;margin:8px auto 0;padding:9px 16px;border-radius:999px;text-align:center;font-size:14px;font-weight:700;color:var(--encre);
+  background:radial-gradient(120% 120% at 50% -30%,rgba(255,255,255,.6),rgba(255,255,255,0) 55%),linear-gradient(180deg,var(--jaune-clair),var(--jaune));box-shadow:0 8px 20px -10px rgba(242,183,5,.8)}
+
+/* Mise en page */
+main{max-width:560px;margin:0 auto;padding:18px 16px 112px;padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+h1,h2,h3{line-height:1.18;margin:0;font-weight:800;letter-spacing:-.015em}
+h1{font-size:28px}
+h2{font-size:20px;margin:30px 4px 12px}
+h3,.h3{font-size:17px;margin:0;letter-spacing:-.01em}
+p{margin:0 0 10px}
+.muet{color:var(--texte-2);font-size:15px}
+.retour{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;text-decoration:none;margin:0 0 14px;padding:8px 14px 8px 10px;min-height:44px;border-radius:999px;color:var(--texte)}
+.pile>*+*{margin-top:12px}
+.titre-page{margin:2px 4px 6px}
+.intro{margin:0 4px 16px}
+
+/* Héros */
+.heros{border-radius:var(--r-grand);padding:24px 20px 22px;margin-top:22px}
+.heros::before{content:"";position:absolute;left:26px;right:26px;top:0;height:3px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,var(--vert-vif) 0 33.3%,var(--rouge-clair) 33.3% 66.6%,var(--jaune) 66.6%)}
+.orbe-logo{position:absolute;top:-22px;right:-4px;width:84px;height:84px;border-radius:50%;background:#000 url("assets/logo-192.webp") center/cover;
+  box-shadow:0 0 0 2px rgba(255,255,255,.35),0 18px 30px -12px rgba(0,0,0,.85),0 0 40px -6px rgba(242,183,5,.35);transform:rotate(-6deg)}
+.orbe-logo::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;border-radius:50%;
+  background:radial-gradient(circle at 30% 22%,rgba(255,255,255,.75),rgba(255,255,255,.12) 26%,rgba(255,255,255,0) 42%),radial-gradient(circle at 70% 115%,rgba(255,255,255,.28),rgba(255,255,255,0) 45%);
+  box-shadow:inset 0 -8px 14px rgba(0,0,0,.45),inset 0 2px 3px rgba(255,255,255,.35)}
+.etiquette{display:inline-block;max-width:calc(100% - 84px);color:var(--encre);font-weight:800;font-size:12px;letter-spacing:.07em;padding:6px 12px;border-radius:999px;text-transform:uppercase;
+  background:radial-gradient(120% 120% at 50% -30%,rgba(255,255,255,.65),rgba(255,255,255,0) 55%),linear-gradient(180deg,var(--jaune-clair),var(--jaune) 60%,var(--jaune-fonce));box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 6px 14px -6px rgba(242,183,5,.8)}
+.heros h1{margin:16px 0 10px;font-size:30px;text-shadow:0 2px 18px rgba(0,0,0,.35)}
+.heros h1 em{font-style:normal;color:var(--jaune-clair)}
+.heros p{color:var(--texte-2);margin-bottom:18px}
+.heros .boutons{display:flex;flex-wrap:wrap;gap:10px}
+
+/* Boutons 3D */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:12px 20px;border-radius:999px;font-weight:800;font-size:16px;text-decoration:none;border:0;cursor:pointer;line-height:1.2;text-align:center;transition:transform .15s ease,box-shadow .15s ease,filter .15s ease;-webkit-tap-highlight-color:transparent}
+.btn svg{width:20px;height:20px;flex:none}
+.btn-primaire{color:var(--encre);
+  background:radial-gradient(120% 85% at 50% -25%,rgba(255,255,255,.7),rgba(255,255,255,0) 55%),linear-gradient(180deg,var(--jaune-clair) 0%,var(--jaune) 52%,var(--jaune-fonce) 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 -3px 7px rgba(130,84,0,.38),0 12px 24px -10px rgba(242,183,5,.85),0 4px 8px -2px rgba(0,0,0,.45)}
+.btn-verre{color:var(--texte);background:var(--verre);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 10px 22px -12px rgba(0,0,0,.8)}
+.btn-verre::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;border-radius:inherit;padding:1px;pointer-events:none;background:linear-gradient(150deg,rgba(255,255,255,.7),rgba(255,255,255,.12) 35%,rgba(255,255,255,.05) 65%,rgba(255,255,255,.35));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.btn-plein{width:100%}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(2px) scale(.985);filter:brightness(.97)}
+.btn-primaire:active{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -1px 4px rgba(130,84,0,.4),0 5px 12px -6px rgba(242,183,5,.8),0 2px 4px -1px rgba(0,0,0,.45)}
+
+/* Sphères 3D (icônes) */
+.orbe{position:relative;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff;
+  background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.9) 0 5%,rgba(255,255,255,.32) 13%,rgba(255,255,255,0) 30%),radial-gradient(circle at 50% 118%,rgba(255,255,255,.38),rgba(255,255,255,0) 48%),radial-gradient(circle at 45% 40%,var(--c1),var(--c2) 78%);
+  box-shadow:inset 0 -7px 12px rgba(0,0,0,.38),inset 0 2px 3px rgba(255,255,255,.35),0 10px 18px -8px rgba(0,0,0,.7)}
+.orbe svg{width:22px;height:22px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.o-vert{--c1:#2BC795;--c2:#0A5E43}
+.o-jaune{--c1:#FFDA5C;--c2:#C98F00;color:var(--encre)}
+.o-jaune svg{filter:none}
+.o-rouge{--c1:#EB6A5D;--c2:#962619}
+.orbe.petit{width:36px;height:36px}
+.orbe.petit svg{width:19px;height:19px}
+
+/* Profils */
+.profils{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.profil{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-decoration:none;color:var(--texte);padding:16px 14px;min-height:126px;transition:transform .2s ease}
+.profil b{font-size:15px;line-height:1.25}
+.profil span{font-size:13px;color:var(--texte-2);line-height:1.35}
+
+/* Liste de liens */
+.liens{list-style:none;margin:0;padding:4px 0}
+.liens li+li{border-top:1px solid var(--filet)}
+.liens a{display:flex;align-items:center;gap:12px;padding:12px 14px;text-decoration:none;color:var(--texte);min-height:62px}
+.liens a b{display:block;font-size:15px}
+.liens a span span{display:block;font-size:13px;color:var(--texte-2)}
+.liens .fl{margin-left:auto;color:var(--texte-3);display:flex}
+
+/* Packs */
+.pack{padding:18px;transition:transform .2s ease}
+.pack.vedette{box-shadow:var(--relief),0 0 0 1px rgba(242,183,5,.55),0 0 36px -10px rgba(242,183,5,.55)}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.03em;color:var(--encre);border-radius:999px;padding:4px 10px;margin-bottom:10px;
+  background:radial-gradient(120% 120% at 50% -30%,rgba(255,255,255,.6),rgba(255,255,255,0) 55%),linear-gradient(180deg,var(--jaune-clair),var(--jaune));box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}
+.pack h3,.pack .h3{margin-bottom:6px}
+.pack .accroche{color:var(--texte-2);font-size:15px}
+.prix{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;margin:12px 0 14px;padding:10px 14px;border-radius:16px;
+  background:linear-gradient(135deg,rgba(242,183,5,.15),rgba(242,183,5,.05)),linear-gradient(rgba(2,32,23,.25),rgba(2,32,23,.25));box-shadow:inset 0 0 0 1px rgba(242,183,5,.5),inset 0 1px 0 rgba(255,255,255,.18)}
+.prix small{font-size:13px;color:#fff}
+.prix strong{font-size:22px;font-weight:800;color:var(--jaune-clair);letter-spacing:-.01em;text-shadow:0 0 18px rgba(242,183,5,.35)}
+.prix .unite{font-size:14px;color:#fff}
+.pack .actions{display:grid;grid-template-columns:1fr 1.45fr;gap:8px}
+.pack .actions .btn{min-height:48px;padding:10px 12px;font-size:15px}
+
+.coche{list-style:none;margin:10px 0 0;padding:0}
+.coche li{position:relative;padding:6px 0 6px 32px}
+.coche li::before{content:"";position:absolute;left:0;top:7px;width:22px;height:22px;border-radius:50%;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4L18 8'/%3E%3C/svg%3E") center/13px no-repeat,radial-gradient(circle at 32% 26%,rgba(255,255,255,.7) 0 6%,rgba(255,255,255,0) 32%),radial-gradient(circle at 45% 40%,#2BC795,#0A5E43 80%);
+  box-shadow:inset 0 -3px 5px rgba(0,0,0,.3),0 3px 6px -2px rgba(0,0,0,.5)}
+.info{display:flex;gap:10px;align-items:flex-start;padding:14px;border-radius:18px;font-size:14px;color:var(--texte-2);background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.03)),linear-gradient(rgba(2,32,23,.35),rgba(2,32,23,.35));box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.info svg{width:20px;height:20px;flex:none;color:var(--jaune-clair);margin-top:1px}
+.ligne{display:block;padding:11px 0;border-top:1px solid var(--filet);font-size:15px}
+.ligne:first-child{border-top:0;padding-top:0}
+.ligne:last-child{padding-bottom:0}
+.ligne span{display:block}
+.ligne span:first-child{color:var(--texte-2);font-size:14px}
+.ligne span:last-child{font-weight:600;margin-top:2px}
+.plus{list-style:none;margin:8px 0 0;padding:0}
+.plus li{position:relative;padding:5px 0 5px 26px;color:var(--texte-2)}
+.plus li::before{content:"+";position:absolute;left:4px;top:3px;font-weight:800;font-size:18px;color:var(--jaune-clair)}
+
+/* Étapes : pièces 3D numérotées */
+.etapes{list-style:none;margin:0;padding:0;counter-reset:e}
+.etapes li{position:relative;padding:0 0 20px 56px;counter-increment:e}
+.etapes li::before{content:counter(e);position:absolute;left:0;top:0;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:var(--encre);
+  background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.9) 0 5%,rgba(255,255,255,.3) 14%,rgba(255,255,255,0) 32%),radial-gradient(circle at 45% 40%,#FFDA5C,#C98F00 80%);
+  box-shadow:inset 0 -5px 9px rgba(0,0,0,.3),inset 0 2px 3px rgba(255,255,255,.4),0 8px 16px -6px rgba(0,0,0,.7)}
+.etapes li::after{content:"";position:absolute;left:19px;top:44px;bottom:4px;width:2px;border-radius:2px;background:linear-gradient(rgba(255,255,255,.35),rgba(255,255,255,.08))}
+.etapes li:last-child::after{display:none}
+.etapes b{display:block;font-size:16px;margin:8px 0 2px}
+.etapes span{font-size:15px;color:var(--texte-2)}
+.puces{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px;padding:0;list-style:none}
+.puces li{border-radius:999px;padding:7px 13px;font-size:14px;font-weight:700;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),inset 0 1px 0 rgba(255,255,255,.2)}
+.cinquante{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.cinquante div{border-radius:18px;padding:14px 10px;text-align:center;background:linear-gradient(135deg,rgba(242,183,5,.2),rgba(242,183,5,.05));box-shadow:inset 0 0 0 1px rgba(242,183,5,.45)}
+.cinquante strong{display:block;font-size:28px;font-weight:800;color:var(--jaune-clair)}
+.cinquante span{font-size:14px;color:var(--texte-2)}
+
+/* Voies de publication */
+.voie .h3{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+
+/* Guide */
+.progres{height:8px;border-radius:99px;overflow:hidden;margin:6px 0 16px;background:rgba(0,0,0,.3);box-shadow:inset 0 1px 2px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.08)}
+.progres i{display:block;height:100%;border-radius:99px;transition:width .3s ease;background:linear-gradient(180deg,var(--jaune-clair),var(--jaune) 60%,var(--jaune-fonce));box-shadow:0 0 12px rgba(242,183,5,.6)}
+.choix{display:grid;gap:10px;margin-top:16px}
+.choix button{display:flex;align-items:center;gap:12px;text-align:left;width:100%;border:0;padding:12px 14px;min-height:62px;cursor:pointer;font-size:16px;font-weight:700;color:var(--texte);border-radius:20px;transition:transform .15s ease}
+.choix button:active{transform:scale(.985)}
+
+/* Livre en 3D */
+.scene{perspective:900px;display:flex;justify-content:center;padding:6px 0 14px}
+.livre3d{position:relative;width:132px;height:170px;transform-style:preserve-3d;transform:rotateY(-28deg) rotateX(6deg);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.livre3d:hover,.livre3d:focus-within{transform:rotateY(-10deg) rotateX(2deg)}
+.livre3d img{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;border-radius:2px 6px 6px 2px;transform:translateZ(11px);box-shadow:inset 3px 0 6px rgba(0,0,0,.3)}
+.livre3d .pages{position:absolute;top:4px;bottom:4px;left:calc(100% - 11px);width:22px;transform:rotateY(90deg);background:repeating-linear-gradient(90deg,#FBFBF6 0 1px,#E2E2DA 1px 2px)}
+.livre3d .dos{position:absolute;top:0;right:0;bottom:0;left:0;border-radius:6px 2px 2px 6px;background:#073F2D;transform:translateZ(-11px)}
+.livre3d .tranche{position:absolute;top:0;bottom:0;left:-11px;width:22px;transform:rotateY(-90deg);background:linear-gradient(90deg,#052E21,#0B6E4F)}
+.ombre-livre{width:150px;height:18px;margin:-6px auto 0;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),rgba(0,0,0,0))}
+.livre-infos{text-align:center}
+.temoin blockquote{margin:0 0 8px;font-style:italic}
+.temoin cite{font-style:normal;font-weight:800;font-size:14px}
+
+/* FAQ */
+details{border-radius:20px}
+details+details{margin-top:10px}
+summary{cursor:pointer;list-style:none;padding:15px 48px 15px 16px;font-weight:700;position:relative;min-height:54px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:24px;font-weight:600;color:var(--jaune-clair);line-height:1}
+details[open] summary::after{content:"–"}
+details>div{padding:0 16px 16px;color:var(--texte-2)}
+
+/* Barre flottante du bas */
+.barre{position:fixed;left:12px;right:12px;bottom:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:30}
+.barre-in{max-width:536px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:8px;padding:7px;border-radius:999px}
+.barre .btn{min-height:50px;padding:10px 16px;font-size:15px;gap:6px}
+
+/* Fenêtre de partage */
+.voile{position:fixed;top:0;right:0;bottom:0;left:0;z-index:40;background:rgba(1,16,11,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.feuille{width:100%;max-width:536px;border-radius:var(--r-grand);padding:20px 16px 18px;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+.feuille h2{margin:0 0 14px}
+.feuille .pile .btn{width:100%}
+
+.pied{max-width:560px;margin:0 auto;padding:8px 20px 110px;padding-bottom:calc(110px + env(safe-area-inset-bottom));font-size:13px;color:var(--texte-3);text-align:center}
+.pied p{margin:4px 0}
+.toast{position:fixed;left:50%;bottom:90px;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);padding:11px 18px;border-radius:999px;font-size:14px;font-weight:700;z-index:50}
+
+/* Inclinaison 3D au survol (ordinateur uniquement) */
+@media (hover:hover) and (pointer:fine){.inclinable{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}}
+@media (max-width:379px){#barre-partage span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}#barre-partage{padding:10px 14px}}
+@media (max-width:340px){.marque b{letter-spacing:.04em}.pack .actions .btn svg{display:none}}
+@media (orientation:landscape) and (max-height:480px){.entete{position:static}.voile{overflow-y:auto;align-items:flex-start}}
+
+@media (min-width:600px){h1{font-size:32px}.heros h1{font-size:36px}main{padding-top:26px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.livre3d{transform:rotateY(-20deg)}}
+@media (prefers-reduced-transparency:reduce){
+  .verre,.btn-verre{background:#0A4B37}.flottant{background:#073F2D;-webkit-backdrop-filter:none;backdrop-filter:none}
+  .decor{background:#063D2C}}
+</style>
+</head>
+<body>
+<div class="decor" aria-hidden="true"></div>
+<a class="sr" href="#contenu">Aller au contenu</a>
+<header class="entete">
+  <div class="entete-in verre flottant">
+    <a class="marque" href="#/" id="lien-accueil">
+      <img src="assets/logo-96.webp" width="40" height="40" alt="">
+      <span><b>APEL ÉDITIONS</b><span id="sous-titre">Yaoundé · Cameroun</span></span>
+    </a>
+    <div class="langues" role="group" aria-label="Langue / Language">
+      <button type="button" data-lang="fr" aria-pressed="true">FR</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+  <div class="bandeau" id="bandeau" hidden></div>
+</header>
+
+<main id="contenu" tabindex="-1">
+  <noscript>
+    <div class="verre panneau">
+      <h1>APEL Éditions</h1>
+      <p>Édition de livres, formation à l'IA et communication, à Yaoundé.</p>
+      <p><a class="btn btn-primaire" href="https://wa.me/237693779364">Écrire sur WhatsApp</a></p>
+    </div>
+  </noscript>
+</main>
+
+<footer class="pied" id="pied"></footer>
+
+<nav class="barre" aria-label="Actions">
+  <div class="barre-in verre flottant">
+    <a class="btn btn-primaire" id="barre-wa" href="https://wa.me/237693779364" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.5-2-1-1 .8c-1-.4-1.8-1.2-2.2-2.2l.8-1-1-2z"/></svg><span>Écrire sur WhatsApp</span></a>
+    <button class="btn btn-verre" id="barre-partage" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg><span>Partager</span></button>
+  </div>
+</nav>
+
+<div id="vivant" class="sr" aria-live="polite"></div>
+
+<script>
+(function () {
+'use strict';
+
+/* ---------- Réglages techniques ---------- */
+var CONFIG = {
+  // Identifiant du Google Sheet (la partie entre /d/ et /edit dans son adresse). Vide = contenu intégré.
+  sheetId: '1Cgaxi_SWzB9NGhl9LkeGCm_gDmgx2y4H-hVEi2Ed7o8',
+  // Onglet des offres : 0 = premier onglet du tableur (quel que soit son nom). Les autres onglets sont facultatifs.
+  onglets: { packs: 0, faq: 'FAQ', temoignages: 'Temoignages', reglages: 'Reglages' },
+  delaiSheetMs: 7000,
+  // Délai minimal entre deux lectures du Google Sheet sur un même téléphone (1 heure).
+  rafraichirMs: 3600000,
+  adresse: 'https://serthy666.github.io/apel-offres/'
+};
+var APERCU = !!window.APEL_APERCU;
+
+/* ---------- Icônes ---------- */
+var IC = {
+  auteur: '<path d="M20 4C13 4 8.5 8.5 7 15l-2.5 5 4.6-2.4C15.5 16 20 11 20 4z"/><path d="M7 15l6-6"/>',
+  enseignant: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3.5 2.5 8.5 2.5 12 0v-5"/><path d="M22 9v6"/>',
+  ecole: '<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/><path d="M12 9.5h.01"/>',
+  entreprise: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/>',
+  association: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15 14.5c3 0 6 1.8 6 5"/>',
+  particulier: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>',
+  wa: '<path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.5-2-1-1 .8c-1-.4-1.8-1.2-2.2-2.2l.8-1-1-2z"/>',
+  partage: '<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/>',
+  etapes: '<path d="M4 6h16M4 12h10M4 18h6"/>',
+  livre: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M8 7h7"/>',
+  etoile: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  question: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6"/><path d="M12 17h.01"/>',
+  grille: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  boussole: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  tel: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
+  fl: '<path d="M9 6l6 6-6 6"/>',
+  retour: '<path d="M15 6l-6 6 6 6"/>',
+  web: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.5 5.8 3.5 9s-1 6.2-3.5 9c-2.5-2.8-3.5-5.8-3.5-9s1-6.2 3.5-9z"/>',
+  lien: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'
+};
+function svg(n, taille) { return '<svg viewBox="0 0 24 24"' + (taille ? ' width="' + taille + '" height="' + taille + '"' : '') + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (IC[n] || '') + '</svg>'; }
+var TEINTE = { auteur: 'o-jaune', enseignant: 'o-vert', ecole: 'o-rouge', entreprise: 'o-jaune', association: 'o-vert', particulier: 'o-rouge' };
+function orbe(n, teinte, petit) { return '<span class="orbe ' + (teinte || 'o-vert') + (petit ? ' petit' : '') + '">' + svg(n) + '</span>'; }
+
+/* ---------- Textes de l'interface ---------- */
+var T = {
+  fr: {
+    realisationsD0: 'Notre livre et son affiche de lancement',
+    chargement: 'Chargement…',
+    notePrixFerme: 'Prix ferme. Envoi hors Yaoundé : frais en plus, annoncés avant paiement.',
+    saufPetites: 'Petites offres à prix fixe (diagnostic, livre, atelier en ligne, formation individuelle) : paiement en une fois à la commande.',
+    options: 'Options et suppléments',
+    msgV2Frais: 'J’ai bien noté les frais de lecture de 10 000 FCFA.',
+    demanderDevis: 'Demander un devis',
+    sousTitre: 'Yaoundé · Cameroun', titrePage: 'APEL Éditions · Nos offres', allerContenu: 'Aller au contenu',
+    herosEtiquette: 'Nos offres en 1 minute',
+    herosTitre: 'Publier, former, communiquer : <em>trouvez votre pack.</em>',
+    herosTexte: 'Livres, formation à l’intelligence artificielle, affiches et supports professionnels. Des prix clairs et un devis gratuit sur WhatsApp.',
+    trouverPack: 'Trouver mon pack', ecrireWa: 'Écrire sur WhatsApp',
+    jeSuis: 'Je suis…', enVedette: 'Nos offres phares', mieuxConnaitre: 'Tout savoir avant de commander',
+    toutesOffres: 'Toutes nos offres', toutesOffresD: 'Tous les packs et leurs prix',
+    commentCaMarche: 'Comment ça marche', commentCaMarcheD: 'De votre premier message à la livraison',
+    publier: 'Publier mon livre', publierD: 'Nos deux façons de vous accompagner',
+    realisations: 'Nos réalisations', realisationsD: 'Livres, affiches et avis clients',
+    faq: 'Questions fréquentes', faqD: 'Paiement, délais, droits d’auteur…',
+    contact: 'Nous contacter', contactD: 'WhatsApp, téléphone, e-mail',
+    guide: 'Quel pack pour moi ?', guideD: '3 questions, 30 secondes',
+    retour: 'Retour', accueil: 'Accueil',
+    aPartirDe: 'à partir de', surDevis: 'Prix sur devis', fcfa: 'FCFA',
+    details: 'Détails', interesse: 'Ça m’intéresse', demanderPack: 'Demander ce pack',
+    partagerPack: 'Partager cette offre', autresOffres: 'Voir les autres offres',
+    pourCePrix: 'Pour ce prix', inclus: 'Ce qui est inclus', delai: 'Délai indicatif',
+    notePrix: 'Prix indicatif. Le prix exact dépend de votre projet et figure dans votre devis gratuit, envoyé avant tout engagement.',
+    vedette: 'Offre phare', aucunPack: 'Pas encore d’offre en ligne pour ce profil. Écrivez-nous : nous vous proposons une solution sur mesure.',
+    offresPour: 'Nos offres pour vous', autresProfils: 'Autres offres',
+    partager: 'Partager', partagerTitre: 'Partager', copierLien: 'Copier le lien', lienCopie: 'Lien copié', fermer: 'Fermer',
+    partageTexte: 'Découvrez les offres d’APEL Éditions : livres, formation à l’IA, communication.',
+    partagePackTexte: 'Découvrez cette offre d’APEL Éditions : ',
+    etape: 'Étape {n} sur 3', q1: 'Vous êtes…', q2: 'De quoi avez-vous besoin ?', q3: 'Pour quand ?',
+    autreBesoin: 'Autre chose / je ne sais pas encore',
+    urgent: 'C’est urgent (moins de 2 semaines)', ceMois: 'Dans le mois', pasPresse: 'Je ne suis pas pressé(e)',
+    resultat: 'Notre recommandation', resultatTexte: 'D’après vos réponses, ce pack correspond le mieux à votre besoin :',
+    resultatSurMesure: 'Votre besoin mérite une solution sur mesure. Écrivez-nous : un conseiller vous répond et vous propose un devis gratuit.',
+    envoyerReponses: 'Envoyer mes réponses sur WhatsApp', recommencer: 'Recommencer',
+    etapesTitre: 'Comment ça marche', etapesIntro: 'Un parcours simple et transparent, du premier message à la livraison.',
+    e1: 'Vous nous écrivez', e1d: 'Sur WhatsApp, depuis cette appli. Présentez votre projet en quelques mots.',
+    e2: 'Nous comprenons votre besoin', e2d: 'Un conseiller vous pose quelques questions utiles, pas plus.',
+    e3: 'Vous recevez un devis clair', e3d: 'Prix, délai, nombre de tours de modifications : tout est écrit. Le devis est gratuit.',
+    e4: 'Vous validez et vous payez', e4d: 'Offres sur devis : 50 % à la commande. Petites offres à prix fixe : paiement complet. Le travail commence dès réception.',
+    e5: 'Nous réalisons votre projet', e5d: 'Vous suivez l’avancement et demandez vos modifications.',
+    e6: 'Livraison et solde', e6d: 'Vous validez le résultat, vous réglez le solde et vous recevez vos fichiers définitifs.',
+    paiementTitre: 'Paiement simple, avec reçu', aLaCommande: 'à la commande', aLaLivraison: 'à la livraison',
+    moyens: 'Moyens de paiement acceptés', virement: 'Virement bancaire', especes: 'Espèces contre reçu',
+    recu: 'Un reçu pour chaque paiement. Indiquez le numéro de votre devis en référence.',
+    engagements: 'Nos engagements',
+    g1: 'Un devis écrit avant tout travail', g2: 'Aucun paiement sans votre accord sur le devis', g3: 'Vos manuscrits et documents restent confidentiels', g4: 'Le nombre de tours de modifications inclus est précisé dans le devis',
+    commencer: 'Commencer sur WhatsApp',
+    publierTitre: 'Publier votre livre avec APEL', publierIntro: 'Nous proposons deux voies. Choisissez celle qui vous convient : nous pouvons aussi vous aider à décider.',
+    v1: 'Accompagnement éditorial', v1d: 'Vous choisissez les prestations dont vous avez besoin (correction, mise en page, couverture, impression…). Vous les financez et vous gardez la maîtrise de votre livre.',
+    v1a: 'Sans comité de lecture : nous refusons seulement les projets contraires à nos valeurs', v1b: 'Vous payez uniquement ce que vous choisissez', v1c: 'Vous restez propriétaire de votre texte et de vos exemplaires imprimés ; vos ventes directes vous reviennent en totalité',
+    v1btn: 'Voir les packs auteurs',
+    v2: 'Contrat d’édition', v2d: 'Vous soumettez votre manuscrit terminé à notre comité de lecture. S’il est retenu, APEL Éditions finance la publication et vous verse des droits d’auteur.',
+    v2a: 'Sélection par notre comité de lecture', v2b: 'Frais de lecture : 10 000 FCFA, avec une fiche de lecture écrite remise dans tous les cas', v2c: 'Manuscrit terminé et déjà relu par vous',
+    v2btn: 'Soumettre mon manuscrit',
+    v2note: 'Une prestation payante n’est jamais une sélection : seule une réponse écrite du comité de lecture engage APEL Éditions. Un manuscrit non retenu peut toujours être publié par la voie 1.',
+    realTitre: 'Nos réalisations', livreTitre: 'Le scénario pédagogique de l’enseignant augmenté',
+    livreSous: 'Guide pratique pour les enseignants du secondaire au Cameroun',
+    livreAuteur: 'Serthy AYISSI · APEL Éditions, Yaoundé, 2026', livreFormat: '21 × 27 cm · 160 pages · couleur · 56 illustrations',
+    livreEtude: 'Ouvrage en cours d’étude à la coordination nationale des enseignements secondaires, en vue de son intégration dans le programme de formation des enseignants.',
+    commanderLivre: 'Commander le livre', offreEtab: 'Offre établissement',
+    afficheTitre: 'Affiche de lancement', afficheD: 'Conception graphique APEL Éditions, format réseaux sociaux.',
+    temoignages: 'Ils nous ont fait confiance',
+    votreProjet: 'Votre projet pourrait être le prochain', votreProjetD: 'Présentez-le-nous : le devis est gratuit.',
+    faqTitre: 'Questions fréquentes', faqAutre: 'Vous ne trouvez pas votre réponse ?', poserQuestion: 'Poser ma question',
+    contactTitre: 'Nous contacter', appeler: 'Appeler', ecrireMail: 'Écrire un e-mail', ville: 'Où nous trouver', horaires: 'Horaires', facebook: 'Page Facebook', site: 'Site web',
+    pied1: 'Prix indicatifs « à partir de », confirmés dans votre devis gratuit.', pied2: 'APEL Éditions · Donnons vie à vos projets',
+    msgBonjour: 'Bonjour APEL Éditions 👋', msgGeneral: 'J’aimerais des informations sur vos offres.',
+    msgPack: 'Je suis intéressé(e) par l’offre « {titre} » ({prix}).', msgProjet: 'Mon projet : ',
+    msgProfil: 'Je suis : ', msgBesoin: 'Mon besoin : ', msgQuand: 'Échéance : ', msgReco: 'Pack proposé par l’appli : ',
+    msgLivre: 'Je souhaite commander le livre « Le scénario pédagogique de l’enseignant augmenté ».', msgExemplaires: 'Nombre d’exemplaires : ', msgVille: 'Ville de livraison : ',
+    msgV2: 'Je souhaite soumettre mon manuscrit au comité de lecture.', msgV2Titre: 'Titre : ', msgV2Genre: 'Genre : ', msgV2Pages: 'Nombre de pages : ',
+    msgQuestion: 'J’ai une question : ',
+    msgVia: '(Envoyé depuis l’appli APEL', msgSource: ' · source : ', msgParrain: ' · recommandé par : ',
+    p_auteur: 'Auteur / écrivain', p_auteur_d: 'Publier ou améliorer un livre',
+    p_enseignant: 'Enseignant / formateur', p_enseignant_d: 'Me former à l’IA, préparer mes cours',
+    p_ecole: 'École / établissement', p_ecole_d: 'Former l’équipe, équiper la bibliothèque',
+    p_entreprise: 'Entreprise / entrepreneur', p_entreprise_d: 'Affiches, logo, visibilité',
+    p_association: 'Association / institution', p_association_d: 'Rapports, magazines, événements',
+    p_particulier: 'Particulier', p_particulier_d: 'Un visuel ou un document soigné',
+    p_autre: 'Autres offres'
+  },
+  en: {
+    realisationsD0: 'Our book and its launch poster',
+    chargement: 'Loading…',
+    notePrixFerme: 'Fixed price. Delivery outside Yaoundé: extra cost, confirmed before payment.',
+    saufPetites: 'Small fixed-price offers (assessment, book, online workshop, one-to-one training): paid in full when you order.',
+    options: 'Options and extras',
+    msgV2Frais: 'I have noted the 10,000 FCFA reading fee.',
+    demanderDevis: 'Request a quote',
+    sousTitre: 'Yaoundé · Cameroon', titrePage: 'APEL Éditions · Our offers', allerContenu: 'Skip to content',
+    herosEtiquette: 'Our offers in 1 minute',
+    herosTitre: 'Publish, train, communicate: <em>find your package.</em>',
+    herosTexte: 'Books, artificial intelligence training, posters and professional materials. Clear prices and a free quote on WhatsApp.',
+    trouverPack: 'Find my package', ecrireWa: 'Chat on WhatsApp',
+    jeSuis: 'I am…', enVedette: 'Featured offers', mieuxConnaitre: 'Everything to know before ordering',
+    toutesOffres: 'All our offers', toutesOffresD: 'Every package and its price',
+    commentCaMarche: 'How it works', commentCaMarcheD: 'From your first message to delivery',
+    publier: 'Publish my book', publierD: 'Two ways we can support you',
+    realisations: 'Our work', realisationsD: 'Books, posters and client reviews',
+    faq: 'FAQ', faqD: 'Payment, timelines, copyright…',
+    contact: 'Contact us', contactD: 'WhatsApp, phone, email',
+    guide: 'Which package suits me?', guideD: '3 questions, 30 seconds',
+    retour: 'Back', accueil: 'Home',
+    aPartirDe: 'from', surDevis: 'Price on request', fcfa: 'FCFA',
+    details: 'Details', interesse: 'I’m interested', demanderPack: 'Request this package',
+    partagerPack: 'Share this offer', autresOffres: 'See other offers',
+    pourCePrix: 'For this price', inclus: 'What’s included', delai: 'Estimated timeline',
+    notePrix: 'Indicative price. The exact price depends on your project and is stated in your free quote, sent before any commitment.',
+    vedette: 'Featured', aucunPack: 'No offer online for this profile yet. Message us and we will suggest a tailored solution.',
+    offresPour: 'Our offers for you', autresProfils: 'Other offers',
+    partager: 'Share', partagerTitre: 'Share', copierLien: 'Copy link', lienCopie: 'Link copied', fermer: 'Close',
+    partageTexte: 'Discover APEL Éditions’ offers: books, AI training, communication.',
+    partagePackTexte: 'Discover this APEL Éditions offer: ',
+    etape: 'Step {n} of 3', q1: 'You are…', q2: 'What do you need?', q3: 'When do you need it?',
+    autreBesoin: 'Something else / not sure yet',
+    urgent: 'It’s urgent (under 2 weeks)', ceMois: 'Within the month', pasPresse: 'No rush',
+    resultat: 'Our recommendation', resultatTexte: 'Based on your answers, this package fits your need best:',
+    resultatSurMesure: 'Your need deserves a tailored solution. Message us: an adviser will reply and send you a free quote.',
+    envoyerReponses: 'Send my answers on WhatsApp', recommencer: 'Start again',
+    etapesTitre: 'How it works', etapesIntro: 'A simple, transparent process from your first message to delivery.',
+    e1: 'You message us', e1d: 'On WhatsApp, straight from this app. Describe your project in a few words.',
+    e2: 'We understand your need', e2d: 'An adviser asks you a few useful questions, no more.',
+    e3: 'You get a clear quote', e3d: 'Price, timeline, rounds of changes included: everything in writing. The quote is free.',
+    e4: 'You approve and pay', e4d: 'Quoted services: 50% when you order. Small fixed-price offers: paid in full. Work starts as soon as payment is received.',
+    e5: 'We carry out your project', e5d: 'You follow the progress and request your changes.',
+    e6: 'Delivery and balance', e6d: 'You approve the result, pay the balance and receive your final files.',
+    paiementTitre: 'Simple payment, with a receipt', aLaCommande: 'when you order', aLaLivraison: 'on delivery',
+    moyens: 'Accepted payment methods', virement: 'Bank transfer', especes: 'Cash against receipt',
+    recu: 'A receipt for every payment. Please give your quote number as the payment reference.',
+    engagements: 'Our commitments',
+    g1: 'A written quote before any work', g2: 'No payment until you accept the quote', g3: 'Your manuscripts and documents stay confidential', g4: 'The number of rounds of changes included is stated in the quote',
+    commencer: 'Start on WhatsApp',
+    publierTitre: 'Publish your book with APEL', publierIntro: 'We offer two routes. Choose the one that suits you, or let us help you decide.',
+    v1: 'Editorial support', v1d: 'You choose the services you need (proofreading, layout, cover, printing…). You pay for them and keep control of your book.',
+    v1a: 'No reading committee: we only turn down projects that go against our values', v1b: 'You only pay for what you choose', v1c: 'You keep ownership of your text and your printed copies, and all income from your own direct sales',
+    v1btn: 'See author packages',
+    v2: 'Publishing contract', v2d: 'You submit your finished manuscript to our reading committee. If it is selected, APEL Éditions funds the publication and pays you royalties.',
+    v2a: 'Selected by our reading committee', v2b: 'Reading fee: 10,000 FCFA, with a written reading report in every case', v2c: 'Finished manuscript, already reread by you',
+    v2btn: 'Submit my manuscript',
+    v2note: 'A paid service is never a selection: only a written answer from the reading committee commits APEL Éditions. A manuscript that is not selected can still be published through route 1.',
+    realTitre: 'Our work', livreTitre: 'Le scénario pédagogique de l’enseignant augmenté',
+    livreSous: 'A practical AI guide for secondary school teachers in Cameroon (in French)',
+    livreAuteur: 'Serthy AYISSI · APEL Éditions, Yaoundé, 2026', livreFormat: '21 × 27 cm · 160 pages · full colour · 56 illustrations',
+    livreEtude: 'Currently being reviewed by the national coordination for secondary education, with a view to including it in the teacher training programme.',
+    commanderLivre: 'Order the book', offreEtab: 'School offer',
+    afficheTitre: 'Launch poster', afficheD: 'Graphic design by APEL Éditions, social media format.',
+    temoignages: 'They trusted us',
+    votreProjet: 'Your project could be next', votreProjetD: 'Tell us about it: the quote is free.',
+    faqTitre: 'Frequently asked questions', faqAutre: 'Can’t find your answer?', poserQuestion: 'Ask my question',
+    contactTitre: 'Contact us', appeler: 'Call', ecrireMail: 'Send an email', ville: 'Where to find us', horaires: 'Opening hours', facebook: 'Facebook page', site: 'Website',
+    pied1: 'Indicative “from” prices, confirmed in your free quote.', pied2: 'APEL Éditions · Bringing your projects to life',
+    msgBonjour: 'Hello APEL Éditions 👋', msgGeneral: 'I would like some information about your offers.',
+    msgPack: 'I am interested in the “{titre}” offer ({prix}).', msgProjet: 'My project: ',
+    msgProfil: 'I am: ', msgBesoin: 'My need: ', msgQuand: 'Deadline: ', msgReco: 'Package suggested by the app: ',
+    msgLivre: 'I would like to order the book “Le scénario pédagogique de l’enseignant augmenté”.', msgExemplaires: 'Number of copies: ', msgVille: 'Delivery town: ',
+    msgV2: 'I would like to submit my manuscript to the reading committee.', msgV2Titre: 'Title: ', msgV2Genre: 'Genre: ', msgV2Pages: 'Number of pages: ',
+    msgQuestion: 'I have a question: ',
+    msgVia: '(Sent from the APEL app', msgSource: ' · source: ', msgParrain: ' · referred by: ',
+    p_auteur: 'Author / writer', p_auteur_d: 'Publish or improve a book',
+    p_enseignant: 'Teacher / trainer', p_enseignant_d: 'Learn AI, prepare my lessons',
+    p_ecole: 'School', p_ecole_d: 'Train staff, stock the library',
+    p_entreprise: 'Business / entrepreneur', p_entreprise_d: 'Posters, logo, visibility',
+    p_association: 'Association / institution', p_association_d: 'Reports, magazines, events',
+    p_particulier: 'Individual', p_particulier_d: 'A design or a polished document',
+    p_autre: 'Other offers'
+  }
+};
+var PROFILS = ['auteur', 'enseignant', 'ecole', 'entreprise', 'association', 'particulier'];
+
+/* ---------- État ---------- */
+var etat = { lang: 'fr', d: { packs: [], faq: [], temoignages: [], reglages: {} }, pret: false, src: '', parrain: '', guide: {} };
+var pile = [], positions = {};
+var LIBRES = { accueil: 1, etapes: 1, publier: 1, contact: 1 };
+
+function stock(cle, val) { try { if (val === undefined) return localStorage.getItem(cle); localStorage.setItem(cle, val); } catch (e) { return null; } }
+function t(k, v) { var s = (T[etat.lang] && T[etat.lang][k]) || T.fr[k] || k; if (v) Object.keys(v).forEach(function (x) { s = s.split('{' + x + '}').join(v[x]); }); return s; }
+// Espaces insécables : montants, unités et ponctuation française ne sont jamais coupés en fin de ligne.
+function typo(s) {
+  s = s.replace(/(\d) (?=\d{3}(?!\d))/g, '$1 ').replace(/(\d) (?=(FCFA|F\b|%|h\b|mots|pages|page\b|exemplaires|fiches|enseignants|participants|minute|min\b|jours|semaines|mois|heures|Go\b|Mo\b|cm\b))/g, '$1 ');
+  if (etat.lang === 'fr') s = s.replace(/ ([:;!?»%])/g, ' $1').replace(/« /g, '« ');
+  return s;
+}
+function esc(s) { return typo(String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; })); }
+function champ(o, k) { if (!o) return ''; var v = o[k + '_' + etat.lang]; if (v && String(v).trim()) return v; return o[k + '_fr'] || o[k] || ''; }
+function liste(o, k) { var v = champ(o, k); if (Array.isArray(v)) return v; return String(v || '').split(/\r?\n|\s*;\s*/).map(function (x) { return x.replace(/^[-•·*+]\s*/, '').trim(); }).filter(Boolean); }
+function montant(n) { return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, etat.lang === 'fr' ? ' ' : ','); }
+function prixTexte(p) { if (!p.prix) return t('surDevis'); var u = champ(p, 'unite'); return (p.exact ? '' : t('aPartirDe') + ' ') + montant(p.prix) + ' ' + t('fcfa') + (u ? ' ' + u : ''); }
+function reglage(k) { var r = (etat.d.reglages || {})[k]; if (!r) return ''; return (etat.lang === 'en' && r.en) ? r.en : (r.fr || ''); }
+function numeroWa() {
+  var n = String(reglage('whatsapp') || '').replace(/\D/g, '').replace(/^00/, '');
+  if (n.length === 9) n = '237' + n;
+  return /^237[26]\d{8}$/.test(n) ? n : '237693779364';
+}
+function urlSure(u) { u = String(u || '').trim(); if (!u) return ''; if (!/^[a-z][a-z0-9+.-]*:/i.test(u)) u = 'https://' + u.replace(/^\/+/, ''); return /^https?:\/\//i.test(u) ? u : ''; }
+function langue(l) { l = String(l || '').toLowerCase().slice(0, 2); return (l === 'fr' || l === 'en') ? l : ''; }
+
+function lienWa(lignes) {
+  var via = t('msgVia') + (etat.src ? t('msgSource') + etat.src : '') + (etat.parrain ? t('msgParrain') + etat.parrain : '') + ')';
+  var texte = [t('msgBonjour')].concat(lignes).concat(['', via]).join('\n');
+  return 'https://wa.me/' + numeroWa() + '?text=' + encodeURIComponent(texte);
+}
+function aWa(lignes, libelle, classe) { return '<a class="btn ' + (classe || 'btn-primaire') + '" href="' + esc(lienWa(lignes)) + '" target="_blank" rel="noopener">' + svg('wa') + '<span>' + esc(libelle) + '</span></a>'; }
+function lignesPack(p) { return [t('msgPack', { titre: champ(p, 'titre'), prix: prixTexte(p) }), t('msgProjet')]; }
+
+/* ---------- Données ---------- */
+function packsDe(profil) {
+  return etat.d.packs.filter(function (p) { return p.profils.indexOf(profil) !== -1; });
+}
+function packParId(id) { for (var i = 0; i < etat.d.packs.length; i++) if (etat.d.packs[i].id === id) return etat.d.packs[i]; return null; }
+function lirePrix(v) {
+  if (typeof v === 'number') return v;
+  var m = String(v || '').replace(/[\s  ]/g, '').match(/\d[\d.,]*/);
+  if (!m) return 0;
+  return parseInt(m[0].replace(/[.,]\d{1,2}$/, '').replace(/[.,]/g, ''), 10) || 0;
+}
+function profilConnu(x) {
+  x = String(x).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z]/g, '');
+  if (!x) return '';
+  if (/^etabli/.test(x)) return 'ecole';
+  for (var j = 0; j < PROFILS.length; j++) if (x.slice(0, 5) === PROFILS[j].slice(0, 5)) return PROFILS[j];
+  return 'autre';
+}
+function trier(a) {
+  return a.map(function (x, i) { return [parseFloat(x.ordre) || (i + 1), i, x]; })
+    .sort(function (p, q) { return p[0] - q[0] || p[1] - q[1]; }).map(function (p) { return p[2]; });
+}
+function normaliserPacks(packs) {
+  var vus = {};
+  return trier((packs || []).map(function (p, i) {
+    var q = {}; Object.keys(p).forEach(function (k) { q[k] = p[k]; });
+    var brut = Array.isArray(q.profils) ? q.profils : String(q.profil || q.profils || '').split(/[,;\/]+/);
+    var prof = [];
+    brut.map(profilConnu).forEach(function (x) { if (x && prof.indexOf(x) === -1) prof.push(x); });
+    q.profils = prof.length ? prof : ['autre'];
+    q.prix = lirePrix(q.prix);
+    q.ordre = parseFloat(q.ordre) || (i + 1);
+    q.vedette = q.vedette === true || /^(oui|yes|x|1|true|vrai)$/i.test(String(q.vedette || '').trim());
+    q.exact = q.exact === true || /^(non|no|0|false|faux)$/i.test(String(q.apartirde || '').trim());
+    if (!q.id) q.id = String(q.titre_fr || 'offre-' + i).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    if (vus[q.id]) q.id += '-' + i; vus[q.id] = 1;
+    return q;
+  }).filter(function (p) { return p.titre_fr || p.titre_en; }));
+}
+function prendre(d) {
+  etat.d = { packs: normaliserPacks(d.packs), faq: trier(d.faq || []), temoignages: trier(d.temoignages || []), reglages: d.reglages || {} };
+  etat.pret = true;
+}
+
+/* ---------- Google Sheet ---------- */
+function lireCSV(texte) {
+  var lignes = [], ligne = [], cel = '', q = false;
+  for (var i = 0; i < texte.length; i++) {
+    var c = texte[i];
+    if (q) { if (c === '"') { if (texte[i + 1] === '"') { cel += '"'; i++; } else q = false; } else cel += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { ligne.push(cel); cel = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && texte[i + 1] === '\n') i++; ligne.push(cel); lignes.push(ligne); ligne = []; cel = ''; }
+    else cel += c;
+  }
+  if (cel !== '' || ligne.length) { ligne.push(cel); lignes.push(ligne); }
+  return lignes;
+}
+var ENTETES = {
+  afficher: 'afficher', ordre: 'ordre', code: 'id', id: 'id', profil: 'profil', profils: 'profil',
+  titrefr: 'titre_fr', titreen: 'titre_en', besoinfr: 'besoin_fr', besoinen: 'besoin_en',
+  accrochefr: 'accroche_fr', accrocheen: 'accroche_en', inclusfr: 'inclus_fr', inclusen: 'inclus_en',
+  optionsfr: 'options_fr', optionsen: 'options_en',
+  pourceprixfr: 'base_fr', pourceprixen: 'base_en', delaifr: 'delai_fr', delaien: 'delai_en',
+  prixfcfa: 'prix', prix: 'prix', apartirde: 'apartirde', unitefr: 'unite_fr', uniteen: 'unite_en', vedette: 'vedette',
+  questionfr: 'question_fr', questionen: 'question_en', reponsefr: 'reponse_fr', reponseen: 'reponse_en',
+  nom: 'nom', textefr: 'texte_fr', texteen: 'texte_en', qualitefr: 'qualite_fr', qualiteen: 'qualite_en',
+  cle: 'cle', valeurfr: 'fr', valeuren: 'en'
+};
+function cleEntete(h) {
+  var n = String(h).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+  return ENTETES[n] || (n.indexOf('afficher') === 0 ? 'afficher' : '');
+}
+function enObjets(lignes) {
+  var cles = lignes[0].map(cleEntete);
+  return lignes.slice(1).map(function (l) {
+    var o = {}; cles.forEach(function (k, i) { if (k) o[k] = (l[i] || '').trim(); }); return o;
+  }).filter(function (o) {
+    var vide = Object.keys(o).every(function (k) { return !o[k]; });
+    return !vide && !/^(non|no|0|false|faux)$/i.test(o.afficher || '');
+  });
+}
+function lireOnglet(nom) {
+  var url = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(CONFIG.sheetId) + '/gviz/tq?tqx=out:csv&headers=1&' + (typeof nom === 'number' ? 'gid=' + nom : 'sheet=' + encodeURIComponent(nom));
+  var ctl = window.AbortController ? new AbortController() : null;
+  var minuteur = setTimeout(function () { if (ctl) ctl.abort(); }, CONFIG.delaiSheetMs);
+  return fetch(url, { signal: ctl ? ctl.signal : undefined, cache: 'no-cache' }).then(function (r) {
+    clearTimeout(minuteur);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.text();
+  }).then(function (txt) {
+    if (/^\s*</.test(txt)) throw new Error('pas un CSV');
+    var lignes = lireCSV(txt);
+    if (lignes.length < 2 || !lignes[0].some(function (h) { return cleEntete(h); })) throw new Error('onglet vide ou illisible');
+    return enObjets(lignes);
+  });
+}
+function chargerSheet() {
+  if (!CONFIG.sheetId || APERCU || !window.fetch) return;
+  try { var c = JSON.parse(stock('apel-donnees') || 'null'); if (c && c.t && Date.now() - c.t < CONFIG.rafraichirMs) return; } catch (e) {}
+  var o = CONFIG.onglets;
+  Promise.all([o.packs, o.faq, o.temoignages, o.reglages].map(function (n) { return lireOnglet(n).catch(function () { return null; }); }))
+    .then(function (res) {
+      if (!res[0] && !res[1] && !res[2] && !res[3]) return;
+      var neuf = JSON.parse(JSON.stringify(etat.d));
+      var packs = res[0] && normaliserPacks(res[0].filter(function (p) { return p.titre_fr; }));
+      if (packs && packs.length) neuf.packs = packs;
+      var faq = res[1] && trier(res[1].filter(function (x) { return x.question_fr && x.reponse_fr; }));
+      if (faq && faq.length) neuf.faq = faq;
+      if (res[2]) neuf.temoignages = trier(res[2].filter(function (x) { return x.texte_fr; }));
+      if (res[3]) { var r = {}; res[3].forEach(function (x) { if (x.cle) r[x.cle.toLowerCase().trim()] = { fr: x.fr, en: x.en }; }); if (Object.keys(r).length) neuf.reglages = r; }
+      var change = JSON.stringify(neuf) !== JSON.stringify(etat.d);
+      etat.d = neuf; etat.pret = true;
+      stock('apel-donnees', JSON.stringify({ t: Date.now(), d: neuf }));
+      if (change) afficher(true);
+    });
+}
+
+/* ---------- Vues ---------- */
+function carteProfil(p) {
+  return '<a class="profil verre inclinable" href="#/profil/' + p + '">' + orbe(p, TEINTE[p]) + '<b>' + esc(t('p_' + p)) + '</b><span>' + esc(t('p_' + p + '_d')) + '</span></a>';
+}
+function cartePack(p, niv) {
+  var titre = champ(p, 'titre'), h = niv === 2 ? 'h2 class="h3"' : 'h3', hf = niv === 2 ? 'h2' : 'h3';
+  return '<article class="pack verre inclinable' + (p.vedette ? ' vedette' : '') + '">' +
+    (p.vedette ? '<span class="badge">' + esc(t('vedette')) + '</span>' : '') +
+    '<' + h + '>' + esc(titre) + '</' + hf + '>' +
+    (champ(p, 'accroche') ? '<p class="accroche">' + esc(champ(p, 'accroche')) + '</p>' : '') +
+    blocPrix(p) +
+    '<div class="actions"><a class="btn btn-verre" href="#/pack/' + encodeURIComponent(p.id) + '">' + esc(t('details')) + '</a>' +
+    aWa(lignesPack(p), p.prix ? t('interesse') : t('demanderDevis')) + '</div></article>';
+}
+function blocPrix(p) {
+  if (!p.prix) return '<p class="prix"><strong>' + esc(t('surDevis')) + '</strong></p>';
+  var u = champ(p, 'unite');
+  return '<p class="prix">' + (p.exact ? '' : '<small>' + esc(t('aPartirDe')) + '</small>') + '<strong>' + montant(p.prix) + ' ' + t('fcfa') + '</strong>' + (u ? '<span class="unite">' + esc(u) + '</span>' : '') + '</p>';
+}
+function lienRapide(href, ic, titre, desc, teinte) {
+  return '<li><a href="' + href + '">' + orbe(ic, teinte || 'o-jaune', true) + '<span><b>' + esc(titre) + '</b><span>' + esc(desc) + '</span></span><span class="fl">' + svg('fl', 18) + '</span></a></li>';
+}
+function retour(href) { return '<a class="retour verre" href="' + (href || '#/') + '">' + svg('retour', 18) + esc(t('retour')) + '</a>'; }
+function titrePage(texte, intro) { return '<h1 class="titre-page">' + esc(texte) + '</h1>' + (intro ? '<p class="muet intro">' + esc(intro) + '</p>' : ''); }
+function decoder(x) { try { return decodeURIComponent(x || ''); } catch (e) { return x || ''; } }
+function etapeGuide(arg) {
+  var g = etat.guide, e = parseInt(arg, 10) || 1;
+  if (e < 4) delete g.quand;
+  if (e < 3) delete g.besoin;
+  if (e < 2) delete g.profil;
+  var n = !g.profil ? 1 : !g.besoin ? 2 : !g.quand ? 3 : 4;
+  return Math.min(e, n);
+}
+
+var VUES = {
+  accueil: function () {
+    var vedettes = etat.d.packs.filter(function (p) { return p.vedette; }).slice(0, 3);
+    return '<section class="heros verre"><span class="orbe-logo" aria-hidden="true"></span><span class="etiquette">' + esc(t('herosEtiquette')) + '</span><h1>' + t('herosTitre') + '</h1><p>' + esc(t('herosTexte')) + '</p>' +
+      '<div class="boutons"><a class="btn btn-primaire" href="#/guide">' + svg('boussole') + esc(t('trouverPack')) + '</a>' +
+      aWa([t('msgGeneral')], t('ecrireWa'), 'btn-verre') + '</div></section>' +
+      '<h2>' + esc(t('jeSuis')) + '</h2><div class="profils">' + PROFILS.map(carteProfil).join('') + '</div>' +
+      (vedettes.length ? '<h2>' + esc(t('enVedette')) + '</h2><div class="pile">' + vedettes.map(function (x) { return cartePack(x); }).join('') + '</div>' : '') +
+      '<h2>' + esc(t('mieuxConnaitre')) + '</h2><ul class="liens verre">' +
+      lienRapide('#/etapes', 'etapes', t('commentCaMarche'), t('commentCaMarcheD')) +
+      lienRapide('#/publier', 'livre', t('publier'), t('publierD')) +
+      lienRapide('#/offres', 'grille', t('toutesOffres'), t('toutesOffresD')) +
+      lienRapide('#/realisations', 'etoile', t('realisations'), t((etat.d.temoignages || []).length ? 'realisationsD' : 'realisationsD0')) +
+      lienRapide('#/faq', 'question', t('faq'), t('faqD')) +
+      lienRapide('#/contact', 'tel', t('contact'), t('contactD')) + '</ul>';
+  },
+  profil: function (id) {
+    if (PROFILS.indexOf(id) === -1 && id !== 'autre') return VUES.accueil();
+    var packs = packsDe(id);
+    var autres = PROFILS.filter(function (p) { return p !== id; });
+    return retour() + titrePage(t('p_' + id), t('offresPour')) +
+      (packs.length ? '<div class="pile">' + packs.map(function (x) { return cartePack(x, 2); }).join('') + '</div>' :
+        '<div class="verre panneau"><p>' + esc(t('aucunPack')) + '</p>' + aWa([t('msgProfil') + t('p_' + id), t('msgProjet')], t('ecrireWa'), 'btn-primaire btn-plein') + '</div>') +
+      (id === 'auteur' ? '<ul class="liens verre" style="margin-top:14px">' + lienRapide('#/publier', 'livre', t('publier'), t('publierD')) + '</ul>' : '') +
+      '<h2>' + esc(t('autresProfils')) + '</h2><div class="profils">' + autres.map(carteProfil).join('') + '</div>';
+  },
+  pack: function (id) {
+    var p = packParId(decoder(id));
+    if (!p) return VUES.offres();
+    var titre = champ(p, 'titre'), inclus = liste(p, 'inclus'), options = liste(p, 'options'), base = champ(p, 'base'), delai = champ(p, 'delai');
+    var profil = p.profils[0];
+    return retour('#/profil/' + profil) + '<article class="pile">' +
+      (p.vedette ? '<span class="badge">' + esc(t('vedette')) + '</span>' : '') +
+      '<h1 class="titre-page">' + esc(titre) + '</h1>' + (champ(p, 'accroche') ? '<p class="muet intro" style="font-size:16px">' + esc(champ(p, 'accroche')) + '</p>' : '') +
+      blocPrix(p) +
+      ((base || delai) ? '<div class="verre panneau">' +
+        (base ? '<div class="ligne"><span>' + esc(t('pourCePrix')) + '</span><span>' + esc(base) + '</span></div>' : '') +
+        (delai ? '<div class="ligne"><span>' + esc(t('delai')) + '</span><span>' + esc(delai) + '</span></div>' : '') + '</div>' : '') +
+      (inclus.length ? '<div class="verre panneau"><h2 class="h3">' + esc(t('inclus')) + '</h2><ul class="coche">' + inclus.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>' : '') +
+      (options.length ? '<div class="verre panneau"><h2 class="h3">' + esc(t('options')) + '</h2><ul class="plus">' + options.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>' : '') +
+      '<p class="info">' + svg('info') + '<span>' + esc(t(p.exact ? 'notePrixFerme' : 'notePrix')) + '</span></p>' +
+      aWa(lignesPack(p), p.prix ? t('demanderPack') : t('demanderDevis'), 'btn-primaire btn-plein') +
+      '<button type="button" class="btn btn-verre btn-plein" data-partage="pack:' + esc(p.id) + '">' + svg('partage') + esc(t('partagerPack')) + '</button>' +
+      '<a class="btn btn-verre btn-plein" href="#/profil/' + profil + '">' + esc(t('autresOffres')) + '</a>' +
+      '</article>';
+  },
+  offres: function () {
+    var groupes = PROFILS.concat(['autre']).map(function (pr) {
+      var packs = etat.d.packs.filter(function (p) { return p.profils[0] === pr; });
+      return packs.length ? '<h2>' + esc(t('p_' + pr)) + '</h2><div class="pile">' + packs.map(function (x) { return cartePack(x); }).join('') + '</div>' : '';
+    }).join('');
+    return retour() + titrePage(t('toutesOffres')) + groupes;
+  },
+  guide: function (arg) {
+    var g = etat.guide, n = etapeGuide(arg);
+    var tete = retour() + (n < 4 ? '<p class="muet" style="margin:0 4px">' + esc(t('etape', { n: n })) + '</p><div class="progres"><i style="width:' + (n * 33.4) + '%"></i></div>' : '');
+    if (n === 1) return tete + titrePage(t('q1')) + '<div class="choix">' + PROFILS.map(function (p) {
+      return '<button type="button" class="verre" data-guide="profil" data-val="' + p + '">' + orbe(p, TEINTE[p], true) + esc(t('p_' + p)) + '</button>';
+    }).join('') + '</div>';
+    if (n === 2) {
+      return tete + titrePage(t('q2')) + '<div class="choix">' + packsDe(g.profil).map(function (p) {
+        return '<button type="button" class="verre" data-guide="besoin" data-val="' + esc(p.id) + '">' + esc(champ(p, 'besoin') || champ(p, 'titre')) + '</button>';
+      }).join('') + '<button type="button" class="verre" data-guide="besoin" data-val="autre">' + esc(t('autreBesoin')) + '</button></div>';
+    }
+    if (n === 3) return tete + titrePage(t('q3')) + '<div class="choix">' + ['urgent', 'ceMois', 'pasPresse'].map(function (k) {
+      return '<button type="button" class="verre" data-guide="quand" data-val="' + k + '">' + esc(t(k)) + '</button>';
+    }).join('') + '</div>';
+    var p = g.besoin !== 'autre' ? packParId(g.besoin) : null;
+    var lignes = [t('msgProfil') + t('p_' + g.profil), t('msgBesoin') + (p ? (champ(p, 'besoin') || champ(p, 'titre')) : t('autreBesoin')), t('msgQuand') + t(g.quand)];
+    if (p) lignes.push(t('msgReco') + champ(p, 'titre') + ' (' + prixTexte(p) + ')');
+    lignes.push(t('msgProjet'));
+    return tete + titrePage(t('resultat')) +
+      (p ? '<p class="muet intro">' + esc(t('resultatTexte')) + '</p>' + cartePack(p, 2) : '<div class="verre panneau"><p style="margin:0">' + esc(t('resultatSurMesure')) + '</p></div>') +
+      '<div class="pile" style="margin-top:14px">' + aWa(lignes, t('envoyerReponses'), 'btn-primaire btn-plein') +
+      '<button type="button" class="btn btn-verre btn-plein" data-guide="recommencer" data-val="1">' + esc(t('recommencer')) + '</button></div>';
+  },
+  etapes: function () {
+    var e = [1, 2, 3, 4, 5, 6].map(function (i) { return '<li><b>' + esc(t('e' + i)) + '</b><span>' + esc(t('e' + i + 'd')) + '</span></li>'; }).join('');
+    return retour() + titrePage(t('etapesTitre'), t('etapesIntro')) +
+      '<div class="verre panneau"><ol class="etapes">' + e + '</ol></div>' +
+      '<div class="verre panneau" style="margin-top:12px"><h2 class="h3">' + esc(t('paiementTitre')) + '</h2><div class="cinquante"><div><strong>50 %</strong><span>' + esc(t('aLaCommande')) + '</span></div><div><strong>50 %</strong><span>' + esc(t('aLaLivraison')) + '</span></div></div>' +
+      '<p class="muet" style="margin:0 0 10px;font-size:14px">' + esc(t('saufPetites')) + '</p>' +
+      '<p class="muet" style="margin:10px 0 0">' + esc(t('moyens')) + '</p><ul class="puces"><li>Orange Money</li><li>MTN MoMo</li><li>' + esc(t('virement')) + '</li><li>' + esc(t('especes')) + '</li></ul>' +
+      '<p class="muet" style="margin:6px 0 0;font-size:14px">' + esc(t('recu')) + '</p></div>' +
+      '<div class="verre panneau" style="margin-top:12px"><h2 class="h3">' + esc(t('engagements')) + '</h2><ul class="coche">' + ['g1', 'g2', 'g3', 'g4'].map(function (k) { return '<li>' + esc(t(k)) + '</li>'; }).join('') + '</ul></div>' +
+      '<div style="margin-top:16px">' + aWa([t('msgGeneral')], t('commencer'), 'btn-primaire btn-plein') + '</div>';
+  },
+  publier: function () {
+    return retour() + titrePage(t('publierTitre'), t('publierIntro')) + '<div class="pile">' +
+      '<section class="verre panneau voie"><h2 class="h3">' + orbe('livre', 'o-jaune', true) + esc(t('v1')) + '</h2><p class="muet">' + esc(t('v1d')) + '</p><ul class="coche">' + ['v1a', 'v1b', 'v1c'].map(function (k) { return '<li>' + esc(t(k)) + '</li>'; }).join('') + '</ul>' +
+      '<p style="margin:14px 0 0"><a class="btn btn-primaire btn-plein" href="#/profil/auteur">' + esc(t('v1btn')) + '</a></p></section>' +
+      '<section class="verre panneau voie"><h2 class="h3">' + orbe('etoile', 'o-vert', true) + esc(t('v2')) + '</h2><p class="muet">' + esc(t('v2d')) + '</p><ul class="coche">' + ['v2a', 'v2c', 'v2b'].map(function (k) { return '<li>' + esc(t(k)) + '</li>'; }).join('') + '</ul>' +
+      '<p style="margin:14px 0 0">' + aWa([t('msgV2'), t('msgV2Frais'), t('msgV2Titre'), t('msgV2Genre'), t('msgV2Pages')], t('v2btn'), 'btn-verre btn-plein') + '</p></section>' +
+      '<p class="info">' + svg('info') + '<span>' + esc(t('v2note')) + '</span></p></div>';
+  },
+  realisations: function () {
+    var tem = (etat.d.temoignages || []).map(function (x) {
+      return '<figure class="verre panneau temoin" style="margin:0"><blockquote>« ' + esc(champ(x, 'texte')) + ' »</blockquote><figcaption><cite>' + esc(x.nom || '') + '</cite>' + (champ(x, 'qualite') ? '<span class="muet"> · ' + esc(champ(x, 'qualite')) + '</span>' : '') + '</figcaption></figure>';
+    }).join('');
+    var livre = packParId('livre-scenario');
+    var etab = packParId('ecole-livre') || packParId('livre-etablissement');
+    return retour() + titrePage(t('realTitre')) + '<div class="pile">' +
+      '<article class="verre panneau"><div class="scene"><div class="livre3d" role="img" tabindex="0" aria-label="' + esc(t('livreTitre')) + '"><span class="dos"></span><span class="tranche"></span><span class="pages"></span>' +
+      '<img src="assets/livre-couverture-264.webp" srcset="assets/livre-couverture-264.webp 264w, assets/livre-couverture.webp 480w" sizes="132px" width="132" height="170" fetchpriority="high" alt=""></div></div><div class="ombre-livre"></div>' +
+      '<div class="livre-infos" style="margin-top:14px"><h2 class="h3">' + esc(t('livreTitre')) + '</h2><p class="muet" style="margin:6px 0 2px">' + esc(t('livreSous')) + '</p><p class="muet" style="margin:0;font-size:14px">' + esc(t('livreAuteur')) + '</p>' +
+      '<p class="muet" style="margin:4px 0 0;font-size:14px">' + esc(t('livreFormat')) + '</p></div>' + (livre ? blocPrix(livre) : '') +
+      '<p class="info">' + svg('info') + '<span>' + esc(t('livreEtude')) + '</span></p>' +
+      '<div class="pile" style="margin-top:12px">' + aWa([t('msgLivre'), t('msgExemplaires'), t('msgVille')], t('commanderLivre'), 'btn-primaire btn-plein') +
+      (etab ? '<a class="btn btn-verre btn-plein" href="#/pack/' + encodeURIComponent(etab.id) + '">' + esc(t('offreEtab')) + '</a>' : '') + '</div></article>' +
+      '<figure class="verre panneau" style="margin:0"><img src="assets/affiche-livre-600.webp" srcset="assets/affiche-livre-600.webp 600w, assets/affiche-livre.webp 720w" sizes="(min-width:600px) 492px, calc(100vw - 68px)" width="720" height="900" loading="lazy" alt="' + esc(t('afficheTitre')) + '" style="border-radius:14px;box-shadow:0 14px 30px -14px rgba(0,0,0,.8)"><figcaption style="margin-top:12px"><b>' + esc(t('afficheTitre')) + '</b><br><span class="muet" style="font-size:14px">' + esc(t('afficheD')) + '</span></figcaption></figure>' +
+      (tem ? '<h2>' + esc(t('temoignages')) + '</h2>' + tem : '') +
+      '<div class="verre panneau"><h2 class="h3" style="margin-bottom:6px">' + esc(t('votreProjet')) + '</h2><p class="muet">' + esc(t('votreProjetD')) + '</p>' + aWa([t('msgProjet')], t('ecrireWa'), 'btn-primaire btn-plein') + '</div></div>';
+  },
+  faq: function () {
+    var f = (etat.d.faq || []).map(function (x) { return '<details class="verre"><summary>' + esc(champ(x, 'question')) + '</summary><div>' + esc(champ(x, 'reponse')).replace(/\n/g, '<br>') + '</div></details>'; }).join('');
+    return retour() + titrePage(t('faqTitre')) + '<div>' + f + '</div>' +
+      '<div class="verre panneau" style="margin-top:16px"><h2 class="h3" style="margin-bottom:12px">' + esc(t('faqAutre')) + '</h2>' + aWa([t('msgQuestion')], t('poserQuestion'), 'btn-primaire btn-plein') + '</div>';
+  },
+  contact: function () {
+    var tel = reglage('telephone') || '+237 693 779 364', mail = reglage('email') || 'apeledition@gmail.com';
+    var fb = urlSure(reglage('facebook')), site = urlSure(reglage('site'));
+    var lignes = [
+      '<li><a href="' + esc(lienWa([t('msgGeneral')])) + '" target="_blank" rel="noopener">' + orbe('wa', 'o-vert', true) + '<span><b>WhatsApp</b><span>' + esc(tel) + '</span></span></a></li>',
+      '<li><a href="tel:' + esc(tel.replace(/[^\d+]/g, '')) + '">' + orbe('tel', 'o-jaune', true) + '<span><b>' + esc(t('appeler')) + '</b><span>' + esc(tel) + '</span></span></a></li>',
+      '<li><a href="mailto:' + esc(mail) + '">' + orbe('mail', 'o-rouge', true) + '<span><b>' + esc(t('ecrireMail')) + '</b><span>' + esc(mail) + '</span></span></a></li>'
+    ];
+    if (fb) lignes.push('<li><a href="' + esc(fb) + '" target="_blank" rel="noopener">' + orbe('lien', 'o-vert', true) + '<span><b>' + esc(t('facebook')) + '</b><span>APEL Éditions</span></span></a></li>');
+    if (site) lignes.push('<li><a href="' + esc(site) + '" target="_blank" rel="noopener">' + orbe('web', 'o-jaune', true) + '<span><b>' + esc(t('site')) + '</b><span>' + esc(site.replace(/^https?:\/\//, '')) + '</span></span></a></li>');
+    var infos = '<div class="ligne"><span>' + esc(t('ville')) + '</span><span>' + esc(reglage('ville') || 'Yaoundé, Cameroun') + '</span></div>' +
+      (reglage('horaires') ? '<div class="ligne"><span>' + esc(t('horaires')) + '</span><span>' + esc(reglage('horaires')) + '</span></div>' : '');
+    return retour() + titrePage(t('contactTitre')) + '<ul class="liens verre">' + lignes.join('') + '</ul><div class="verre panneau" style="margin-top:12px">' + infos + '</div>';
+  }
+};
+
+/* ---------- Rendu ---------- */
+function route() {
+  var h = (location.hash || '').replace(/^#\/?/, '').split('/');
+  return { nom: Object.prototype.hasOwnProperty.call(VUES, h[0]) ? h[0] : 'accueil', arg: h[1] || '' };
+}
+function messageBarre(r) {
+  if (r.nom === 'pack') { var pk = packParId(decoder(r.arg)); if (pk) return lignesPack(pk); }
+  if (r.nom === 'profil' && PROFILS.indexOf(r.arg) !== -1) return [t('msgProfil') + t('p_' + r.arg), t('msgProjet')];
+  return [t('msgGeneral')];
+}
+function afficher(silencieux, y) {
+  var r = route(), main = document.getElementById('contenu');
+  var garde = window.scrollY, html;
+  var libre = LIBRES[r.nom] || (r.nom === 'guide' && etapeGuide(r.arg) === 1);
+  if (!etat.pret && !libre) html = '<p class="muet" aria-busy="true" style="margin:24px 4px">' + esc(t('chargement')) + '</p>';
+  else { try { html = VUES[r.nom](r.arg); } catch (e) { html = VUES.accueil(); } }
+  main.innerHTML = html;
+  document.getElementById('pied').innerHTML = '<p>' + esc(t('pied1')) + '</p><p>' + esc(t('pied2')) + '</p>';
+  var wa = document.getElementById('barre-wa');
+  wa.href = lienWa(messageBarre(r)); wa.innerHTML = svg('wa') + '<span>' + esc(t('ecrireWa')) + '</span>';
+  document.getElementById('barre-partage').innerHTML = svg('partage') + '<span>' + esc(t('partager')) + '</span>';
+  var b = reglage('bandeau'), bd = document.getElementById('bandeau');
+  bd.hidden = !b; bd.textContent = b || '';
+  var h1 = main.querySelector('h1');
+  document.getElementById('vivant').textContent = h1 ? h1.textContent : '';
+  if (silencieux) { window.scrollTo(0, garde); return; }
+  window.scrollTo(0, y || 0);
+  if (r.nom !== 'accueil' && h1) { h1.setAttribute('tabindex', '-1'); h1.focus({ preventScroll: true }); }
+}
+function changerLangue(l, sansRendu) {
+  l = langue(l); if (!l) return;
+  etat.lang = l; stock('apel-langue', l);
+  try { var u = new URL(location.href); if (u.searchParams.has('lang')) { u.searchParams.set('lang', l); history.replaceState(history.state, '', u.toString()); } } catch (e) {}
+  document.documentElement.lang = l;
+  document.title = t('titrePage');
+  document.getElementById('sous-titre').textContent = t('sousTitre');
+  document.querySelector('.sr[href="#contenu"]').textContent = t('allerContenu');
+  [].forEach.call(document.querySelectorAll('.langues button'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === l)); });
+  if (!sansRendu) afficher(true);
+}
+
+/* ---------- Partage ---------- */
+function adressePartage(hash) {
+  var base = /^https?:/.test(location.protocol) ? location.origin + location.pathname : CONFIG.adresse;
+  return base + '?src=partage' + (etat.lang === 'en' ? '&lang=en' : '') + (hash || '');
+}
+function message(txt) {
+  var el = document.createElement('div'); el.className = 'toast verre flottant'; el.setAttribute('role', 'status'); el.textContent = txt;
+  document.body.appendChild(el); setTimeout(function () { el.remove(); }, 2200);
+}
+function partager(cible) {
+  var p = cible && cible.indexOf('pack:') === 0 ? packParId(cible.slice(5)) : null;
+  var url = adressePartage(p ? '#/pack/' + encodeURIComponent(p.id) : '');
+  var texte = p ? t('partagePackTexte') + champ(p, 'titre') : t('partageTexte');
+  if (navigator.share) { navigator.share({ title: 'APEL Éditions', text: texte, url: url }).catch(function () {}); return; }
+  var voile = document.createElement('div'); voile.className = 'voile';
+  voile.innerHTML = '<div class="feuille verre flottant" role="dialog" aria-modal="true" aria-labelledby="titre-partage"><h2 id="titre-partage">' + esc(t('partagerTitre')) + '</h2><div class="pile">' +
+    '<a class="btn btn-primaire" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent(texte + ' ' + url) + '">' + svg('wa') + 'WhatsApp</a>' +
+    '<a class="btn btn-verre" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url) + '">Facebook</a>' +
+    '<button type="button" class="btn btn-verre" data-copier>' + svg('lien') + esc(t('copierLien')) + '</button>' +
+    '<button type="button" class="btn btn-verre" data-fermer>' + esc(t('fermer')) + '</button></div></div>';
+  function fermer() { voile.remove(); document.removeEventListener('keydown', echap); }
+  function echap(e) { if (e.key === 'Escape') fermer(); }
+  voile.addEventListener('click', function (e) {
+    if (e.target === voile || e.target.closest('[data-fermer]')) fermer();
+    else if (e.target.closest('[data-copier]')) {
+      var fin = function () { message(t('lienCopie')); fermer(); };
+      if (navigator.clipboard) navigator.clipboard.writeText(url).then(fin, function () { window.prompt(t('copierLien'), url); fermer(); });
+      else { window.prompt(t('copierLien'), url); fermer(); }
+    }
+  });
+  document.addEventListener('keydown', echap);
+  document.body.appendChild(voile);
+  voile.querySelector('a,button').focus();
+}
+
+/* ---------- Inclinaison 3D (souris uniquement) ---------- */
+function activerInclinaison() {
+  if (!window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var actif = null;
+  document.addEventListener('pointermove', function (e) {
+    var el = e.target.closest && e.target.closest('.inclinable');
+    if (actif && actif !== el) { actif.style.removeProperty('--rx'); actif.style.removeProperty('--ry'); }
+    actif = el;
+    if (!el) return;
+    var r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    el.style.setProperty('--ry', (x * 6).toFixed(2) + 'deg'); el.style.setProperty('--rx', (-y * 6).toFixed(2) + 'deg');
+  });
+}
+
+/* ---------- Démarrage ---------- */
+function nettoyer(v, max) { return String(v || '').replace(/[^\w\s\-.À-ſ]/g, '').replace(/\s+/g, ' ').trim().slice(0, max); }
+function quandDonnees(suite) {
+  if (window.APEL_DEFAUT) { suite(window.APEL_DEFAUT); return; }
+  var s = document.getElementById('s-donnees');
+  if (!s) { suite(null); return; }
+  s.addEventListener('load', function () { suite(window.APEL_DEFAUT || null); });
+  s.addEventListener('error', function () { suite(null); });
+}
+function demarrer() {
+  var params = new URLSearchParams(location.search);
+  var src = nettoyer(params.get('src'), 30), parrain = nettoyer(params.get('parrain') || params.get('ref'), 40);
+  try {
+    if (src) sessionStorage.setItem('apel-src', src); else src = sessionStorage.getItem('apel-src') || '';
+    if (parrain) sessionStorage.setItem('apel-parrain', parrain); else parrain = sessionStorage.getItem('apel-parrain') || '';
+  } catch (e) {}
+  etat.src = src; etat.parrain = parrain;
+
+  if (CONFIG.sheetId && !APERCU) {
+    try { var c = JSON.parse(stock('apel-donnees') || 'null'); if (c && c.d && c.d.packs && c.d.packs.length) prendre(c.d); } catch (e) {}
+  }
+  if (!etat.pret && window.APEL_DEFAUT) prendre(window.APEL_DEFAUT);
+
+  etat.lang = langue(params.get('lang')) || langue(stock('apel-langue')) || ((navigator.language || 'fr').slice(0, 2) === 'en' ? 'en' : 'fr');
+  pile = [location.hash || '#/'];
+
+  document.addEventListener('click', function (e) {
+    var ev = e.target.closest('a.sr[href="#contenu"]');
+    if (ev) { e.preventDefault(); var m = document.getElementById('contenu'); m.focus(); m.scrollIntoView(); return; }
+    var b = e.target.closest('[data-lang]');
+    if (b) { changerLangue(b.getAttribute('data-lang')); return; }
+    var rt = e.target.closest('a.retour');
+    if (rt && pile.length > 1) { e.preventDefault(); history.back(); return; }
+    var g = e.target.closest('[data-guide]');
+    if (g) {
+      var k = g.getAttribute('data-guide'), v = g.getAttribute('data-val');
+      if (k === 'recommencer') { etat.guide = {}; location.hash = '#/guide'; return; }
+      etat.guide[k] = v;
+      location.hash = '#/guide/' + (k === 'profil' ? 2 : k === 'besoin' ? 3 : 4);
+      return;
+    }
+    var s = e.target.closest('[data-partage]');
+    if (s) { partager(s.getAttribute('data-partage')); return; }
+    if (e.target.closest('#barre-partage')) { var rr = route(); partager(rr.nom === 'pack' ? 'pack:' + decoder(rr.arg) : ''); }
+  });
+  window.addEventListener('hashchange', function () {
+    positions[pile[pile.length - 1]] = window.scrollY;
+    var h = location.hash || '#/';
+    var arriere = pile.length > 1 && pile[pile.length - 2] === h;
+    if (arriere) pile.pop(); else pile.push(h);
+    afficher(false, arriere ? positions[h] : 0);
+  });
+  changerLangue(etat.lang, true);
+  afficher();
+  activerInclinaison();
+  if (etat.pret) chargerSheet();
+  else quandDonnees(function (d) {
+    if (!etat.pret) { if (d) prendre(d); else etat.pret = true; afficher(true); }
+    chargerSheet();
+  });
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && !APERCU) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
+}
+demarrer();
+})();
+</script>
+</body>
+</html>
