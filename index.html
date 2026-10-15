@@ -7,18 +7,15 @@
 <meta name="description" content="Packs, prix et démarches d'APEL Éditions (Yaoundé) : édition de livres, formation à l'IA, communication. Demandez votre devis sur WhatsApp.">
 <meta name="theme-color" content="#063D2C">
 <meta name="color-scheme" content="dark">
-<link rel="canonical" href="https://serthy666.github.io/apel-offres/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="APEL Éditions">
 <meta property="og:title" content="APEL Éditions · Nos offres en 1 minute">
 <meta property="og:description" content="Publier un livre, se former à l'IA, communiquer : trouvez votre pack, voyez les prix et écrivez-nous sur WhatsApp.">
-<meta property="og:url" content="https://serthy666.github.io/apel-offres/">
 <meta property="og:image" content="https://serthy666.github.io/apel-offres/assets/apercu-partage.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="APEL Éditions : nos offres en 1 minute">
 <meta property="og:locale" content="fr_FR">
-<meta property="og:locale:alternate" content="en_GB">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/icone-192.png">
@@ -315,8 +312,9 @@ details>div{padding:0 16px 16px;color:var(--texte-2)}
 var CONFIG = {
   // Identifiant du Google Sheet (la partie entre /d/ et /edit dans son adresse). Vide = contenu intégré.
   sheetId: '1Cgaxi_SWzB9NGhl9LkeGCm_gDmgx2y4H-hVEi2Ed7o8',
-  // Onglet des offres : 0 = premier onglet du tableur (quel que soit son nom). Les autres onglets sont facultatifs.
-  onglets: { packs: 0, faq: 'FAQ', temoignages: 'Temoignages', reglages: 'Reglages' },
+  // Onglet des offres : 0 = identifiant (gid) du premier onglet du tableur, quel que soit son nom.
+  // Onglets facultatifs : mettre leur nom exact (ex. 'FAQ') une fois créés ; null = non lu.
+  onglets: { packs: 0, faq: null, temoignages: null, reglages: null },
   delaiSheetMs: 7000,
   // Délai minimal entre deux lectures du Google Sheet sur un même téléphone (1 heure).
   rafraichirMs: 3600000,
@@ -424,7 +422,7 @@ var T = {
     faqTitre: 'Questions fréquentes', faqAutre: 'Vous ne trouvez pas votre réponse ?', poserQuestion: 'Poser ma question',
     contactTitre: 'Nous contacter', appeler: 'Appeler', ecrireMail: 'Écrire un e-mail', ville: 'Où nous trouver', horaires: 'Horaires', facebook: 'Page Facebook', site: 'Site web',
     pied1: 'Prix indicatifs « à partir de », confirmés dans votre devis gratuit.', pied2: 'APEL Éditions · Donnons vie à vos projets',
-    msgBonjour: 'Bonjour APEL Éditions 👋', msgGeneral: 'J’aimerais des informations sur vos offres.',
+    msgBonjour: 'Bonjour APEL Éditions,', msgGeneral: 'J’aimerais des informations sur vos offres.',
     msgPack: 'Je suis intéressé(e) par l’offre « {titre} » ({prix}).', msgProjet: 'Mon projet : ',
     msgProfil: 'Je suis : ', msgBesoin: 'Mon besoin : ', msgQuand: 'Échéance : ', msgReco: 'Pack proposé par l’appli : ',
     msgLivre: 'Je souhaite commander le livre « Le scénario pédagogique de l’enseignant augmenté ».', msgExemplaires: 'Nombre d’exemplaires : ', msgVille: 'Ville de livraison : ',
@@ -509,7 +507,7 @@ var T = {
     faqTitre: 'Frequently asked questions', faqAutre: 'Can’t find your answer?', poserQuestion: 'Ask my question',
     contactTitre: 'Contact us', appeler: 'Call', ecrireMail: 'Send an email', ville: 'Where to find us', horaires: 'Opening hours', facebook: 'Facebook page', site: 'Website',
     pied1: 'Indicative “from” prices, confirmed in your free quote.', pied2: 'APEL Éditions · Bringing your projects to life',
-    msgBonjour: 'Hello APEL Éditions 👋', msgGeneral: 'I would like some information about your offers.',
+    msgBonjour: 'Hello APEL Éditions,', msgGeneral: 'I would like some information about your offers.',
     msgPack: 'I am interested in the “{titre}” offer ({prix}).', msgProjet: 'My project: ',
     msgProfil: 'I am: ', msgBesoin: 'My need: ', msgQuand: 'Deadline: ', msgReco: 'Package suggested by the app: ',
     msgLivre: 'I would like to order the book “Le scénario pédagogique de l’enseignant augmenté”.', msgExemplaires: 'Number of copies: ', msgVille: 'Delivery town: ',
@@ -644,7 +642,9 @@ function enObjets(lignes) {
     return !vide && !/^(non|no|0|false|faux)$/i.test(o.afficher || '');
   });
 }
-function lireOnglet(nom) {
+var REQUIS = { packs: 'titre_fr', faq: 'question_fr', temoignages: 'texte_fr', reglages: 'cle' };
+// Google renvoie le premier onglet quand le nom demandé n'existe pas : la colonne requise permet de le détecter.
+function lireOnglet(nom, requis) {
   var url = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(CONFIG.sheetId) + '/gviz/tq?tqx=out:csv&headers=1&' + (typeof nom === 'number' ? 'gid=' + nom : 'sheet=' + encodeURIComponent(nom));
   var ctl = window.AbortController ? new AbortController() : null;
   var minuteur = setTimeout(function () { if (ctl) ctl.abort(); }, CONFIG.delaiSheetMs);
@@ -655,28 +655,49 @@ function lireOnglet(nom) {
   }).then(function (txt) {
     if (/^\s*</.test(txt)) throw new Error('pas un CSV');
     var lignes = lireCSV(txt);
-    if (lignes.length < 2 || !lignes[0].some(function (h) { return cleEntete(h); })) throw new Error('onglet vide ou illisible');
+    var cles = lignes.length ? lignes[0].map(cleEntete) : [];
+    if (lignes.length < 2 || cles.indexOf(requis) === -1 || (requis !== 'titre_fr' && cles.indexOf('titre_fr') !== -1)) throw new Error('onglet absent, vide ou illisible');
     return enObjets(lignes);
   });
 }
+// Le téléphone garde seulement ce qui vient du tableur ; le reste est repris de donnees.js à chaque visite,
+// pour qu'une nouvelle version de donnees.js (FAQ, réglages…) arrive aussi chez les visiteurs déjà venus.
+function cacheSheet() {
+  try { var c = JSON.parse(stock('apel-sheet') || 'null'); return c && c.s ? c : null; } catch (e) { return null; }
+}
+function fusion(def, s) {
+  def = def || {}; s = s || {};
+  return {
+    packs: s.packs && s.packs.length ? s.packs : def.packs || [],
+    faq: s.faq || def.faq || [],
+    temoignages: s.temoignages || def.temoignages || [],
+    reglages: s.reglages || def.reglages || {}
+  };
+}
 function chargerSheet() {
   if (!CONFIG.sheetId || APERCU || !window.fetch) return;
-  try { var c = JSON.parse(stock('apel-donnees') || 'null'); if (c && c.t && Date.now() - c.t < CONFIG.rafraichirMs) return; } catch (e) {}
+  var ancien = cacheSheet();
+  // Un âge négatif (horloge du téléphone avancée puis corrigée) force une nouvelle lecture.
+  if (ancien && ancien.t) { var age = Date.now() - ancien.t; if (age >= 0 && age < CONFIG.rafraichirMs) return; }
   var o = CONFIG.onglets;
-  Promise.all([o.packs, o.faq, o.temoignages, o.reglages].map(function (n) { return lireOnglet(n).catch(function () { return null; }); }))
+  Promise.all(['packs', 'faq', 'temoignages', 'reglages'].map(function (k) {
+    return o[k] == null ? null : lireOnglet(o[k], REQUIS[k]).catch(function () { return null; });
+  }))
     .then(function (res) {
       if (!res[0] && !res[1] && !res[2] && !res[3]) return;
-      var neuf = JSON.parse(JSON.stringify(etat.d));
+      // Un onglet illisible cette fois garde sa dernière version lue.
+      var sh = (ancien && ancien.s) || {};
       var packs = res[0] && normaliserPacks(res[0].filter(function (p) { return p.titre_fr; }));
-      if (packs && packs.length) neuf.packs = packs;
+      if (packs && packs.length) sh.packs = packs;
       var faq = res[1] && trier(res[1].filter(function (x) { return x.question_fr && x.reponse_fr; }));
-      if (faq && faq.length) neuf.faq = faq;
-      if (res[2]) neuf.temoignages = trier(res[2].filter(function (x) { return x.texte_fr; }));
-      if (res[3]) { var r = {}; res[3].forEach(function (x) { if (x.cle) r[x.cle.toLowerCase().trim()] = { fr: x.fr, en: x.en }; }); if (Object.keys(r).length) neuf.reglages = r; }
-      var change = JSON.stringify(neuf) !== JSON.stringify(etat.d);
-      etat.d = neuf; etat.pret = true;
-      stock('apel-donnees', JSON.stringify({ t: Date.now(), d: neuf }));
-      if (change) afficher(true);
+      if (faq && faq.length) sh.faq = faq;
+      if (res[2]) sh.temoignages = trier(res[2].filter(function (x) { return x.texte_fr; }));
+      if (res[3]) { var r = {}; res[3].forEach(function (x) { if (x.cle) r[x.cle.toLowerCase().trim()] = { fr: x.fr, en: x.en }; }); if (Object.keys(r).length) sh.reglages = r; }
+      ['faq', 'temoignages', 'reglages'].forEach(function (k) { if (o[k] == null) delete sh[k]; });
+      stock('apel-sheet', JSON.stringify({ t: Date.now(), s: sh }));
+      var avant = JSON.stringify(etat.d);
+      prendre(fusion(window.APEL_DEFAUT, sh));
+      if (JSON.stringify(etat.d) !== avant) afficher(true);
     });
 }
 
@@ -877,9 +898,9 @@ function afficher(silencieux, y) {
   window.scrollTo(0, y || 0);
   if (r.nom !== 'accueil' && h1) { h1.setAttribute('tabindex', '-1'); h1.focus({ preventScroll: true }); }
 }
-function changerLangue(l, sansRendu) {
+function changerLangue(l, sansRendu, memoriser) {
   l = langue(l); if (!l) return;
-  etat.lang = l; stock('apel-langue', l);
+  etat.lang = l; if (memoriser) stock('apel-langue', l);
   try { var u = new URL(location.href); if (u.searchParams.has('lang')) { u.searchParams.set('lang', l); history.replaceState(history.state, '', u.toString()); } } catch (e) {}
   document.documentElement.lang = l;
   document.title = t('titrePage');
@@ -890,9 +911,9 @@ function changerLangue(l, sansRendu) {
 }
 
 /* ---------- Partage ---------- */
-function adressePartage(hash) {
+function adressePartage(packId) {
   var base = /^https?:/.test(location.protocol) ? location.origin + location.pathname : CONFIG.adresse;
-  return base + '?src=partage' + (etat.lang === 'en' ? '&lang=en' : '') + (hash || '');
+  return base + '?src=partage' + (etat.lang === 'en' ? '&lang=en' : '') + (packId ? '&pack=' + encodeURIComponent(packId) : '');
 }
 function message(txt) {
   var el = document.createElement('div'); el.className = 'toast verre flottant'; el.setAttribute('role', 'status'); el.textContent = txt;
@@ -900,18 +921,42 @@ function message(txt) {
 }
 function partager(cible) {
   var p = cible && cible.indexOf('pack:') === 0 ? packParId(cible.slice(5)) : null;
-  var url = adressePartage(p ? '#/pack/' + encodeURIComponent(p.id) : '');
+  var url = adressePartage(p ? p.id : '');
   var texte = p ? t('partagePackTexte') + champ(p, 'titre') : t('partageTexte');
-  if (navigator.share) { navigator.share({ title: 'APEL Éditions', text: texte, url: url }).catch(function () {}); return; }
+  // Feuille du téléphone sur écran tactile ; sur ordinateur, la feuille de l'appli propose WhatsApp et Facebook.
+  var ua = navigator.userAgent || '';
+  var mobile = (window.matchMedia && matchMedia('(pointer: coarse)').matches) || /Android|iPhone|iPad|iPod/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
+  if (navigator.share && mobile) {
+    navigator.share({ title: 'APEL Éditions', text: texte, url: url }).catch(function (e) {
+      var n = e && e.name;
+      if (n !== 'AbortError' && n !== 'InvalidStateError') feuillePartage(url, texte);
+    });
+    return;
+  }
+  feuillePartage(url, texte);
+}
+function feuillePartage(url, texte) {
+  if (document.querySelector('.voile')) return;
+  var avant = document.activeElement, ouverte = Date.now();
   var voile = document.createElement('div'); voile.className = 'voile';
   voile.innerHTML = '<div class="feuille verre flottant" role="dialog" aria-modal="true" aria-labelledby="titre-partage"><h2 id="titre-partage">' + esc(t('partagerTitre')) + '</h2><div class="pile">' +
     '<a class="btn btn-primaire" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent(texte + ' ' + url) + '">' + svg('wa') + 'WhatsApp</a>' +
     '<a class="btn btn-verre" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url) + '">Facebook</a>' +
     '<button type="button" class="btn btn-verre" data-copier>' + svg('lien') + esc(t('copierLien')) + '</button>' +
     '<button type="button" class="btn btn-verre" data-fermer>' + esc(t('fermer')) + '</button></div></div>';
-  function fermer() { voile.remove(); document.removeEventListener('keydown', echap); }
-  function echap(e) { if (e.key === 'Escape') fermer(); }
+  function fermer() { voile.remove(); document.removeEventListener('keydown', echap); if (avant && avant.focus) avant.focus(); }
+  function echap(e) {
+    if (e.key === 'Escape') { fermer(); return; }
+    if (e.key !== 'Tab') return;
+    // Le focus reste dans la feuille tant qu'elle est ouverte.
+    var f = voile.querySelectorAll('a,button'), premier = f[0], dernier = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === premier) { e.preventDefault(); dernier.focus(); }
+    else if (!e.shiftKey && document.activeElement === dernier) { e.preventDefault(); premier.focus(); }
+    else if (!voile.contains(document.activeElement)) { e.preventDefault(); premier.focus(); }
+  }
   voile.addEventListener('click', function (e) {
+    // Le 2e clic d'un double-clic sur « Partager » tomberait sur « Fermer » : ignoré.
+    if (Date.now() - ouverte < 400) return;
     if (e.target === voile || e.target.closest('[data-fermer]')) fermer();
     else if (e.target.closest('[data-copier]')) {
       var fin = function () { message(t('lienCopie')); fermer(); };
@@ -949,26 +994,27 @@ function quandDonnees(suite) {
 }
 function demarrer() {
   var params = new URLSearchParams(location.search);
-  var src = nettoyer(params.get('src'), 30), parrain = nettoyer(params.get('parrain') || params.get('ref'), 40);
+  var src = nettoyer(params.get('src') || params.get('ref'), 30), parrain = nettoyer(params.get('parrain'), 40);
   try {
     if (src) sessionStorage.setItem('apel-src', src); else src = sessionStorage.getItem('apel-src') || '';
     if (parrain) sessionStorage.setItem('apel-parrain', parrain); else parrain = sessionStorage.getItem('apel-parrain') || '';
   } catch (e) {}
   etat.src = src; etat.parrain = parrain;
 
-  if (CONFIG.sheetId && !APERCU) {
-    try { var c = JSON.parse(stock('apel-donnees') || 'null'); if (c && c.d && c.d.packs && c.d.packs.length) prendre(c.d); } catch (e) {}
-  }
-  if (!etat.pret && window.APEL_DEFAUT) prendre(window.APEL_DEFAUT);
+  try { localStorage.removeItem('apel-donnees'); } catch (e) {}
+  var cs = CONFIG.sheetId && !APERCU ? cacheSheet() : null, sh = cs && cs.s;
+  if (window.APEL_DEFAUT || (sh && sh.packs && sh.packs.length)) prendre(fusion(window.APEL_DEFAUT, sh));
 
   etat.lang = langue(params.get('lang')) || langue(stock('apel-langue')) || ((navigator.language || 'fr').slice(0, 2) === 'en' ? 'en' : 'fr');
+  var pk = params.get('pack');
+  if (pk && !location.hash) { try { history.replaceState(null, '', location.pathname + location.search + '#/pack/' + encodeURIComponent(pk)); } catch (e) {} }
   pile = [location.hash || '#/'];
 
   document.addEventListener('click', function (e) {
     var ev = e.target.closest('a.sr[href="#contenu"]');
     if (ev) { e.preventDefault(); var m = document.getElementById('contenu'); m.focus(); m.scrollIntoView(); return; }
     var b = e.target.closest('[data-lang]');
-    if (b) { changerLangue(b.getAttribute('data-lang')); return; }
+    if (b) { changerLangue(b.getAttribute('data-lang'), false, true); return; }
     var rt = e.target.closest('a.retour');
     if (rt && pile.length > 1) { e.preventDefault(); history.back(); return; }
     var g = e.target.closest('[data-guide]');
@@ -993,13 +1039,15 @@ function demarrer() {
   changerLangue(etat.lang, true);
   afficher();
   activerInclinaison();
-  if (etat.pret) chargerSheet();
-  else quandDonnees(function (d) {
-    if (!etat.pret) { if (d) prendre(d); else etat.pret = true; afficher(true); }
+  quandDonnees(function (d) {
+    var avant = etat.pret ? JSON.stringify(etat.d) : '';
+    if (d) prendre(fusion(d, sh)); else etat.pret = true;
+    if (JSON.stringify(etat.d) !== avant) afficher(true);
     chargerSheet();
   });
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && !APERCU) {
-    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    // Une page déjà contrôlée n'a pas besoin d'enregistrer : le navigateur vérifie sw.js à chaque visite.
+    window.addEventListener('load', function () { if (!navigator.serviceWorker.controller) navigator.serviceWorker.register('sw.js').catch(function () {}); });
   }
 }
 demarrer();

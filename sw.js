@@ -1,16 +1,24 @@
 // Mise en cache pour un chargement rapide et un usage hors connexion.
-// Changer VERSION à chaque publication pour que les téléphones récupèrent la nouvelle version.
-const VERSION = 'apel-offres-v3';
-const BASE = ['index.html', 'donnees.js', 'assets/logo-96.webp', 'assets/logo-192.webp',
+// Changer VERSION à chaque publication (garder le préfixe apel-offres-) pour que les téléphones récupèrent la nouvelle version.
+const VERSION = 'apel-offres-v4';
+// Indispensables : sans eux, pas d'installation. Les autres sont mis en cache s'ils existent.
+const ESSENTIELS = ['index.html', 'donnees.js'];
+const SECONDAIRES = ['assets/logo-96.webp', 'assets/logo-192.webp',
   'polices/inter-Regular.woff2', 'polices/inter-SemiBold.woff2', 'polices/inter-ExtraBold.woff2'];
 
+// cache: 'no-cache' : le navigateur revérifie auprès du serveur (réponse 304 légère si rien n'a changé)
+// au lieu de reprendre sa copie de 10 minutes de GitHub Pages.
+const frais = u => new Request(u, { cache: 'no-cache' });
+
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(BASE)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION)
+    .then(c => c.addAll(ESSENTIELS.map(frais)).then(() => Promise.all(SECONDAIRES.map(u => c.add(frais(u)).catch(() => {})))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
-    .then(cles => Promise.all(cles.filter(k => k !== VERSION).map(k => caches.delete(k))))
+    .then(cles => Promise.all(cles.filter(k => k.indexOf('apel-offres-') === 0 && k !== VERSION).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 
@@ -19,19 +27,55 @@ function estPageAppli(url) {
   return url.pathname === racine || url.pathname === racine + 'index.html';
 }
 
+let retire = false;
+
 // N'enregistre qu'une réponse correcte et du bon type (jamais une page d'erreur ou une image à la place de la page).
 function garder(cle, r, type) {
-  if (r && r.ok && (r.headers.get('content-type') || '').indexOf(type) !== -1) {
+  if (!retire && r && r.ok && (r.headers.get('content-type') || '').indexOf(type) !== -1) {
     const copie = r.clone();
-    caches.open(VERSION).then(c => c.put(cle, copie));
+    caches.open(VERSION).then(c => retire ? null : c.put(cle, copie));
   }
 }
 
+// La redirection mène-t-elle à une adresse qui répond (nom de domaine, certificat, https) ?
+// Sinon, on garde la copie actuelle et on réessaiera à la visite suivante.
+function redirectionValide() {
+  return fetch(new URL('./', self.registration.scope).href, { mode: 'no-cors', cache: 'no-store' }).then(() => true, () => false);
+}
+
+// Si l'adresse de l'appli redirige ailleurs (passage à un nom de domaine), ce service worker se retire
+// et recharge les pages ouvertes : les visiteurs suivent alors la redirection au lieu de garder l'ancienne copie.
+function effacerCaches() {
+  return caches.keys().then(cles => Promise.all(cles.filter(k => k.indexOf('apel-offres-') === 0).map(k => caches.delete(k))));
+}
+function quitter(e, servieDuCache) {
+  retire = true;
+  // La page servie depuis le cache existera bientôt : on l'attend 5 s au plus. Sinon, le navigateur suit déjà la redirection.
+  const page = servieDuCache && e.resultingClientId
+    ? Promise.race([self.clients.get(e.resultingClientId), new Promise(r => setTimeout(r, 5000))]) : null;
+  return self.registration.unregister()
+    .then(effacerCaches)
+    .then(() => Promise.all([self.clients.matchAll({ type: 'window' }), page]))
+    .then(([fen, p]) => {
+      if (p && !fen.some(c => c.id === p.id)) fen.push(p);
+      return Promise.all(fen.map(c => c.navigate(c.url.replace(/#.*$/, '')).catch(() => {})));
+    })
+    // Seconde passe : une copie en cours d'écriture au moment du retrait ne doit pas survivre.
+    .then(effacerCaches);
+}
+
 // Cache d'abord (affichage immédiat), puis mise à jour en arrière-plan pour la visite suivante.
+// La réponse n'attend jamais le traitement d'une redirection.
 function cacheDAbord(e, cle, type) {
-  const reseau = fetch(e.request).then(r => { garder(cle, r, type); return r; });
-  e.waitUntil(reseau.then(() => {}, () => {}));
-  return caches.match(cle).then(enCache => enCache || reseau);
+  const req = e.request.mode === 'navigate' ? e.request : new Request(e.request, { cache: 'no-cache' });
+  const enCache = caches.match(cle);
+  const reseau = fetch(req).then(r => { garder(cle, r, type); return r; });
+  e.waitUntil(Promise.all([reseau, enCache]).then(([r, copie]) => {
+    if (cle === 'index.html' && r.type === 'opaqueredirect') {
+      return redirectionValide().then(ok => ok ? quitter(e, !!copie) : null);
+    }
+  }).catch(() => {}));
+  return enCache.then(copie => copie || reseau);
 }
 
 self.addEventListener('fetch', e => {
@@ -48,7 +92,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   e.respondWith(caches.match(req).then(r => r || fetch(req).then(res => {
-    if (res.ok && res.type === 'basic') { const copie = res.clone(); caches.open(VERSION).then(c => c.put(req, copie)); }
+    if (!retire && res.ok && res.type === 'basic') { const copie = res.clone(); caches.open(VERSION).then(c => retire ? null : c.put(req, copie)); }
     return res;
   })));
 });
