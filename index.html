@@ -352,7 +352,7 @@ var CONFIG = {
   // Onglets facultatifs : mettre leur nom exact (ex. 'FAQ') une fois créés ; null = non lu.
   onglets: { packs: 0, faq: null, temoignages: null, reglages: null },
   // Tableur des livres de la bibliothèque (premier onglet). Vide = livres intégrés seulement.
-  livresSheetId: '1PVpsnt00vKxuuXXzicPNqQzhrBK1KvZshq1vP_l2tZw',
+  livresSheetId: '1Y7rfIrzuaJ44LR5YYbMu_JQLXDe1chQg5spTOxTW53s',
   delaiSheetMs: 7000,
   // Délai minimal entre deux lectures du Google Sheet sur un même téléphone (1 heure).
   rafraichirMs: 3600000,
@@ -778,7 +778,13 @@ function lireOnglet(nom, requis, sheetId) {
 // Le téléphone garde seulement ce qui vient du tableur ; le reste est repris de donnees.js à chaque visite,
 // pour qu'une nouvelle version de donnees.js (FAQ, réglages…) arrive aussi chez les visiteurs déjà venus.
 function cacheSheet() {
-  try { var c = JSON.parse(stock('apel-sheet') || 'null'); return c && c.s ? c : null; } catch (e) { return null; }
+  try {
+    var c = JSON.parse(stock('apel-sheet') || 'null');
+    if (!c || !c.s) return null;
+    // Livres lus dans un autre tableur (tableur « Livres » remplacé) : oubliés.
+    if (c.s.livres && c.s.livresDe !== CONFIG.livresSheetId) delete c.s.livres;
+    return c;
+  } catch (e) { return null; }
 }
 function fusion(def, s) {
   def = def || {}; s = s || {};
@@ -824,8 +830,8 @@ function chargerSheet(force, fini) {
       if (res[2]) sh.temoignages = trier(res[2].filter(function (x) { return x.texte_fr; }));
       if (res[3]) { var r = {}; res[3].forEach(function (x) { if (x.cle) r[x.cle.toLowerCase().trim()] = { fr: x.fr, en: x.en }; }); if (Object.keys(r).length) sh.reglages = r; }
       // Livres : un tableur lisible fait foi, même vide (tous les livres masqués).
-      if (res[4]) sh.livres = completerLivres(res[4].filter(function (x) { return x.id && x.titre; }), (window.APEL_DEFAUT && window.APEL_DEFAUT.livres) || []);
-      if (!CONFIG.livresSheetId) delete sh.livres;
+      if (res[4]) { sh.livres = completerLivres(res[4].filter(function (x) { return x.id && x.titre; }), (window.APEL_DEFAUT && window.APEL_DEFAUT.livres) || []); sh.livresDe = CONFIG.livresSheetId; }
+      if (!CONFIG.livresSheetId) { delete sh.livres; delete sh.livresDe; }
       ['faq', 'temoignages', 'reglages'].forEach(function (k) { if (o[k] == null) delete sh[k]; });
       stock('apel-sheet', JSON.stringify({ t: Date.now(), s: sh }));
       var avant = JSON.stringify(etat.d);

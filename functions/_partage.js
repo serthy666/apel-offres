@@ -7,7 +7,7 @@
 
 // Mêmes identifiants que CONFIG.sheetId et CONFIG.livresSheetId dans index.html.
 const TABLEUR_OFFRES = '1Cgaxi_SWzB9NGhl9LkeGCm_gDmgx2y4H-hVEi2Ed7o8';
-const TABLEUR_LIVRES = '1PVpsnt00vKxuuXXzicPNqQzhrBK1KvZshq1vP_l2tZw';
+const TABLEUR_LIVRES = '1Y7rfIrzuaJ44LR5YYbMu_JQLXDe1chQg5spTOxTW53s';
 
 const ENTETES = {
   afficher: 'afficher', code: 'id', id: 'id', titre: 'titre', titrefr: 'titre_fr', titreen: 'titre_en', auteur: 'auteur',
