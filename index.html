@@ -1098,8 +1098,9 @@ var VUES = {
       (champ(l, 'sous') ? '<p class="muet" style="margin:0 0 4px"' + langFr(l, 'sous') + '>' + esc(champ(l, 'sous')) + '</p>' : '') +
       '<p class="muet" style="margin:0;font-size:14px">' + esc([l.auteur, l.editeur || 'APEL Éditions', l.annee].filter(Boolean).join(' · ')) + '</p></div>' +
       blocPrixLivre(l) +
-      (resume ? '<div class="verre panneau"><h2 class="h3" style="margin-bottom:8px">' + esc(t('resume')) + '</h2><p style="margin:0"' + langFr(l, 'resume') + '>' + esc(resume).replace(/\n/g, '<br>') + '</p>' +
-        (details ? '<p class="muet" style="margin:10px 0 0;font-size:14px"' + langFr(l, 'details') + '>' + esc(details) + '</p>' : '') + '</div>' : '') +
+      (resume || details ? '<div class="verre panneau">' +
+        (resume ? '<h2 class="h3" style="margin-bottom:8px">' + esc(t('resume')) + '</h2><p style="margin:0"' + langFr(l, 'resume') + '>' + esc(resume).replace(/\n/g, '<br>') + '</p>' : '') +
+        (details ? '<p class="muet" style="margin:' + (resume ? '10px' : '0') + ' 0 0;font-size:14px"' + langFr(l, 'details') + '>' + esc(details) + '</p>' : '') + '</div>' : '') +
       (note ? '<p class="info">' + svg('info') + '<span' + langFr(l, 'note') + '>' + esc(note) + '</span></p>' : '') +
       aWa(lignesLivre(l), t(l.vente ? 'commanderWa' : 'livreInteresse'), 'btn-primaire btn-plein') +
       (num ? '<a class="btn btn-verre btn-plein" href="' + esc(num) + '" target="_blank" rel="noopener">' + svg('web') + esc(t(l.prix_num ? 'obtenirNum' : 'versionNum')) + '</a>' : '') +
