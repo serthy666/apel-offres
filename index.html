@@ -748,18 +748,19 @@ function cleEntete(h) {
   var n = String(h).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
   return ENTETES[n] || (n.indexOf('afficher') === 0 ? 'afficher' : '');
 }
-function enObjets(lignes) {
+// masques : garder les lignes « Afficher NON » (tableur Livres : elles masquent le livre intégré de même code).
+function enObjets(lignes, masques) {
   var cles = lignes[0].map(cleEntete);
   return lignes.slice(1).map(function (l) {
     var o = {}; cles.forEach(function (k, i) { if (k) o[k] = (l[i] || '').trim(); }); return o;
   }).filter(function (o) {
     var vide = Object.keys(o).every(function (k) { return !o[k]; });
-    return !vide && !/^(non|no|0|false|faux)$/i.test(o.afficher || '');
+    return !vide && (masques || !/^(non|no|0|false|faux)$/i.test(o.afficher || ''));
   });
 }
 var REQUIS = { packs: 'titre_fr', faq: 'question_fr', temoignages: 'texte_fr', reglages: 'cle', livres: 'titre' };
 // Google renvoie le premier onglet quand le nom demandé n'existe pas : la colonne requise permet de le détecter.
-function lireOnglet(nom, requis, sheetId) {
+function lireOnglet(nom, requis, sheetId, masques) {
   var url = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(sheetId || CONFIG.sheetId) + '/gviz/tq?tqx=out:csv&headers=1&' + (typeof nom === 'number' ? 'gid=' + nom : 'sheet=' + encodeURIComponent(nom));
   var ctl = window.AbortController ? new AbortController() : null;
   var minuteur = setTimeout(function () { if (ctl) ctl.abort(); }, CONFIG.delaiSheetMs);
@@ -772,7 +773,7 @@ function lireOnglet(nom, requis, sheetId) {
     var lignes = lireCSV(txt);
     var cles = lignes.length ? lignes[0].map(cleEntete) : [];
     if (lignes.length < 2 || cles.indexOf(requis) === -1 || (requis !== 'titre_fr' && cles.indexOf('titre_fr') !== -1)) throw new Error('onglet absent, vide ou illisible');
-    return enObjets(lignes);
+    return enObjets(lignes, masques);
   });
 }
 // Le téléphone garde seulement ce qui vient du tableur ; le reste est repris de donnees.js à chaque visite,
@@ -793,8 +794,15 @@ function fusion(def, s) {
     faq: s.faq || def.faq || [],
     temoignages: s.temoignages || def.temoignages || [],
     reglages: s.reglages || def.reglages || {},
-    livres: s.livres ? completerLivres(s.livres, def.livres || []) : def.livres || []
+    livres: s.livres ? completerLivres(s.livres, def.livres || []).concat(horsTableur(s.livres, def.livres || [])) : def.livres || []
   };
+}
+// Livres intégrés à l'appli sans ligne dans le tableur (ajoutés depuis) : affichés aussi.
+// Une ligne du tableur avec le même code les remplace ; « Afficher NON » les masque.
+function horsTableur(tableur, integres) {
+  var codes = {};
+  tableur.forEach(function (l) { codes[String(l.id || '').toLowerCase().replace(/[^a-z0-9-]/g, '')] = 1; });
+  return integres.filter(function (x) { return !codes[x.id]; });
 }
 // Un livre du tableur garde la couverture intégrée à l'appli qui porte le même code (si la case Couverture est vide).
 function completerLivres(livres, integres) {
@@ -817,7 +825,7 @@ function chargerSheet(force, fini) {
   var lectures = ['packs', 'faq', 'temoignages', 'reglages'].map(function (k) {
     return o[k] == null ? null : lireOnglet(o[k], REQUIS[k]).catch(function () { return null; });
   });
-  lectures.push(CONFIG.livresSheetId ? lireOnglet(0, REQUIS.livres, CONFIG.livresSheetId).catch(function () { return null; }) : null);
+  lectures.push(CONFIG.livresSheetId ? lireOnglet(0, REQUIS.livres, CONFIG.livresSheetId, true).catch(function () { return null; }) : null);
   Promise.all(lectures)
     .then(function (res) {
       if (!res[0] && !res[1] && !res[2] && !res[3] && !res[4]) { fini(); return; }
@@ -830,7 +838,8 @@ function chargerSheet(force, fini) {
       if (res[2]) sh.temoignages = trier(res[2].filter(function (x) { return x.texte_fr; }));
       if (res[3]) { var r = {}; res[3].forEach(function (x) { if (x.cle) r[x.cle.toLowerCase().trim()] = { fr: x.fr, en: x.en }; }); if (Object.keys(r).length) sh.reglages = r; }
       // Livres : un tableur lisible fait foi, même vide (tous les livres masqués).
-      if (res[4]) { sh.livres = completerLivres(res[4].filter(function (x) { return x.id && x.titre; }), (window.APEL_DEFAUT && window.APEL_DEFAUT.livres) || []); sh.livresDe = CONFIG.livresSheetId; }
+      // Une ligne sans titre ne compte que si elle masque un livre (Afficher NON).
+      if (res[4]) { sh.livres = completerLivres(res[4].filter(function (x) { return x.id && (x.titre || faux(x.afficher)); }), (window.APEL_DEFAUT && window.APEL_DEFAUT.livres) || []); sh.livresDe = CONFIG.livresSheetId; }
       if (!CONFIG.livresSheetId) { delete sh.livres; delete sh.livresDe; }
       ['faq', 'temoignages', 'reglages'].forEach(function (k) { if (o[k] == null) delete sh[k]; });
       stock('apel-sheet', JSON.stringify({ t: Date.now(), s: sh }));

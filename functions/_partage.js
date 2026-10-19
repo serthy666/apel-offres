@@ -83,9 +83,10 @@ async function livre(c, url, env) {
   const integre = (d.livres || []).find(x => code(x.id) === c) || null;
   const lignes = await tableur(TABLEUR_LIVRES, env);
   let l = integre;
-  if (lignes) {
-    const ligne = lignes.find(x => code(x.id) === c);
-    if (!ligne || faux(ligne.afficher)) return null;
+  // Une ligne du tableur remplace le livre intégré de même code ; sans ligne, le livre intégré reste affiché.
+  const ligne = lignes && lignes.find(x => code(x.id) === c && (x.titre || faux(x.afficher)));
+  if (ligne) {
+    if (faux(ligne.afficher)) return null;
     l = Object.assign({}, integre || {}, ligne, { couverture: ligne.couverture || '' });
   }
   if (!l || faux(l.afficher)) return null;

@@ -1,6 +1,6 @@
 // Mise en cache pour un chargement rapide et un usage hors connexion.
 // Changer VERSION à chaque publication (garder le préfixe apel-offres-) pour que les téléphones récupèrent la nouvelle version.
-const VERSION = 'apel-offres-v9';
+const VERSION = 'apel-offres-v10';
 // Indispensables : sans eux, pas d'installation. Les autres sont mis en cache s'ils existent.
 const ESSENTIELS = ['index.html', 'donnees.js'];
 const SECONDAIRES = ['assets/logo-96.webp', 'assets/logo-192.webp',
