@@ -206,6 +206,8 @@ function nettoyer(d) {
     email: txt(c.email, 120).toLowerCase(),
     facebook: lien(c.facebook),
     tiktok: lien(c.tiktok),
+    groupe: lien(c.groupe),
+    chaine: lien(c.chaine),
     annonce: txt(c.annonce, 120)
   };
   const vus = new Set();
@@ -250,7 +252,7 @@ function resumer(ancien, nouveau) {
   const ordreApres = nouveau.produits.map(p => p.id).filter(id => avant.has(id));
   if (ordreAvant.join() !== ordreApres.join()) lignes.push("Nouvel ordre des articles");
   const ac = ancien.config || {}, nc = nouveau.config;
-  if (["whatsapp", "whatsapp2", "email", "facebook", "tiktok"].some(k => (ac[k] || "") !== nc[k])) lignes.push("Coordonnées");
+  if (["whatsapp", "whatsapp2", "email", "facebook", "tiktok", "groupe", "chaine"].some(k => (ac[k] || "") !== nc[k])) lignes.push("Coordonnées");
   if ((ac.annonce || "") !== nc.annonce) lignes.push(nc.annonce ? "Annonce « " + nc.annonce + " »" : "Fin de l'annonce");
   if (!lignes.length) return "Enregistrement sans changement";
   const tete = lignes.length > 4 ? lignes.slice(0, 3).join(" · ") + " et " + (lignes.length - 3) + " autres changements" : lignes.join(" · ");
