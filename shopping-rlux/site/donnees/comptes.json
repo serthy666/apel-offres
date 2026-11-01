@@ -1,3 +1,9 @@
 {
-  "comptes": []
+  "comptes": [
+    {
+      "email": "sorelle881@gmail.com",
+      "statut": "invite",
+      "depuis": "2026-11-01"
+    }
+  ]
 }
