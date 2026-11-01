@@ -73,6 +73,10 @@ async function client(p, s, vue, n) {
   verifie((await texte(p, "#wa2-numero")).includes("690 808 155"), "numéro WhatsApp et appel 690 808 155");
   verifie((await p.locator("#wa2-appel").getAttribute("href")) === "tel:+237690808155", "bouton Appeler");
   verifie((await texte(p, "#mail-adresse")) === "shoppingrlux12@gmail.com", "adresse e-mail");
+  verifie(await p.locator("#communaute").isVisible(), "section Communauté WhatsApp");
+  verifie((await p.locator("#lien-groupe").getAttribute("href")) === "https://chat.whatsapp.com/GFLtFN347yZFBPRGVMrK9G", "lien du groupe WhatsApp");
+  verifie((await p.locator("#lien-chaine").getAttribute("href")) === "https://whatsapp.com/channel/0029VbEJaFuEgGfFLPiy1z2l", "lien de la chaîne WhatsApp");
+  verifie((await p.locator("#pied-chaine").getAttribute("href")) === "https://whatsapp.com/channel/0029VbEJaFuEgGfFLPiy1z2l", "chaîne WhatsApp en pied de page");
   verifie(await largeur(p) <= vue.width, vue.width + " px : pas de défilement horizontal (accueil)");
   await capture(p, "accueil-" + vue.width);
   await capture(p, "page-" + vue.width, true);
@@ -255,7 +259,8 @@ async function complet(nav, vue) {
   await p2.locator('#puces-rayons [data-rayon="livres"]').click();
   verifie(await cartes(p2) === 2, "univers Livres : 2 articles");
   await p2.locator('#puces-rayons [data-rayon="soins"]').click();
-  verifie(await cartes(p2) === 0 && (await p2.locator("#grille .vide a").count()) === 1, "univers vide : demande sur WhatsApp");
+  verifie(await cartes(p2) === 0 && (await p2.locator('#grille .vide a[href*="wa.me"]').count()) === 1, "univers vide : demande sur WhatsApp");
+  verifie(await p2.locator('#grille .vide a[href*="whatsapp.com/channel"]').count() === 1, "univers vide : suivre la chaîne pour les arrivages");
   await p2.locator('#puces-rayons [data-rayon="tous"]').click();
   // Favoris
   await carte(p2, "Boxer coton homme").locator(".coeur").click();
@@ -326,6 +331,16 @@ async function complet(nav, vue) {
   await p2.goto(s.url + "/");
   await p2.locator("#annonce").waitFor({ state: "visible" });
   verifie((await texte(p2, "#annonce")) === "Nouvel arrivage de parfums !", "annonce affichée en boutique");
+  // Groupe et chaîne WhatsApp modifiables : lien collé sans https complété, lien vide qui masque le bouton
+  await p.fill("#cfg-groupe", "chat.whatsapp.com/NouveauGroupe1");
+  await p.fill("#cfg-chaine", "");
+  await enregistrer(p);
+  const cfg = JSON.parse(s.depot.lire("donnees/produits.json")).config;
+  verifie(cfg.groupe === "https://chat.whatsapp.com/NouveauGroupe1" && cfg.chaine === "", "groupe et chaîne enregistrés dans le dépôt");
+  verifie(s.depot.journal.at(-1).includes("Coordonnées"), "commit : coordonnées modifiées");
+  await p2.goto(s.url + "/");
+  await p2.locator("#grille .produit").first().waitFor();
+  verifie((await p2.locator("#lien-groupe").getAttribute("href")) === "https://chat.whatsapp.com/NouveauGroupe1" && await p2.locator("#lien-chaine").isHidden(), "boutique : nouveau groupe, chaîne masquée");
 
   // Appli installable
   verifie(await p2.evaluate(() => Promise.race([navigator.serviceWorker.ready.then(() => true), new Promise(r => setTimeout(() => r(false), 5000))])), "service worker actif (appli installable)");

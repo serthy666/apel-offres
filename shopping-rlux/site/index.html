@@ -275,6 +275,16 @@ section{margin-top:44px}
 .livre3d .titre b{display:block;color:var(--or-vif);font-size:14px}
 
 /* Comment commander */
+/* Communauté WhatsApp : groupe et chaîne */
+.communaute{display:grid;gap:16px;padding:24px 20px 26px;align-items:center}
+@media (min-width:760px){.communaute{grid-template-columns:auto 1fr;gap:24px;padding:32px 36px}}
+.communaute .ico{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;color:#fff;
+  background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.45),rgba(255,255,255,0) 55%),linear-gradient(180deg,#2FD06C,#128C3E);box-shadow:inset 0 0 0 1.5px rgba(244,213,126,.75),0 14px 26px -12px rgba(37,211,102,.65)}
+.communaute .ico svg{width:32px;height:32px}
+.communaute p{color:var(--texte-2);margin:10px 0 16px;max-width:52ch}
+.communaute .boutons .bouton{flex:1 1 210px}
+.pied a{color:var(--or-vif);font-weight:600;font-size:13px}
+.vide .boutons{justify-content:center}
 .etapes-cmd{display:grid;gap:12px;margin:0;padding:0;list-style:none;counter-reset:e}
 @media (min-width:760px){.etapes-cmd{grid-template-columns:repeat(3,1fr)}}
 .etapes-cmd li{counter-increment:e;display:grid;grid-template-columns:46px 1fr;gap:12px;padding:16px;align-items:start}
@@ -554,6 +564,21 @@ body.mode-admin{padding-bottom:110px}
     </div>
   </section>
 
+  <section id="communaute" class="enveloppe">
+    <div class="communaute verre vivant">
+      <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-groupe"/></svg></span>
+      <div>
+        <p class="sur-titre" style="margin:0 0 8px">Communauté WhatsApp</p>
+        <h2 class="bloc-titre or-texte">Rejoignez Shopping R-Lux</h2>
+        <p>Arrivages, nouveautés et promotions en avant-première, directement sur votre WhatsApp.</p>
+        <div class="boutons">
+          <a class="bouton wa" href="#" id="lien-groupe" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-groupe"/></svg>Rejoindre le groupe</a>
+          <a class="bouton" href="#" id="lien-chaine" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-chaine"/></svg>Suivre la chaîne</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="commander" class="enveloppe">
     <div class="titre-section"><h2 class="or-texte">Comment commander</h2></div>
     <ol class="etapes-cmd">
@@ -595,6 +620,7 @@ body.mode-admin{padding-bottom:110px}
     <img src="assets/logo-rond-192.webp" width="64" height="64" alt="" loading="lazy">
     <p><b class="or-texte" style="font-family:var(--affiche);font-size:15px">Shopping R-Lux</b></p>
     <p>Douala, Cameroun · Livraison partout au Cameroun</p>
+    <p id="pied-communaute"><a href="#" id="pied-groupe" target="_blank" rel="noopener">Groupe WhatsApp</a><span id="pied-sep"> · </span><a href="#" id="pied-chaine" target="_blank" rel="noopener">Chaîne WhatsApp</a></p>
     <p><a href="#admin" class="lien-bouton" style="font-size:13px">Espace gérant</a></p>
   </footer>
 </main>
@@ -639,6 +665,8 @@ body.mode-admin{padding-bottom:110px}
         <div class="champ"><label for="cfg-annonce">Annonce en haut de la boutique</label><input id="cfg-annonce" maxlength="120" placeholder="Ex. : Nouvel arrivage de parfums !"></div>
         <div class="champ"><label for="cfg-fb">Lien de la page Facebook</label><input id="cfg-fb" type="url" inputmode="url" placeholder="https://www.facebook.com/…"></div>
         <div class="champ"><label for="cfg-tt">Lien du compte TikTok</label><input id="cfg-tt" type="url" inputmode="url" placeholder="https://www.tiktok.com/@…"></div>
+        <div class="champ"><label for="cfg-groupe">Lien du groupe WhatsApp</label><input id="cfg-groupe" type="url" inputmode="url" placeholder="https://chat.whatsapp.com/…"></div>
+        <div class="champ"><label for="cfg-chaine">Lien de la chaîne WhatsApp</label><input id="cfg-chaine" type="url" inputmode="url" placeholder="https://whatsapp.com/channel/…"></div>
       </div>
     </div>
 
@@ -704,6 +732,8 @@ body.mode-admin{padding-bottom:110px}
 <symbol id="ico-tel" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M5 3.5h3.5l1.5 4.5-2.2 1.4a11 11 0 0 0 6.8 6.8l1.4-2.2 4.5 1.5V19a1.5 1.5 0 0 1-1.6 1.5C10.5 20 4 13.5 3.5 5.1A1.5 1.5 0 0 1 5 3.5Z"/></symbol>
 <symbol id="ico-mail" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M3.5 5.5h17v13h-17zM3.5 6l8.5 7 8.5-7"/></symbol>
 <symbol id="ico-fb" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 21v-7.5H16l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4a21 21 0 0 0-2.3-.1c-2.3 0-3.9 1.4-3.9 4v2.2H8v3h2.4V21h3.1Z"/></symbol>
+<symbol id="ico-groupe" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M9 11.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M15.5 4.8a3.5 3.5 0 0 1 0 6.4M18 14.5c2 .8 3.5 2.8 3.5 5.5"/></symbol>
+<symbol id="ico-chaine" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M3.5 10v4a1 1 0 0 0 1 1H7l6 4.5v-15L7 9H4.5a1 1 0 0 0-1 1ZM16.5 9a4.5 4.5 0 0 1 0 6M19 6.5a8 8 0 0 1 0 11"/></symbol>
 <symbol id="ico-tiktok" viewBox="0 0 24 24"><path fill="currentColor" d="M16.6 3c.4 2.2 1.8 3.6 4 3.8v3.1a7 7 0 0 1-4-1.3v6.3a5.9 5.9 0 1 1-5.9-5.9l.9.1v3.2a2.8 2.8 0 1 0 1.9 2.6V3h3.1Z"/></symbol>
 </svg>
 <script src="app.js" defer></script>

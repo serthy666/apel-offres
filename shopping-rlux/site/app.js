@@ -3,6 +3,8 @@
 "use strict";
 var API = "/api/gerant";
 var WA1 = "237676962519", WA2 = "237690808155", MAIL = "shoppingrlux12@gmail.com";
+// Communauté WhatsApp de la boutique (modifiable dans l'espace gérant, « Coordonnées »)
+var GROUPE = "https://chat.whatsapp.com/GFLtFN347yZFBPRGVMrK9G", CHAINE = "https://whatsapp.com/channel/0029VbEJaFuEgGfFLPiy1z2l";
 
 /* Univers de la boutique et leurs catégories (les produits qui se ressemblent sont regroupés) */
 var RAYONS = {
@@ -49,7 +51,7 @@ function dessin(r) {
 /* Données : catalogue publié, puis copie de travail dans l'espace gérant */
 function nouvelId() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 function P(o) { return Object.assign({ id: nouvelId(), nom: "", rayon: "parfums", categorie: "Parfums", marque: "", details: "", options: "", auteur: "", lien: "", prix: 0, prixPromo: 0, nouveau: false, vedette: false, stock: "ok", visible: true, photos: [] }, o); }
-function configVide() { return { whatsapp: WA1, whatsapp2: WA2, email: MAIL, facebook: "", tiktok: "", annonce: "" }; }
+function configVide() { return { whatsapp: WA1, whatsapp2: WA2, email: MAIL, facebook: "", tiktok: "", groupe: GROUPE, chaine: CHAINE, annonce: "" }; }
 function completer(d) {
   d = d && typeof d === "object" ? d : {};
   var c = Object.assign(configVide(), d.config || {});
@@ -213,7 +215,8 @@ function rendreBoutique() {
   var q = requete.trim(), msg;
   if (voirFavoris) msg = "<p>Touchez le cœur d'un article pour le retrouver ici.</p>";
   else if (q) msg = "<p>Aucun article ne correspond à « " + esc(q) + " ».</p>" + '<a class="bouton wa" target="_blank" rel="noopener" href="' + esc(lienWa("Bonjour Shopping R-Lux, je cherche : " + q + ". L'avez-vous ?")) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-wa"/></svg>Demander sur WhatsApp</a>';
-  else msg = "<p>Les articles de cet univers arrivent bientôt. Dites-nous ce que vous cherchez :</p>" + '<a class="bouton wa" target="_blank" rel="noopener" href="' + esc(lienWa("Bonjour Shopping R-Lux, je cherche un article " + (rayon === "tous" ? "" : "(" + nomRayon(rayon) + ") ") + ": ")) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-wa"/></svg>Demander sur WhatsApp</a>';
+  else msg = "<p>Les articles de cet univers arrivent bientôt. Dites-nous ce que vous cherchez" + (etat.config.chaine ? ", ou suivez la chaîne pour être prévenu des arrivages" : "") + " :</p>" + '<div class="boutons"><a class="bouton wa" target="_blank" rel="noopener" href="' + esc(lienWa("Bonjour Shopping R-Lux, je cherche un article " + (rayon === "tous" ? "" : "(" + nomRayon(rayon) + ") ") + ": ")) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-wa"/></svg>Demander sur WhatsApp</a>' +
+    (etat.config.chaine ? '<a class="bouton" target="_blank" rel="noopener" href="' + esc(etat.config.chaine) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-chaine"/></svg>Suivre la chaîne</a>' : "") + "</div>";
   g.innerHTML = '<div class="vide verre"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#' + (rayon !== "tous" && !voirFavoris ? RAYONS[rayon].ico : "ico-loupe") + '"/></svg>' + msg + "</div>";
 }
 function choisirRayon(k, defiler) {
@@ -232,6 +235,12 @@ function rendreCoordonnees() {
   var m = c.email || MAIL; $("mail-adresse").textContent = m; $("mail-lien").href = "mailto:" + m + "?subject=" + encodeURIComponent("Commande Shopping R-Lux");
   $("lien-fb").href = c.facebook || "https://www.facebook.com/search/top?q=" + encodeURIComponent("Shopping R-Lux");
   $("lien-tt").href = c.tiktok || "https://www.tiktok.com/search?q=" + encodeURIComponent("Shopping R-Lux");
+  // Groupe et chaîne WhatsApp : un lien vide masque son bouton, deux liens vides masquent la section
+  [["groupe", "lien-groupe", "pied-groupe"], ["chaine", "lien-chaine", "pied-chaine"]].forEach(function (x) {
+    var u = c[x[0]] || ""; [x[1], x[2]].forEach(function (id) { var a = $(id); a.hidden = !u; a.href = u || "#"; });
+  });
+  $("communaute").hidden = !c.groupe && !c.chaine; $("pied-communaute").hidden = !c.groupe && !c.chaine;
+  $("pied-sep").hidden = !c.groupe || !c.chaine;
 }
 
 /* Feuilles de verre : fiche produit, panier, demande de rappel */
@@ -631,6 +640,7 @@ function rendreAdmin() {
   var c = etat.config;
   $("cfg-wa").value = c.whatsapp || ""; $("cfg-wa2").value = c.whatsapp2 || ""; $("cfg-mail").value = c.email || "";
   $("cfg-annonce").value = c.annonce || ""; $("cfg-fb").value = c.facebook || ""; $("cfg-tt").value = c.tiktok || "";
+  $("cfg-groupe").value = c.groupe || ""; $("cfg-chaine").value = c.chaine || "";
   $("admin-rayon").innerHTML = options(listeRayons(true), rayonAdmin);
   rendreTuiles(); rendreComptes(); rendreListeAdmin(); barre();
 }
@@ -687,10 +697,13 @@ function changer() { barre(); if (!$("vue-boutique").hidden) rendreTout(); }
 function majConfig() {
   var c = etat.config;
   c.whatsapp = chiffres($("cfg-wa").value); c.whatsapp2 = chiffres($("cfg-wa2").value); c.email = $("cfg-mail").value.trim();
-  c.annonce = $("cfg-annonce").value; c.facebook = $("cfg-fb").value.trim(); c.tiktok = $("cfg-tt").value.trim();
+  c.annonce = $("cfg-annonce").value; c.facebook = adresseWeb($("cfg-fb").value); c.tiktok = adresseWeb($("cfg-tt").value);
+  c.groupe = adresseWeb($("cfg-groupe").value); c.chaine = adresseWeb($("cfg-chaine").value);
   changer();
 }
-["cfg-wa", "cfg-wa2", "cfg-mail", "cfg-annonce", "cfg-fb", "cfg-tt"].forEach(function (id) { $(id).addEventListener("input", majConfig); });
+// Lien collé sans « https:// » (ex. chat.whatsapp.com/…) : complété, sinon le serveur le refuserait
+function adresseWeb(v) { v = String(v || "").trim(); if (!v) return ""; return /^https?:\/\//i.test(v) ? v.replace(/^http:/i, "https:") : "https://" + v; }
+["cfg-wa", "cfg-wa2", "cfg-mail", "cfg-annonce", "cfg-fb", "cfg-tt", "cfg-groupe", "cfg-chaine"].forEach(function (id) { $(id).addEventListener("input", majConfig); });
 var liste = $("admin-liste");
 liste.addEventListener("toggle", function (e) { var d = e.target, p = etat.produits[+d.getAttribute("data-i")]; if (!p) return; if (d.open) ouvert = p.id; else if (ouvert === p.id) ouvert = null; }, true);
 liste.addEventListener("input", function (e) {

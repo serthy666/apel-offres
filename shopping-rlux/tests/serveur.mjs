@@ -15,13 +15,73 @@ export const DOSSIER = "shopping-rlux/site/"; // la boutique vit dans ce dossier
 
 function sha1(buf) { return crypto.createHash("sha1").update(buf).digest("hex"); }
 
+// Catalogue de départ des tests : fixe, indépendant du vrai catalogue que la propriétaire modifie en ligne
+// (les deux livres de Robyn Tyo'o, coordonnées d'origine, sans groupe ni chaîne WhatsApp enregistrés).
+export const CATALOGUE_TEST = {
+  "config": {
+    "whatsapp": "237676962519",
+    "whatsapp2": "237690808155",
+    "email": PROPRIO,
+    "facebook": "",
+    "tiktok": "",
+    "annonce": ""
+  },
+  "produits": [
+    {
+      "id": "livre-miroir-desirs-1",
+      "nom": "Dans le miroir de nos désirs (Tome 1)",
+      "rayon": "livres",
+      "categorie": "Romans",
+      "marque": "APEL Éditions",
+      "details": "Faidherbe, jeune homme aux habitudes de goujat, ne laisse aucune femme indifférente. Bien qu’il les voie comme des objets sexuels depuis son adolescence, sa vie va prendre un curieux tournant après sa rencontre avec Tony, une femme au charme saisissant qui aime autant jouer que lui. Qui des deux joueurs finira par être pris à son propre piège ?",
+      "options": "",
+      "auteur": "Robyn Tyo’o",
+      "lien": "https://www.youscribe.com/catalogue/ebooks/litterature/romans-et-nouvelles/dans-le-miroir-de-nos-desirs-tome-1-3663543",
+      "prix": 5000,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/livre-dans-le-miroir-de-nos-desirs.webp"
+      ]
+    },
+    {
+      "id": "livre-souhaits-maudits",
+      "nom": "Souhaits maudits",
+      "rayon": "livres",
+      "categorie": "Romans",
+      "marque": "APEL Éditions",
+      "details": "Une jeune femme pleine de vie est confrontée à un dilemme. Face à cela, elle se retrouve à enfreindre ses convictions spirituelles et ses principes moraux, ce qui la conduira à commettre des actes malsains qui la rattraperont. Paranormal, morts, religion et amour : vous saurez les choix qui vont la conduire vers des chemins obscurs.",
+      "options": "",
+      "auteur": "Robyn Tyo’o",
+      "lien": "",
+      "prix": 5000,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/livre-souhaits-maudits.webp"
+      ]
+    }
+  ]
+};
+// Petite image de secours si une couverture a été retirée du vrai dépôt
+const PNG_1PX = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "base64");
+
 // Faux dépôt : chaque commit garde une copie complète des fichiers.
-// Au départ : le catalogue livré (les deux livres de Robyn Tyo'o) et leurs couvertures.
 export function fauxDepot() {
   const commits = new Map(), blobs = new Map();
   const depart = new Map();
-  for (const f of ["donnees/produits.json", "donnees/comptes.json"]) depart.set(DOSSIER + f, fs.readFileSync(path.join(RACINE, "site", f)));
-  for (const f of fs.readdirSync(path.join(RACINE, "site/photos"))) if (!f.startsWith(".")) depart.set(DOSSIER + "photos/" + f, fs.readFileSync(path.join(RACINE, "site/photos", f)));
+  depart.set(DOSSIER + "donnees/produits.json", Buffer.from(JSON.stringify(CATALOGUE_TEST, null, 2) + "\n"));
+  depart.set(DOSSIER + "donnees/comptes.json", Buffer.from(JSON.stringify({ comptes: [] }, null, 2) + "\n"));
+  for (const p of CATALOGUE_TEST.produits) for (const ph of p.photos) {
+    const disque = path.join(RACINE, "site", ph);
+    depart.set(DOSSIER + ph, fs.existsSync(disque) ? fs.readFileSync(disque) : PNG_1PX);
+  }
   depart.set("index.html", Buffer.from("APEL Éditions (autre site du même dépôt)"));
   const premier = sha1("depart");
   commits.set(premier, { fichiers: depart, parents: [], message: "Départ" });
