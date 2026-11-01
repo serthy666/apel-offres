@@ -72,7 +72,7 @@ async function client(p, s, vue, n) {
   verifie((await texte(p, "#wa1-numero")).includes("676 962 519"), "numéro WhatsApp 676 962 519");
   verifie((await texte(p, "#wa2-numero")).includes("690 808 155"), "numéro WhatsApp et appel 690 808 155");
   verifie((await p.locator("#wa2-appel").getAttribute("href")) === "tel:+237690808155", "bouton Appeler");
-  verifie((await texte(p, "#mail-adresse")) === "shoppingrlux@gmail.com", "adresse e-mail");
+  verifie((await texte(p, "#mail-adresse")) === "shoppingrlux12@gmail.com", "adresse e-mail");
   verifie(await largeur(p) <= vue.width, vue.width + " px : pas de défilement horizontal (accueil)");
   await capture(p, "accueil-" + vue.width);
   await capture(p, "page-" + vue.width, true);

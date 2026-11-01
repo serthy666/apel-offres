@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const RACINE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const CLIENT_ID = "test-client.apps.googleusercontent.com";
-export const PROPRIO = "shoppingrlux@gmail.com";
+export const PROPRIO = "shoppingrlux12@gmail.com";
 export const DEPOT = "serthy666/apel-offres";
 export const DOSSIER = "shopping-rlux/site/"; // la boutique vit dans ce dossier du dépôt
 

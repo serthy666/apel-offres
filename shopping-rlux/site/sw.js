@@ -2,7 +2,7 @@
 // Pages, script et catalogue : le réseau d'abord (toujours les derniers prix), la copie sinon.
 // Images et polices : la copie tout de suite, rafraîchie en arrière-plan. L'espace gérant (/api) et les autres sites ne passent jamais par ici.
 // Changer CACHE à chaque modification de index.html ou app.js.
-const CACHE = "rlux-v1";
+const CACHE = "rlux-v2";
 const BASE = ["/", "/app.js", "/manifest.webmanifest", "/assets/logo-rond-96.webp", "/assets/affiche-480.webp", "/assets/icone-192.png",
   "/polices/montserrat.woff2", "/polices/cinzel.woff2", "/polices/great-vibes.woff2"];
 

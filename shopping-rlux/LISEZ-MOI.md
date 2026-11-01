@@ -2,7 +2,7 @@
 
 Boutique en ligne de **Shopping R-Lux**, la boutique de Robyn Tyo’o à Douala : parfumerie, soins du corps, lingerie et sous-vêtements, sacs et accessoires, et les romans qu’elle écrit. Charte noir et or à reflets, en « verre liquide » façon iPhone, pensée d’abord pour le téléphone.
 
-Le client remplit un **panier**, indique **sa ville** (obligatoire), et la commande part sur **WhatsApp** avec un message déjà rédigé. La propriétaire (`shoppingrlux@gmail.com`) remplit le catalogue depuis son téléphone, dans l’**Espace gérant**, et ajoute elle-même ses gérants par leur adresse Gmail.
+Le client remplit un **panier**, indique **sa ville** (obligatoire), et la commande part sur **WhatsApp** avec un message déjà rédigé. La propriétaire (`shoppingrlux12@gmail.com`) remplit le catalogue depuis son téléphone, dans l’**Espace gérant**, et ajoute elle-même ses gérants par leur adresse Gmail.
 
 Adresse prévue : https://shopping-rlux.apeledition.workers.dev (à créer une fois, voir « Mise en ligne »).
 
@@ -73,13 +73,13 @@ La branche doit d’abord être fusionnée dans `main`, car Cloudflare publie `m
 | Nom | Valeur | Type |
 | --- | --- | --- |
 | `GOOGLE_CLIENT_ID` | identifiant du client OAuth (`…apps.googleusercontent.com`) | Texte |
-| `PROPRIETAIRE` | `shoppingrlux@gmail.com` | Texte |
+| `PROPRIETAIRE` | `shoppingrlux12@gmail.com` | Texte |
 | `GITHUB_TOKEN` | le jeton GitHub de l’étape 3 | Secret |
 | `GITHUB_REPO` | facultatif, `serthy666/apel-offres` par défaut | Texte |
 | `GITHUB_BRANCH` | facultatif, `main` par défaut | Texte |
 | `GITHUB_DOSSIER` | facultatif, `shopping-rlux` par défaut (`.` si la boutique a son propre dépôt) | Texte |
 
-5. Ouvrir `https://shopping-rlux.apeledition.workers.dev/#admin` et se connecter avec `shoppingrlux@gmail.com`.
+5. Ouvrir `https://shopping-rlux.apeledition.workers.dev/#admin` et se connecter avec `shoppingrlux12@gmail.com`.
 
 Plus tard, la boutique peut avoir son propre dépôt (`serthy666/shopping-rlux`) : copier le contenu de ce dossier à la racine, puis régler `GITHUB_REPO=serthy666/shopping-rlux`, `GITHUB_DOSSIER=.` et un Root directory vide. Le jeton GitHub ne donne alors accès qu’à la boutique. Cloudflare Pages marche aussi : framework « None », build vide, dossier de sortie `site` ; `functions/` est pris automatiquement.
 

@@ -2,7 +2,7 @@
    Le catalogue publié est lu dans donnees/produits.json ; l'espace gérant l'écrit par /api/gerant. */
 "use strict";
 var API = "/api/gerant";
-var WA1 = "237676962519", WA2 = "237690808155", MAIL = "shoppingrlux@gmail.com";
+var WA1 = "237676962519", WA2 = "237690808155", MAIL = "shoppingrlux12@gmail.com";
 
 /* Univers de la boutique et leurs catégories (les produits qui se ressemblent sont regroupés) */
 var RAYONS = {
