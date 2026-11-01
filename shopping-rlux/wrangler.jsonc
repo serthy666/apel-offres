@@ -1,0 +1,15 @@
+// Réglages pour Cloudflare Workers Builds (ignorés par Cloudflare Pages).
+// Dans Workers Builds, le « Root directory » du projet est shopping-rlux.
+{
+  "name": "shopping-rlux",
+  "main": "worker.js",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./site",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  },
+  // Garde les variables réglées dans le tableau de bord Cloudflare à chaque publication
+  "keep_vars": true,
+  "observability": { "enabled": true }
+}
