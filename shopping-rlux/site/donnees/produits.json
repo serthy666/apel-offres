@@ -9,6 +9,26 @@
   },
   "produits": [
     {
+      "id": "pmvy2fxmkloo6",
+      "nom": "Liquid Brun",
+      "rayon": "parfums",
+      "categorie": "Parfums",
+      "marque": "",
+      "details": "Parfum pour homme doux, discret, charismatique",
+      "options": "100ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 12500,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmvy2fxmkloo6-mvy2hvf0pkw7.jpg"
+      ]
+    },
+    {
       "id": "livre-miroir-desirs-1",
       "nom": "Dans le miroir de nos désirs (Tome 1)",
       "rayon": "livres",
