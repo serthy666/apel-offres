@@ -66,7 +66,7 @@ Les deux romans de Robyn Tyo’o du catalogue APEL Éditions sont déjà en bout
 
 La branche doit d’abord être fusionnée dans `main`, car Cloudflare publie `main` et la fonction gérant y écrit.
 
-1. **Cloudflare** > Workers & Pages > Créer > Importer un dépôt > `serthy666/apel-offres`. Nom du projet : `shopping-rlux`. Dans les réglages de build : **Root directory** = `shopping-rlux`, commande de build vide, commande de déploiement `npx wrangler deploy` (lit `wrangler.jsonc`). Conseillé : « Build watch paths » = `shopping-rlux/*`, pour ne pas republier la boutique à chaque changement de l’appli APEL.
+1. **Cloudflare** > Workers & Pages > Créer > Importer un dépôt > `serthy666/apel-offres`. Nom du projet : `shopping-rlux`. Le nom doit être en minuscules, comme dans `wrangler.jsonc`. Dans les réglages de build : **Root directory** = `shopping-rlux`, commande de build vide, commande de déploiement `npx wrangler deploy` (lit `wrangler.jsonc`), « Preview builds » désactivé. Laissez « Build watch paths » sur `*` : un chemin mal réglé empêcherait la boutique de se republier après les enregistrements des gérants, alors que `*` ne coûte qu’une republication sans changement quand l’appli APEL bouge.
 2. **Google Cloud** > API et services > Identifiants > ID client OAuth de type « Application Web », avec `https://shopping-rlux.apeledition.workers.dev` (et le futur nom de domaine) dans « Origines JavaScript autorisées ».
 3. **GitHub** > Settings > Developer settings > Fine-grained tokens : dépôt `serthy666/apel-offres` seulement, permission **Contents : Read and write**, date d’expiration notée.
 4. **Cloudflare** > projet `shopping-rlux` > Settings > Variables and Secrets :
@@ -85,6 +85,11 @@ La branche doit d’abord être fusionnée dans `main`, car Cloudflare publie `m
 Plus tard, la boutique peut avoir son propre dépôt (`serthy666/shopping-rlux`) : copier le contenu de ce dossier à la racine, puis régler `GITHUB_REPO=serthy666/shopping-rlux`, `GITHUB_DOSSIER=.` et un Root directory vide. Le jeton GitHub ne donne alors accès qu’à la boutique. Cloudflare Pages marche aussi : framework « None », build vide, dossier de sortie `site` ; `functions/` est pris automatiquement.
 
 En secours : si la propriétaire perd son Gmail, changez `PROPRIETAIRE` dans Cloudflare puis republiez. Le jeton GitHub expire à la date choisie : renouvelez-le avant (sinon le gérant voit « Le jeton GitHub de la boutique est refusé »).
+
+## Bon à savoir
+
+- N’activez jamais « Désactiver les builds » (Worker `shopping-rlux` > Settings > Build) : plus rien ne se publierait, pas même les articles enregistrés dans l’espace gérant.
+- Sur une pull request, la vérification « Workers Builds: shopping-rlux » peut échouer pour la branche de travail (construction hors production, arrêtée dès le départ). Elle ne concerne pas `main` : la boutique en ligne et les enregistrements des gérants continuent de se publier.
 
 ## Modifier le code
 
