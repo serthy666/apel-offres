@@ -4,7 +4,7 @@
 //
 // Variables Cloudflare (Paramètres > Variables et secrets) :
 //   GOOGLE_CLIENT_ID  identifiant du client OAuth Google (…apps.googleusercontent.com)
-//   PROPRIETAIRE      Gmail de la propriétaire (shoppingrlux@gmail.com), qui ne peut pas être retirée
+//   PROPRIETAIRE      Gmail de la propriétaire (shoppingrlux12@gmail.com), qui ne peut pas être retirée
 //   GITHUB_TOKEN      jeton « fine-grained » limité au dépôt, droit Contents en écriture (secret)
 //   GITHUB_REPO       facultatif, par défaut serthy666/apel-offres
 //   GITHUB_BRANCH     facultatif, par défaut main
