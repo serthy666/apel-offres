@@ -1,0 +1,52 @@
+{
+  "config": {
+    "whatsapp": "237676962519",
+    "whatsapp2": "237690808155",
+    "email": "shoppingrlux@gmail.com",
+    "facebook": "",
+    "tiktok": "",
+    "annonce": ""
+  },
+  "produits": [
+    {
+      "id": "livre-miroir-desirs-1",
+      "nom": "Dans le miroir de nos désirs (Tome 1)",
+      "rayon": "livres",
+      "categorie": "Romans",
+      "marque": "APEL Éditions",
+      "details": "Faidherbe, jeune homme aux habitudes de goujat, ne laisse aucune femme indifférente. Bien qu’il les voie comme des objets sexuels depuis son adolescence, sa vie va prendre un curieux tournant après sa rencontre avec Tony, une femme au charme saisissant qui aime autant jouer que lui. Qui des deux joueurs finira par être pris à son propre piège ?",
+      "options": "",
+      "auteur": "Robyn Tyo’o",
+      "lien": "https://www.youscribe.com/catalogue/ebooks/litterature/romans-et-nouvelles/dans-le-miroir-de-nos-desirs-tome-1-3663543",
+      "prix": 5000,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/livre-dans-le-miroir-de-nos-desirs.webp"
+      ]
+    },
+    {
+      "id": "livre-souhaits-maudits",
+      "nom": "Souhaits maudits",
+      "rayon": "livres",
+      "categorie": "Romans",
+      "marque": "APEL Éditions",
+      "details": "Une jeune femme pleine de vie est confrontée à un dilemme. Face à cela, elle se retrouve à enfreindre ses convictions spirituelles et ses principes moraux, ce qui la conduira à commettre des actes malsains qui la rattraperont. Paranormal, morts, religion et amour : vous saurez les choix qui vont la conduire vers des chemins obscurs.",
+      "options": "",
+      "auteur": "Robyn Tyo’o",
+      "lien": "",
+      "prix": 5000,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/livre-souhaits-maudits.webp"
+      ]
+    }
+  ]
+}

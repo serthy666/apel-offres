@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shopping R-Lux · Boutique en ligne à Douala</title>
+<meta name="description" content="Shopping R-Lux : parfums, soins du corps, lingerie, sacs et accessoires pour homme, femme et enfant, et les livres de Robyn Tyo’o. Douala, livraison partout au Cameroun. Commande sur WhatsApp.">
+<meta name="theme-color" content="#07060A">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Shopping R-Lux · Votre boutique en ligne à Douala">
+<meta property="og:description" content="Parfums, soins, lingerie, sacs et accessoires, livres de Robyn Tyo’o. Composez votre panier et commandez sur WhatsApp. Livraison partout au Cameroun.">
+<meta property="og:image" content="https://shopping-rlux.apeledition.workers.dev/assets/partage.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="R-Lux">
+<meta name="color-scheme" content="dark">
+<link rel="preload" href="polices/montserrat.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="polices/cinzel.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* Shopping R-Lux : verre liquide façon iPhone, noir profond et or à reflets.
+   Plaques de verre fumé bordées d'un liseré doré, reflet qui suit le doigt, cartes inclinées en 3D,
+   en-tête et barre d'onglets en capsules flottantes, feuilles qui montent du bas de l'écran. */
+@font-face{font-family:"Montserrat";src:url(polices/montserrat.woff2) format("woff2");font-weight:400 700;font-display:swap}
+@font-face{font-family:"Cinzel";src:url(polices/cinzel.woff2) format("woff2");font-weight:600 800;font-display:swap}
+@font-face{font-family:"Great Vibes";src:url(polices/great-vibes.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --nuit:#07060A;--encre:#0E0C12;
+  --or-clair:#FFF1B8;--or:#E3B85A;--or-vif:#F4D57E;--or-fonce:#A87A1E;--or-profond:#5E410A;
+  --texte:#F7F0E1;--texte-2:rgba(247,240,225,.8);--texte-3:rgba(247,240,225,.64);
+  --vin:#6E0E1F;--promo:#FF5A6E;--ok:#62D89E;--attention:#F2B544;--danger:#FF7383;--wa:#25D366;
+  --affiche:"Cinzel","Trajan Pro",Georgia,"Times New Roman",serif;
+  --script:"Great Vibes","Brush Script MT",cursive;
+  --police:"Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --r:28px;--r-petit:18px;
+  /* Or métallique : plusieurs bandes claires et sombres, comme les lettres du logo */
+  --metal:linear-gradient(180deg,#FFF3C4 0%,#EFCB72 28%,#B98620 56%,#E2B656 78%,#FFE7A0 100%);
+  /* Verre fumé : reflet doré en haut à gauche, voile clair très léger, ombre profonde dessous */
+  --verre:radial-gradient(120% 85% at 0% 0%,rgba(255,226,150,.15),rgba(255,226,150,0) 52%),
+          linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.03) 42%,rgba(255,255,255,.065));
+  --lisere:linear-gradient(150deg,rgba(255,236,170,.9),rgba(227,184,90,.3) 24%,rgba(255,255,255,.05) 55%,rgba(227,184,90,.6) 100%);
+  --relief:inset 0 1px 0 rgba(255,240,205,.26),inset 0 -18px 30px -24px rgba(0,0,0,.9),0 28px 48px -26px rgba(0,0,0,.95),0 2px 10px -4px rgba(0,0,0,.6);
+  --flou:blur(22px) saturate(170%);
+  --bas:calc(86px + env(safe-area-inset-bottom,0px));
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--nuit);scroll-padding-top:96px;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+body{margin:0;background:var(--nuit);color:var(--texte);font-family:var(--police);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh;padding-bottom:var(--bas);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--nuit)}
+img{max-width:100%;display:block}
+a{color:var(--or-vif)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2.5px solid var(--or-vif);outline-offset:3px;border-radius:14px}
+h1,h2,h3,h4{font-family:var(--affiche);font-weight:700;line-height:1.12;margin:0;text-wrap:balance;letter-spacing:.02em}
+.enveloppe{max-width:1120px;margin-left:auto;margin-right:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.prix,.nb,.compteur{font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Texte doré avec un reflet qui passe */
+.or-texte{background:linear-gradient(105deg,rgba(255,255,255,0) 42%,rgba(255,252,235,.95) 50%,rgba(255,255,255,0) 58%) 160% 0/250% 100% no-repeat,var(--metal);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:reflet 7s ease-in-out infinite}
+@keyframes reflet{0%,55%{background-position:160% 0,0 0}100%{background-position:-60% 0,0 0}}
+.script{font-family:var(--script);font-weight:400;letter-spacing:0}
+
+/* Décor : lueurs dorées et lie-de-vin qui dérivent derrière le verre, petites étincelles */
+.decor{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:radial-gradient(120% 80% at 50% 0%,#14100A 0%,#07060A 55%,#050407 100%)}
+.decor i{position:absolute;border-radius:50%;filter:blur(70px);animation:derive 24s ease-in-out infinite alternate;will-change:transform}
+.decor i:nth-child(1){width:62vmax;height:62vmax;left:-24vmax;top:-26vmax;background:radial-gradient(circle,rgba(201,150,46,.55),rgba(201,150,46,0) 66%)}
+.decor i:nth-child(2){width:52vmax;height:52vmax;right:-22vmax;top:22vh;background:radial-gradient(circle,rgba(122,16,35,.6),rgba(122,16,35,0) 66%);animation-duration:29s}
+.decor i:nth-child(3){width:44vmax;height:44vmax;left:8vw;bottom:-24vmax;background:radial-gradient(circle,rgba(227,184,90,.35),rgba(227,184,90,0) 66%);animation-duration:33s}
+.decor i:nth-child(4){width:20vmax;height:20vmax;left:58vw;top:4vh;background:radial-gradient(circle,rgba(255,241,184,.22),rgba(255,241,184,0) 66%);animation-duration:21s}
+@keyframes derive{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(6vmax,5vmax,0) scale(1.14)}}
+.decor b{position:absolute;width:14px;height:14px;opacity:0;animation:scintille 5.5s ease-in-out infinite;
+  background:radial-gradient(circle,#fff 0 1.2px,rgba(255,241,184,.8) 1.6px,rgba(255,241,184,0) 4px),linear-gradient(90deg,transparent 46%,rgba(255,241,184,.9) 50%,transparent 54%),linear-gradient(0deg,transparent 46%,rgba(255,241,184,.9) 50%,transparent 54%)}
+.decor b:nth-of-type(1){left:12%;top:18%}.decor b:nth-of-type(2){left:84%;top:12%;animation-delay:1.7s}.decor b:nth-of-type(3){left:70%;top:58%;animation-delay:3.1s}.decor b:nth-of-type(4){left:22%;top:76%;animation-delay:4.2s}
+@keyframes scintille{0%,100%{opacity:0;transform:scale(.4) rotate(0)}12%{opacity:1;transform:scale(1.15) rotate(20deg)}26%{opacity:0;transform:scale(.4) rotate(45deg)}}
+
+/* Plaques de verre */
+.verre{position:relative;background:var(--verre);border-radius:var(--r);box-shadow:var(--relief);-webkit-backdrop-filter:var(--flou);backdrop-filter:var(--flou)}
+.verre::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;pointer-events:none;background:var(--lisere);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){.verre{background:linear-gradient(160deg,#1C1912,#100E0B)}}
+/* Reflet mobile : une tache de lumière qui suit le doigt ou la souris */
+.vivant{transform-style:preserve-3d;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.vivant::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .25s;z-index:2;
+  background:radial-gradient(240px circle at var(--mx,30%) var(--my,0%),rgba(255,236,170,.22),rgba(255,236,170,0) 60%)}
+.vivant:hover::before,.vivant.appui::before{opacity:1}
+.appui{transition:transform .08s ease-out!important}
+.rebond{transition:transform .6s cubic-bezier(.34,1.56,.64,1)!important}
+
+/* En-tête en capsule flottante */
+.entete{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;padding-top:10px}
+.capsule{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 6px;border-radius:999px}
+.capsule.verre,.onglets.verre{background:radial-gradient(120% 90% at 0% 0%,rgba(255,226,150,.16),rgba(255,226,150,0) 50%),linear-gradient(rgba(22,19,15,.78),rgba(12,10,9,.72))}
+.marque{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--texte);flex:1;min-width:0}
+.marque img{width:44px;height:44px;border-radius:50%;flex:none;box-shadow:0 0 0 1.5px rgba(244,213,126,.8),0 6px 16px -4px rgba(227,184,90,.5)}
+.marque div{min-width:0}
+.marque b{display:block;font-family:var(--affiche);font-size:18px;font-weight:800;letter-spacing:.06em;line-height:1.05;white-space:nowrap}
+.marque span{display:block;font-size:12px;color:var(--texte-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.puce-ronde{position:relative;display:grid;place-items:center;width:44px;height:44px;flex:none;border-radius:50%;border:0;cursor:pointer;color:var(--or-vif);text-decoration:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03));box-shadow:inset 0 1px 0 rgba(255,240,205,.3),inset 0 0 0 1px rgba(227,184,90,.35),0 8px 16px -10px #000}
+.puce-ronde svg{width:21px;height:21px}
+.puce-ronde.wa{color:#fff;background:radial-gradient(120% 90% at 50% -20%,rgba(255,255,255,.5),rgba(255,255,255,0) 55%),linear-gradient(180deg,#34D873,#1DA851);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 8px 18px -8px rgba(37,211,102,.7)}
+.nb{position:absolute;top:-3px;right:-3px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:20px;text-align:center;color:#1B1306;background:var(--metal);box-shadow:0 0 0 2px var(--nuit)}
+.secoue{animation:secoue .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes secoue{0%{transform:scale(1)}30%{transform:scale(1.22) rotate(-8deg)}60%{transform:scale(.94) rotate(5deg)}100%{transform:scale(1)}}
+@media (max-width:370px){.marque span{display:none}.marque b{font-size:16px}}
+
+/* Annonce de la boutique */
+.annonce{margin-top:8px;border-radius:20px;padding:9px 14px;text-align:center;font-weight:600;font-size:14px;color:var(--or-clair)}
+.annonce::before{content:"✦ ";color:var(--or)}
+
+/* Héros */
+.heros{display:grid;grid-template-columns:1fr;gap:26px;align-items:center;margin-top:16px;padding:26px 20px 28px;overflow:hidden}
+@media (min-width:820px){.heros{grid-template-columns:1.05fr .95fr;padding:44px 44px}}
+.sur-titre{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--or)}
+.heros h1{display:flex;flex-direction:column;gap:6px}
+.heros h1 .script{font-size:clamp(52px,13vw,92px);line-height:1;padding:.06em .12em .12em 0;margin-left:-.04em}
+.heros h1 .slogan{font-size:clamp(19px,4.6vw,27px);font-weight:600;color:var(--texte);letter-spacing:.04em}
+.heros p.intro{color:var(--texte-2);font-size:16px;max-width:48ch;margin:14px 0 22px}
+.boutons{display:flex;flex-wrap:wrap;gap:10px}
+.garanties{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 0;padding:0;list-style:none}
+.garanties li{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:6px 12px 6px 8px;border-radius:999px;color:var(--texte-2);background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(227,184,90,.25)}
+.garanties svg{width:16px;height:16px;color:var(--or)}
+/* Affiche en relief : elle flotte, s'incline sous le doigt ou avec le téléphone */
+.scene{perspective:1000px;justify-self:center;width:100%;max-width:min(310px,80vw);padding:6px 18px 10px}
+@media (min-width:820px){.scene{max-width:380px}}
+.affiche{position:relative;transform-style:preserve-3d;transform:rotateY(-14deg) rotateX(6deg);animation:flotte 7s ease-in-out infinite;transition:transform .2s ease-out}
+.affiche img{width:100%;height:auto;aspect-ratio:4/5;border-radius:26px;box-shadow:0 46px 70px -34px #000,0 0 0 1.5px rgba(244,213,126,.85),0 0 60px -10px rgba(227,184,90,.35)}
+.affiche::after{content:"";position:absolute;inset:0;border-radius:26px;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.3) 0%,rgba(255,255,255,0) 30%,rgba(255,255,255,0) 72%,rgba(255,236,170,.16) 100%)}
+.affiche .lustre{position:absolute;inset:0;border-radius:26px;overflow:hidden;pointer-events:none}
+.affiche .lustre::before{content:"";position:absolute;top:-20%;bottom:-20%;width:40%;left:-60%;transform:skewX(-18deg);background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,248,220,.35),rgba(255,255,255,0));animation:balaye 6.5s ease-in-out infinite}
+@keyframes balaye{0%,60%{left:-60%}100%{left:130%}}
+@keyframes flotte{0%,100%{translate:0 0}50%{translate:0 -10px}}
+.pastille{position:absolute;left:-16px;top:30px;transform:translateZ(70px) rotate(-5deg);padding:10px 14px;border-radius:18px;font-weight:700;font-size:13px;line-height:1.2;color:#1B1306;
+  background:radial-gradient(120% 90% at 30% -10%,rgba(255,255,255,.7),rgba(255,255,255,0) 55%),var(--metal);box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 18px 30px -12px rgba(0,0,0,.8)}
+.pastille small{display:block;font-weight:600;font-size:11px;opacity:.8}
+.affiche.rebond{transition:transform .6s cubic-bezier(.34,1.56,.64,1)}
+
+/* Boutons */
+.bouton{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:12px 20px;min-height:48px;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer;color:var(--or-clair);overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
+  box-shadow:inset 0 1px 0 rgba(255,240,205,.32),inset 0 0 0 1px rgba(227,184,90,.45),0 12px 22px -14px #000;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1),filter .2s;-webkit-tap-highlight-color:transparent}
+.bouton:active{transform:scale(.95);filter:brightness(1.12);transition-duration:.08s}
+.bouton svg{width:20px;height:20px;flex:none}
+.bouton.or{color:#1B1306;background:radial-gradient(120% 90% at 50% -30%,rgba(255,255,255,.65),rgba(255,255,255,0) 50%),var(--metal);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),inset 0 -3px 8px rgba(94,65,10,.45),0 14px 26px -14px rgba(227,184,90,.8)}
+.bouton.or::after{content:"";position:absolute;top:0;bottom:0;width:36%;left:-50%;transform:skewX(-20deg);background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.55),rgba(255,255,255,0));animation:balaye 5s ease-in-out infinite;pointer-events:none}
+.bouton.wa{color:#fff;background:radial-gradient(120% 90% at 50% -25%,rgba(255,255,255,.4),rgba(255,255,255,0) 52%),linear-gradient(180deg,#2FD06C,#179C47);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 12px 22px -12px rgba(37,211,102,.7)}
+.bouton.large{width:100%}
+.bouton.petit{min-height:40px;padding:8px 14px;font-size:14px}
+.bouton[data-attente]{filter:grayscale(.75) brightness(.7)}
+.lien-bouton{border:0;background:none;padding:6px 4px;color:var(--or-vif);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-size:14px}
+
+/* Titres de section */
+section{margin-top:44px}
+.titre-section{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 2px 14px}
+.titre-section h2,.bloc-titre{font-size:clamp(23px,5.6vw,32px)}
+.compteur{font-size:13px;color:var(--texte-3);font-weight:600;white-space:nowrap}
+.ss-titre{margin:-6px 2px 16px;color:var(--texte-3);font-size:14.5px;max-width:60ch}
+
+/* Nos univers */
+.univers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:900px){.univers{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.univ{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:16px 14px 15px;text-align:left;border:0;cursor:pointer;color:var(--texte);min-height:158px;-webkit-tap-highlight-color:transparent}
+.univ:last-child:nth-child(odd){grid-column:1/-1;flex-direction:row;align-items:center;min-height:0}
+@media (min-width:900px){.univ:last-child:nth-child(odd){grid-column:auto;flex-direction:column;align-items:flex-start;min-height:158px}}
+.univ .ico{display:grid;place-items:center;width:52px;height:52px;flex:none;border-radius:50%;color:var(--or-vif);background:radial-gradient(circle at 35% 25%,rgba(255,241,184,.25),rgba(255,241,184,0) 60%),rgba(0,0,0,.35);box-shadow:inset 0 0 0 1.2px rgba(227,184,90,.6),0 10px 20px -12px #000}
+.univ .ico svg{width:28px;height:28px}
+.univ b{font-family:var(--affiche);font-size:16px;line-height:1.15;letter-spacing:.03em}
+.univ small{display:block;font-size:12px;color:var(--texte-3);line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.univ em{display:block;margin-top:6px;font-style:normal;font-size:12px;font-weight:700;color:var(--or)}
+.univ[aria-pressed="true"]{box-shadow:var(--relief),0 0 0 1.5px var(--or)}
+
+/* Défilement horizontal (À la une, similaires) */
+.defile{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,42%);gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 18px;margin:0 -2px;scrollbar-width:none;overscroll-behavior-x:contain}
+.defile::-webkit-scrollbar{display:none}
+.defile>*{scroll-snap-align:start}
+@media (min-width:700px){.defile{grid-auto-columns:200px}}
+
+/* Boutique : recherche, rayons, sous-rayons, tri */
+.recherche{display:flex;align-items:center;gap:10px;padding:0 8px 0 16px;border-radius:999px;min-height:52px}
+.recherche svg{width:20px;height:20px;color:var(--or);flex:none}
+.recherche input{flex:1;min-width:0;border:0;background:none;outline:none;font-size:16px;padding:12px 0;color:var(--texte)}
+.recherche input::placeholder{color:var(--texte-3)}
+.recherche input::-webkit-search-cancel-button{display:none}
+.effacer{width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;font-size:20px;line-height:1;color:var(--texte);background:rgba(255,255,255,.1)}
+.puces{display:flex;gap:8px;overflow-x:auto;padding:12px 2px 4px;margin:0 -2px;scrollbar-width:none}
+.puces::-webkit-scrollbar{display:none}
+.puce{display:inline-flex;align-items:center;gap:6px;flex:none;border:0;border-radius:999px;padding:8px 14px;min-height:40px;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;color:var(--texte-2);
+  background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(227,184,90,.22);transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .2s;-webkit-tap-highlight-color:transparent}
+.puce:active{transform:scale(.92);transition-duration:.08s}
+.puce svg{width:17px;height:17px}
+.puce small{font-size:11.5px;opacity:.75;font-weight:700}
+.puce[aria-pressed="true"]{color:#1B1306;background:radial-gradient(120% 90% at 50% -30%,rgba(255,255,255,.6),rgba(255,255,255,0) 50%),var(--metal);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 8px 16px -10px rgba(227,184,90,.8)}
+.puces.sous .puce{min-height:34px;padding:6px 12px;font-size:13px}
+.outils{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;flex-wrap:wrap}
+.tri{display:inline-flex;align-items:center;gap:6px;padding:0 6px 0 14px;border-radius:999px;min-height:40px;font-size:13.5px;color:var(--texte-3);font-weight:600}
+.tri select{border:0;background:transparent;font-weight:700;color:var(--texte);padding:8px 4px;outline:none;max-width:46vw}
+.tri select option{background:#15120D;color:var(--texte)}
+.budget{margin:10px 2px 0;color:var(--or-vif);font-weight:600;font-size:14px}
+
+/* Cartes produits : deux par ligne sur téléphone */
+.grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+@media (min-width:640px){.grille{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}}
+@media (min-width:1000px){.grille{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.produit{display:flex;flex-direction:column;border-radius:24px;overflow:hidden;-webkit-backdrop-filter:none;backdrop-filter:none;
+  background:radial-gradient(120% 70% at 0% 0%,rgba(255,226,150,.13),rgba(255,226,150,0) 50%),linear-gradient(165deg,rgba(30,26,20,.92),rgba(14,12,11,.92))}
+.produit .photo{position:relative;aspect-ratio:4/5;background:radial-gradient(circle at 50% 35%,#231D14,#0D0B09 75%);overflow:hidden}
+.produit .photo img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.produit.appui .photo img,.produit:hover .photo img{transform:scale(1.05)}
+.produit.livre .photo img,.mini.livre img{object-fit:contain;padding:9% 15% 11%;filter:drop-shadow(6px 10px 12px rgba(0,0,0,.8))}
+.ouvrir{display:block;width:100%;height:100%;border:0;padding:0;background:none;cursor:pointer;color:inherit}
+.badge{position:absolute;left:8px;top:8px;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.04em;pointer-events:none;color:#1B1306;background:var(--metal);box-shadow:0 6px 12px -6px #000}
+.badge.promo{color:#fff;background:linear-gradient(180deg,#FF6F80,#D72D45)}
+.badge.epuise{color:var(--texte);background:rgba(20,18,15,.85);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.coeur{position:absolute;right:8px;top:8px;width:38px;height:38px;display:grid;place-items:center;border-radius:50%;border:0;cursor:pointer;z-index:3;color:var(--texte);
+  background:rgba(10,9,8,.55);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);-webkit-tap-highlight-color:transparent}
+.coeur svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2}
+.coeur[aria-pressed="true"]{color:var(--promo)}
+.coeur[aria-pressed="true"] svg{fill:currentColor}
+.coeur.bat svg{animation:bat .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bat{0%{transform:scale(.6)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+.produit .infos{display:flex;flex-direction:column;gap:4px;padding:11px 12px 12px;flex:1}
+.produit .cat{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--or);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.produit h3{font-family:var(--police);font-size:14.5px;font-weight:600;letter-spacing:0;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}
+.produit h3 button{all:unset;cursor:pointer}
+.produit .auteur{font-size:12px;color:var(--texte-3);margin-top:-2px}
+.prix{display:flex;flex-direction:column;line-height:1.15;margin-top:auto;padding-top:4px}
+.prix s{font-size:12px;color:var(--texte-3)}
+.prix b{font-size:16.5px;font-weight:700;color:var(--or-vif)}
+.prix b.reduit{color:var(--promo)}
+.prix b.demande{font-size:13.5px;color:var(--texte-2)}
+.stock{font-size:12px;font-weight:600}
+.stock.peu{color:var(--attention)}.stock.epuise{color:var(--texte-3)}
+.produit .bouton{margin-top:8px;min-height:42px;padding:8px 10px;font-size:14px;width:100%}
+.produit .bouton.ajoute{color:var(--or-clair);background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));box-shadow:inset 0 0 0 1.2px var(--or)}
+.vide{grid-column:1/-1;padding:28px 20px;text-align:center}
+.vide p{margin:0 0 14px;color:var(--texte-2)}
+.vide .ico{width:56px;height:56px;margin:0 auto 10px;color:var(--or)}
+
+/* Mini-cartes (À la une, similaires) */
+.mini{display:flex;flex-direction:column;gap:2px;border:0;padding:0 0 10px;text-align:left;cursor:pointer;color:var(--texte);border-radius:20px;overflow:hidden;
+  background:linear-gradient(165deg,rgba(30,26,20,.92),rgba(14,12,11,.92));box-shadow:var(--relief),inset 0 0 0 1px rgba(227,184,90,.22)}
+.mini img{width:100%;aspect-ratio:1;object-fit:cover;background:radial-gradient(circle at 50% 35%,#231D14,#0D0B09 75%);margin-bottom:6px}
+.mini b{padding:0 10px;font-size:13.5px;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mini span{padding:0 10px;font-size:14px;font-weight:700;color:var(--or-vif)}
+.mini span.reduit{color:var(--promo)}
+
+/* Les livres de Robyn : étagère de livres en 3D */
+.livres-bloc{display:grid;gap:22px;padding:26px 20px 30px;overflow:hidden}
+@media (min-width:820px){.livres-bloc{grid-template-columns:.9fr 1.1fr;align-items:center;padding:40px}}
+.livres-bloc p{color:var(--texte-2);margin:12px 0 18px;max-width:46ch}
+.etagere{display:flex;justify-content:center;align-items:flex-end;gap:clamp(18px,6vw,44px);padding:16px 10px 26px;perspective:1100px;flex-wrap:wrap;position:relative}
+.etagere::after{content:"";position:absolute;left:4%;right:4%;bottom:14px;height:12px;border-radius:50%;background:radial-gradient(closest-side,rgba(227,184,90,.35),rgba(227,184,90,0));filter:blur(4px)}
+.livre3d{display:flex;flex-direction:column;align-items:center;width:clamp(118px,32vw,160px);border:0;padding:0;background:none;cursor:pointer;color:inherit;-webkit-tap-highlight-color:transparent}
+/* Le livre : couverture devant, tranche des pages à droite, quatrième de couverture derrière */
+.objet{position:relative;display:block;width:100%;transform-style:preserve-3d;transform:rotateY(-26deg) rotateX(5deg);transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.livre3d:hover .objet,.livre3d:focus-visible .objet,.livre3d.appui .objet{transform:rotateY(-6deg) rotateX(2deg) translateY(-8px)}
+.objet img{position:relative;width:100%;aspect-ratio:290/364;object-fit:cover;border-radius:2px 6px 6px 2px;transform:translateZ(9px)}
+.objet::before{content:"";position:absolute;top:3px;bottom:3px;left:calc(100% - 12px);width:18px;transform:rotateY(90deg) translateZ(3px);background:repeating-linear-gradient(90deg,#F2EBDC 0 1px,#CFC5B0 1px 2px);border-radius:0 2px 2px 0}
+.objet::after{content:"";position:absolute;inset:0;transform:translateZ(-9px);background:#16120C;border-radius:2px 6px 6px 2px;box-shadow:18px 26px 34px -10px rgba(0,0,0,.9)}
+.objet .reflet{position:absolute;inset:0;transform:translateZ(9.5px);border-radius:2px 6px 6px 2px;pointer-events:none;background:linear-gradient(100deg,rgba(255,255,255,.05) 0 4%,rgba(0,0,0,.25) 5% 7%,rgba(255,255,255,.12) 9%,rgba(255,255,255,0) 30%,rgba(255,255,255,0) 70%,rgba(255,255,255,.1))}
+.livre3d .titre{display:block;margin-top:16px;font-size:13px;font-weight:600;text-align:center;color:var(--texte-2)}
+.livre3d .titre b{display:block;color:var(--or-vif);font-size:14px}
+
+/* Comment commander */
+.etapes-cmd{display:grid;gap:12px;margin:0;padding:0;list-style:none;counter-reset:e}
+@media (min-width:760px){.etapes-cmd{grid-template-columns:repeat(3,1fr)}}
+.etapes-cmd li{counter-increment:e;display:grid;grid-template-columns:46px 1fr;gap:12px;padding:16px;align-items:start}
+.etapes-cmd li::before{content:counter(e);display:grid;place-items:center;width:46px;height:46px;border-radius:50%;font-family:var(--affiche);font-weight:800;font-size:20px;color:#1B1306;background:radial-gradient(120% 90% at 50% -30%,rgba(255,255,255,.6),rgba(255,255,255,0) 50%),var(--metal);box-shadow:0 10px 18px -10px rgba(227,184,90,.8)}
+.etapes-cmd b{display:block;font-size:15.5px;margin-bottom:2px}
+.etapes-cmd span{color:var(--texte-2);font-size:14px}
+
+/* Contact */
+.canaux{display:grid;gap:12px}
+@media (min-width:700px){.canaux{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1000px){.canaux{grid-template-columns:repeat(3,1fr)}}
+.canal{padding:18px;display:flex;flex-direction:column;gap:6px}
+.canal .tete{display:flex;align-items:center;gap:10px;font-weight:700}
+.canal .tete svg{width:22px;height:22px;color:var(--or)}
+.canal .tete .wa-ico{color:var(--wa)}
+.canal .valeur{font-size:21px;font-weight:700;letter-spacing:.02em;color:var(--or-clair);word-break:break-word}
+.canal .valeur.mail{font-size:16.5px}
+.canal p{margin:0;color:var(--texte-3);font-size:14px}
+.canal .boutons{margin-top:8px}
+.canal .bouton{flex:1 1 120px}
+.reseaux{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.pied{margin-top:46px;padding-top:22px;padding-bottom:20px;text-align:center;color:var(--texte-3);font-size:13px}
+.pied img{width:64px;height:64px;margin:0 auto 10px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(244,213,126,.7)}
+.pied p{margin:4px 0}
+
+/* Barre d'onglets flottante, bulle de verre qui glisse vers l'onglet actif */
+.onglets{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:25;display:flex;gap:2px;padding:6px;border-radius:999px;width:min(480px,calc(100% - 20px))}
+.onglets a,.onglets button{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 2px 6px;border:0;background:none;border-radius:999px;text-decoration:none;color:var(--texte-3);font-size:11px;font-weight:600;cursor:pointer;
+  transition:color .25s,transform .35s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent;min-width:0}
+.onglets a:active,.onglets button:active{transform:scale(.9);transition-duration:.08s}
+.onglets svg{width:23px;height:23px}
+.onglets [aria-current="page"]{color:var(--or-clair)}
+.onglets [aria-current="page"] svg{color:var(--or-vif);animation:saut .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes saut{0%{transform:scale(.7)}100%{transform:scale(1)}}
+.onglets .nb{top:1px;right:calc(50% - 22px)}
+.bulle{position:absolute;z-index:0;top:6px;bottom:6px;left:0;width:0;border-radius:999px;pointer-events:none;opacity:0;
+  background:radial-gradient(120% 100% at 50% 0%,rgba(255,241,184,.22),rgba(255,241,184,0) 60%),rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,240,205,.35),inset 0 0 0 1px rgba(227,184,90,.4);
+  transition:transform .55s cubic-bezier(.34,1.4,.64,1),width .55s cubic-bezier(.34,1.4,.64,1),opacity .3s}
+
+/* Feuilles de verre : fiche, panier, alerte (montent du bas sur téléphone) */
+.voile{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center;background:rgba(3,2,4,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:fondu .25s ease-out}
+@keyframes fondu{from{opacity:0}to{opacity:1}}
+.fiche{width:100%;max-width:620px;max-height:calc(100dvh - 40px - env(safe-area-inset-top,0px));overflow:auto;overscroll-behavior:contain;border-radius:30px 30px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom,0px));
+  animation:monte .45s cubic-bezier(.2,.9,.25,1.05);background:radial-gradient(120% 60% at 0% 0%,rgba(255,226,150,.14),rgba(255,226,150,0) 50%),linear-gradient(170deg,rgba(30,26,20,.94),rgba(12,10,9,.96))}
+@media (min-width:700px){.voile{align-items:center;padding:20px}.fiche{border-radius:30px;padding-bottom:24px}}
+@keyframes monte{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.poignee{display:block;width:44px;height:5px;margin:2px auto 10px;border-radius:3px;background:rgba(255,255,255,.28)}
+@media (min-width:700px){.poignee{display:none}}
+.feuille-titre{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 14px}
+.feuille-titre h3{font-size:21px}
+.fermer{width:40px;height:40px;flex:none;border-radius:50%;border:0;cursor:pointer;font-size:22px;line-height:1;color:var(--texte);background:rgba(255,255,255,.09);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.galerie{position:relative;margin:0 -18px}
+.galerie .rail{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.galerie .rail::-webkit-scrollbar{display:none}
+.galerie .rail img{flex:none;width:100%;aspect-ratio:1;object-fit:contain;scroll-snap-align:center;background:radial-gradient(circle at 50% 35%,#2A2318,#0D0B09 75%)}
+.galerie.livre .rail img{padding:8% 22%;filter:drop-shadow(10px 16px 18px rgba(0,0,0,.85))}
+.points{display:flex;justify-content:center;gap:6px;margin-top:10px}
+.points i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25);transition:background .2s,transform .2s}
+.points i.actif{background:var(--or);transform:scale(1.25)}
+.fiche .cat{margin:16px 0 4px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--or)}
+.fiche h2{font-size:24px}
+.fiche .auteur{margin:4px 0 0;color:var(--texte-2);font-size:14px}
+.fiche .prix{flex-direction:row;align-items:baseline;gap:10px;margin-top:10px}
+.fiche .prix b{font-size:24px}
+.fiche .prix s{font-size:15px}
+.fiche .remise{font-size:12px;font-weight:700;color:#fff;background:linear-gradient(180deg,#FF6F80,#D72D45);padding:3px 8px;border-radius:999px}
+.fiche .desc{white-space:pre-line;color:var(--texte-2);margin:12px 0 0;font-size:15px}
+.fiche h4{margin:20px 0 8px;font-size:15px;letter-spacing:.04em}
+.choix{display:flex;flex-wrap:wrap;gap:8px}
+.choix button{border:0;border-radius:14px;padding:9px 14px;min-height:42px;cursor:pointer;font-weight:600;font-size:14px;color:var(--texte);background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(227,184,90,.3);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.choix button:active{transform:scale(.92)}
+.choix button[aria-pressed="true"]{color:#1B1306;background:var(--metal);box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.choix.erreur button{box-shadow:inset 0 0 0 1.5px var(--danger)}
+.msg-erreur{color:var(--danger);font-size:13.5px;font-weight:600;margin:8px 0 0}
+.quantite{display:inline-flex;align-items:center;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(227,184,90,.28)}
+.quantite button{width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;font-size:19px;font-weight:700;line-height:1;color:var(--or-clair);background:rgba(255,255,255,.08)}
+.quantite output{min-width:30px;text-align:center;font-weight:700}
+.rangee{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.rangee .bouton{flex:1 1 180px}
+.petits{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.petits .bouton{flex:1 1 130px;min-height:42px;padding:8px 12px;font-size:14px}
+.petits .coeur{position:static;width:42px;height:42px;flex:none}
+
+/* Panier */
+.ligne-panier{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(227,184,90,.14)}
+.ligne-panier img{width:64px;height:64px;border-radius:14px;object-fit:cover;background:#1A160F}
+.ligne-panier.livre img{object-fit:contain;padding:4px}
+.ligne-panier b{display:block;font-size:14.5px;font-weight:600;line-height:1.25}
+.ligne-panier small{display:block;color:var(--texte-3);font-size:12.5px}
+.ligne-panier .pu{font-weight:700;color:var(--or-vif);font-size:14px}
+.ligne-panier .droite{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.ligne-panier .quantite button{width:30px;height:30px;font-size:16px}
+.ligne-panier .quantite output{min-width:22px;font-size:14px}
+.ligne-panier.indispo{opacity:.55}
+.retirer-ligne{border:0;background:none;color:var(--texte-3);font-size:12.5px;text-decoration:underline;cursor:pointer;padding:2px}
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:14px 0 4px;font-weight:700}
+.total b{font-size:22px;color:var(--or-vif)}
+.note{color:var(--texte-3);font-size:13px;margin:4px 0 0}
+.livraison{margin-top:18px;padding:16px;border-radius:22px;background:rgba(255,255,255,.045);box-shadow:inset 0 0 0 1px rgba(227,184,90,.25)}
+.livraison h4{margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.livraison h4 svg{width:20px;height:20px;color:var(--or)}
+.champ{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.champ label{font-size:13px;font-weight:600;color:var(--texte-2)}
+.champ label em{font-style:normal;color:var(--or)}
+.champ input,.champ select,.champ textarea{width:100%;border:0;border-radius:14px;padding:12px 14px;font-size:16px;min-height:48px;color:var(--texte);background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(227,184,90,.3);outline:none}
+.champ textarea{min-height:96px;resize:vertical;line-height:1.45}
+.champ select option{background:#15120D}
+.champ input:focus,.champ select:focus,.champ textarea:focus{box-shadow:inset 0 0 0 1.5px var(--or-vif)}
+.champ.erreur select,.champ.erreur input{box-shadow:inset 0 0 0 1.5px var(--danger)}
+.mode-livraison{margin:10px 0 0;font-size:13.5px;font-weight:600;color:var(--or-vif)}
+.numeros{display:flex;gap:8px;flex-wrap:wrap}
+.numeros button{flex:1 1 130px}
+.vide-panier{text-align:center;padding:14px 0 8px}
+.vide-panier svg{width:60px;height:60px;color:var(--or);margin:0 auto 6px;display:block}
+.vide-panier p{color:var(--texte-2)}
+.vole{position:fixed;z-index:50;width:18px;height:18px;border-radius:50%;pointer-events:none;background:var(--metal);box-shadow:0 0 18px 4px rgba(227,184,90,.7)}
+
+/* Invitation à installer, messages courts */
+.installer{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--bas) + 6px);z-index:27;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 12px;border-radius:26px;width:min(520px,calc(100% - 24px));animation:surgit .5s cubic-bezier(.34,1.56,.64,1)}
+.installer img{width:48px;height:48px;border-radius:12px;flex:none}
+.installer div{flex:1;min-width:0}
+.installer b{display:block;font-size:14px;line-height:1.2}
+.installer span{display:block;font-size:12.5px;color:var(--texte-2)}
+.installer .bouton{min-height:40px;padding:8px 14px;flex:none}
+.installer .fermer{width:34px;height:34px;font-size:18px}
+@keyframes surgit{from{transform:translate(-50%,30px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.toast{position:fixed;left:50%;top:calc(74px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:45;padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;max-width:calc(100% - 32px);width:max-content;text-align:center;color:var(--or-clair);animation:descend .45s cubic-bezier(.34,1.56,.64,1)}
+.toast.action{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+@keyframes descend{from{transform:translate(-50%,-20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+
+/* Espace gérant */
+.connexion{max-width:460px;margin:30px auto 0;padding:28px 22px;text-align:center}
+.connexion img{width:84px;height:84px;margin:0 auto 12px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(244,213,126,.8)}
+.connexion p{color:var(--texte-2);font-size:14.5px}
+.google-zone{display:flex;justify-content:center;min-height:48px;margin:18px 0 8px}
+.refus{margin-top:10px;padding:10px 12px;border-radius:14px;background:rgba(255,115,131,.12);color:var(--danger);font-weight:600;font-size:14px}
+.session{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;padding:12px 16px;border-radius:22px;font-size:14px;margin-bottom:14px}
+.session b{color:var(--or-clair);word-break:break-all}
+.admin-intro{padding:14px 16px;margin-bottom:14px;border-radius:20px}
+.tuiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+@media (min-width:760px){.tuiles{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.tuile{border:0;text-align:left;padding:12px 14px;cursor:pointer;color:var(--texte);border-radius:20px}
+.tuile small{display:block;font-size:12px;color:var(--texte-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tuile b{display:block;font-size:24px;font-family:var(--affiche);color:var(--or-vif)}
+.tuile span{display:block;font-size:11.5px;color:var(--texte-3)}
+.tuile[aria-pressed="true"]{box-shadow:var(--relief),0 0 0 1.5px var(--or)}
+.admin-bloc{padding:18px 16px;margin-bottom:14px;border-radius:24px}
+.admin-bloc h3{font-size:19px}
+.admin-bloc>p{color:var(--texte-3);font-size:14px;margin:6px 0 0}
+.bloc-tete{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.filtre-admin{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 6px}
+.filtre-admin select,.filtre-admin input{border:0;border-radius:12px;padding:10px 12px;min-height:44px;font-size:15px;background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(227,184,90,.3);color:var(--texte);flex:1 1 160px;min-width:0}
+.filtre-admin span{font-size:13px;color:var(--texte-3);font-weight:600}
+.champs{display:grid;grid-template-columns:1fr;gap:0 12px}
+@media (min-width:640px){.champs{grid-template-columns:1fr 1fr}.champs .large{grid-column:1/-1}}
+.case{flex-direction:row;align-items:center;gap:10px;min-height:44px}
+.case input{width:22px;height:22px;min-height:0;accent-color:var(--or)}
+.fiche-admin{border-radius:18px;margin-top:10px;background:rgba(0,0,0,.25);box-shadow:inset 0 0 0 1px rgba(227,184,90,.2)}
+.fiche-admin summary{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;padding:8px 12px 8px 8px;cursor:pointer;list-style:none}
+.fiche-admin summary::-webkit-details-marker{display:none}
+.fiche-admin summary img{width:52px;height:52px;border-radius:12px;object-fit:cover;background:#1A160F}
+.fiche-admin summary b{display:block;font-size:14.5px;font-weight:600;line-height:1.25;word-break:break-word}
+.fiche-admin summary small{display:block;font-size:12px;color:var(--texte-3)}
+.fiche-admin summary .p{font-weight:700;color:var(--or-vif);font-size:13.5px;text-align:right}
+.fiche-admin summary .p s{display:block;color:var(--texte-3);font-weight:500;font-size:11.5px}
+.fiche-admin[open] summary{border-bottom:1px solid rgba(227,184,90,.15)}
+.editeur{padding:4px 14px 16px}
+.photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.photos figure{position:relative;margin:0;width:76px;height:76px}
+.photos figure img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.photos figure button{position:absolute;top:-6px;right:-6px;width:26px;height:26px;border-radius:50%;border:0;cursor:pointer;color:#fff;background:#B4233A;font-size:16px;line-height:1}
+.ajout-photo{display:grid;place-items:center;width:76px;height:76px;border-radius:12px;font-size:12px;font-weight:700;text-align:center;padding:6px;cursor:pointer;color:var(--or-vif);background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1.5px rgba(227,184,90,.45)}
+.ajout-photo input{position:absolute;width:1px;height:1px;opacity:0}
+.apercu-prix{font-size:13.5px;color:var(--texte-2);margin:8px 0 0}
+.apercu-prix b{color:var(--or-vif)}
+.actions-admin{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.danger{border:0;border-radius:999px;padding:9px 14px;min-height:42px;font-weight:700;cursor:pointer;color:var(--danger);background:rgba(255,115,131,.1);box-shadow:inset 0 0 0 1px rgba(255,115,131,.4)}
+.comptes{list-style:none;margin:12px 0 0;padding:0}
+.comptes li{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid rgba(227,184,90,.14);font-size:14px;word-break:break-all}
+.comptes .droite{display:flex;align-items:center;gap:8px}
+.statut{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.statut.proprio{color:#1B1306;background:var(--metal)}
+.statut.actif{color:#0B2A1B;background:var(--ok)}
+.statut.invite{color:var(--attention);box-shadow:inset 0 0 0 1px var(--attention)}
+.ajout-compte{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.ajout-compte input{flex:1 1 200px;min-width:0;border:0;border-radius:14px;padding:12px 14px;min-height:48px;font-size:16px;background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(227,184,90,.3);color:var(--texte)}
+.invitation{margin-top:12px;padding:14px;border-radius:18px;background:rgba(98,216,158,.08);box-shadow:inset 0 0 0 1px rgba(98,216,158,.35)}
+.invitation p{margin:0 0 10px;font-size:14px;color:var(--texte-2)}
+.erreur-txt{color:var(--danger);font-weight:600;font-size:14px;margin:8px 0 0}
+.sauvegarde{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--bas) + 6px);z-index:26;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border-radius:999px;width:min(560px,calc(100% - 20px));animation:surgit .45s cubic-bezier(.34,1.56,.64,1)}
+.sauvegarde span{flex:1;min-width:0;font-weight:700;font-size:14px}
+.sauvegarde .bouton{min-height:42px;padding:8px 14px;font-size:14px}
+.sauvegarde.erreur-sv span{color:var(--danger)}
+@media (max-width:420px){.sv-plus{display:none}}
+/* Espace gérant : pas de barre d'onglets, la barre d'enregistrement prend sa place */
+body.mode-admin{padding-bottom:110px}
+.mode-admin .onglets{display:none}
+.mode-admin .sauvegarde{bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+</style>
+</head>
+<body>
+<div class="decor" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b><b></b><b></b><b></b></div>
+
+<header class="entete enveloppe">
+  <div class="capsule verre">
+    <a class="marque" href="#accueil" aria-label="Shopping R-Lux, accueil">
+      <img src="assets/logo-rond-96.webp" width="44" height="44" alt="">
+      <div><b class="or-texte">Shopping R-Lux</b><span>Douala · Livraison partout au Cameroun</span></div>
+    </a>
+    <a class="puce-ronde wa" href="#" id="wa-entete" target="_blank" rel="noopener" aria-label="Écrire sur WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-wa"/></svg></a>
+    <button class="puce-ronde" type="button" id="ouvrir-panier" aria-label="Panier"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-panier"/></svg><span class="nb" id="nb-panier" hidden>0</span></button>
+  </div>
+  <div class="annonce verre" id="annonce" hidden></div>
+</header>
+
+<main id="vue-boutique">
+  <section id="accueil" class="enveloppe" style="margin-top:0">
+    <div class="heros verre">
+      <div>
+        <p class="sur-titre">Boutique en ligne · Douala</p>
+        <h1><span class="script or-texte">Shopping R-Lux</span><span class="slogan">Votre style, unique et raffiné</span></h1>
+        <p class="intro">Parfums, soins du corps, lingerie, sacs et accessoires pour homme, femme et enfant, et les romans de Robyn Tyo’o. Remplissez votre panier, indiquez votre ville : votre commande part sur WhatsApp.</p>
+        <div class="boutons">
+          <a class="bouton or" href="#boutique">Découvrir la boutique</a>
+          <a class="bouton" href="#livres"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-livre"/></svg>Les livres de Robyn</a>
+        </div>
+        <ul class="garanties">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-bouclier"/></svg>Produits de qualité</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-panier"/></svg>Achat facile et sécurisé</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-camion"/></svg>Livraison et expédition</li>
+        </ul>
+      </div>
+      <div class="scene" id="scene">
+        <div class="affiche" id="affiche">
+          <img src="assets/affiche-800.webp" srcset="assets/affiche-480.webp 480w, assets/affiche-800.webp 800w" sizes="(min-width:820px) 360px, 80vw" width="800" height="1000" alt="Affiche Shopping R-Lux : lingerie, parfumerie, sacs à main, articles homme, femme et enfants, à Douala" fetchpriority="high">
+          <span class="lustre" aria-hidden="true"></span>
+          <div class="pastille">Livraison<small>partout au Cameroun</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="univers-zone" class="enveloppe">
+    <div class="titre-section"><h2 class="or-texte">Nos univers</h2></div>
+    <div class="univers" id="univers"></div>
+  </section>
+
+  <section id="une-zone" class="enveloppe" hidden>
+    <div class="titre-section"><h2 class="or-texte">À la une</h2></div>
+    <div class="defile" id="une"></div>
+  </section>
+
+  <section id="boutique" class="enveloppe">
+    <div class="titre-section"><h2 class="or-texte" id="titre-boutique">La boutique</h2><span class="compteur" id="compte-produits"></span></div>
+    <label class="recherche verre"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-loupe"/></svg>
+      <input id="recherche" type="search" autocomplete="off" enterkeyhint="search" placeholder="Parfum, boxer, sac, 10000…" aria-label="Rechercher un article">
+      <button type="button" class="effacer" id="effacer-recherche" aria-label="Effacer la recherche" hidden>×</button></label>
+    <div class="puces" role="group" aria-label="Univers" id="puces-rayons"></div>
+    <div class="puces sous" role="group" aria-label="Catégories" id="puces-cats" hidden></div>
+    <div class="outils">
+      <label class="tri verre"><span>Trier</span><select id="tri"><option value="reco">Recommandés</option><option value="prix-asc">Prix croissant</option><option value="prix-desc">Prix décroissant</option><option value="nouveau">Nouveautés</option><option value="promo">Promotions</option></select></label>
+      <button class="puce" type="button" id="voir-favoris" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor"><use href="#ico-coeur"/></svg>Mes favoris <small id="nb-favoris"></small></button>
+    </div>
+    <p class="budget" id="budget" hidden></p>
+    <div class="grille" id="grille" aria-live="polite"></div>
+  </section>
+
+  <section id="livres" class="enveloppe">
+    <div class="livres-bloc verre">
+      <div>
+        <p class="sur-titre">Écrits par Robyn Tyo’o</p>
+        <h2 class="bloc-titre or-texte">Les livres de Robyn</h2>
+        <p>La boutique vend aussi les romans de Robyn Tyo’o. Touchez une couverture pour lire le résumé, puis ajoutez le livre à votre panier avec vos autres articles.</p>
+        <button class="bouton or" type="button" data-voir-rayon="livres">Voir tous les livres</button>
+      </div>
+      <div class="etagere" id="etagere"></div>
+    </div>
+  </section>
+
+  <section id="commander" class="enveloppe">
+    <div class="titre-section"><h2 class="or-texte">Comment commander</h2></div>
+    <ol class="etapes-cmd">
+      <li class="verre"><div><b>Remplissez votre panier</b><span>Choisissez la taille ou la contenance si besoin, et la quantité.</span></div></li>
+      <li class="verre"><div><b>Indiquez votre ville</b><span>Livraison à Douala, expédition vers les autres villes du Cameroun.</span></div></li>
+      <li class="verre"><div><b>Envoyez sur WhatsApp</b><span>Le message est déjà rédigé. La boutique vous confirme la disponibilité, les frais de livraison et le paiement.</span></div></li>
+    </ol>
+  </section>
+
+  <section id="contact" class="enveloppe">
+    <div class="titre-section"><h2 class="or-texte">Contact</h2></div>
+    <div class="canaux">
+      <div class="canal verre vivant" id="canal-wa1">
+        <span class="tete"><svg class="wa-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-wa"/></svg>WhatsApp</span>
+        <span class="valeur" id="wa1-numero"></span>
+        <p>Commandes et questions, par message.</p>
+        <div class="boutons"><a class="bouton wa" href="#" id="wa1-lien" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-wa"/></svg>Écrire</a></div>
+      </div>
+      <div class="canal verre vivant" id="canal-wa2">
+        <span class="tete"><svg class="wa-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-wa"/></svg>WhatsApp et appel</span>
+        <span class="valeur" id="wa2-numero"></span>
+        <p>Par message ou par téléphone.</p>
+        <div class="boutons"><a class="bouton wa" href="#" id="wa2-lien" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-wa"/></svg>Écrire</a><a class="bouton" href="#" id="wa2-appel"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-tel"/></svg>Appeler</a></div>
+      </div>
+      <div class="canal verre vivant">
+        <span class="tete"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-lieu"/></svg>Douala, Cameroun</span>
+        <p>La boutique est à Douala. Livraison dans la ville et expédition vers les autres villes du pays : les frais sont confirmés avec la commande.</p>
+        <div class="reseaux"><a class="bouton petit" href="#" id="lien-fb" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-fb"/></svg>Facebook</a><a class="bouton petit" href="#" id="lien-tt" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-tiktok"/></svg>TikTok</a></div>
+      </div>
+      <div class="canal verre vivant" id="canal-mail">
+        <span class="tete"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-mail"/></svg>E-mail</span>
+        <span class="valeur mail" id="mail-adresse"></span>
+        <div class="boutons"><a class="bouton" href="#" id="mail-lien">Écrire un e-mail</a></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="pied enveloppe">
+    <img src="assets/logo-rond-192.webp" width="64" height="64" alt="" loading="lazy">
+    <p><b class="or-texte" style="font-family:var(--affiche);font-size:15px">Shopping R-Lux</b></p>
+    <p>Douala, Cameroun · Livraison partout au Cameroun</p>
+    <p><a href="#admin" class="lien-bouton" style="font-size:13px">Espace gérant</a></p>
+  </footer>
+</main>
+
+<main id="vue-connexion" hidden>
+  <section class="enveloppe" style="margin-top:0">
+    <div class="connexion verre vivant">
+      <img src="assets/logo-rond-192.webp" width="84" height="84" alt="">
+      <h2 class="or-texte">Espace gérant</h2>
+      <p>Connectez-vous avec le compte Google autorisé pour ajouter des articles, changer les prix et gérer les gérants.</p>
+      <div class="google-zone" id="btn-google"><span class="note" id="google-attente">Chargement de la connexion Google…</span></div>
+      <div class="refus" id="refus" hidden></div>
+      <p style="margin-top:18px"><a href="#accueil" class="lien-bouton">Retour à la boutique</a></p>
+    </div>
+  </section>
+</main>
+
+<main id="vue-admin" hidden>
+  <section class="enveloppe" style="margin-top:0">
+    <div class="admin-intro verre" id="chargement" hidden>Chargement du tableau de bord…</div>
+    <div class="titre-section" style="margin-top:18px"><h2 class="or-texte">Tableau de bord</h2></div>
+    <div class="session verre"><span>Connecté : <b id="qui"></b></span><span><a class="lien-bouton" href="#accueil">Voir la boutique</a> <button class="lien-bouton" type="button" id="deconnexion">Se déconnecter</button></span></div>
+    <div class="tuiles" id="tuiles"></div>
+
+    <div class="admin-bloc verre" id="bloc-produits">
+      <div class="bloc-tete"><h3>Articles</h3><button class="bouton or petit" type="button" id="ajouter">+ Ajouter un article</button></div>
+      <div class="filtre-admin">
+        <select id="admin-rayon" aria-label="Univers affiché"></select>
+        <input id="admin-recherche" type="search" placeholder="Chercher un article" aria-label="Chercher un article">
+        <span id="admin-compte"></span>
+      </div>
+      <div id="admin-liste"></div>
+    </div>
+
+    <div class="admin-bloc verre" id="bloc-config">
+      <h3>Coordonnées et annonce</h3>
+      <p>Les commandes du panier partent vers le numéro WhatsApp principal. Le client peut choisir le second numéro.</p>
+      <div class="champs">
+        <div class="champ"><label for="cfg-wa">WhatsApp principal</label><input id="cfg-wa" inputmode="tel" placeholder="237 6XX XX XX XX"></div>
+        <div class="champ"><label for="cfg-wa2">WhatsApp et appel</label><input id="cfg-wa2" inputmode="tel" placeholder="237 6XX XX XX XX"></div>
+        <div class="champ"><label for="cfg-mail">E-mail de contact</label><input id="cfg-mail" type="email" placeholder="boutique@gmail.com"></div>
+        <div class="champ"><label for="cfg-annonce">Annonce en haut de la boutique</label><input id="cfg-annonce" maxlength="120" placeholder="Ex. : Nouvel arrivage de parfums !"></div>
+        <div class="champ"><label for="cfg-fb">Lien de la page Facebook</label><input id="cfg-fb" type="url" inputmode="url" placeholder="https://www.facebook.com/…"></div>
+        <div class="champ"><label for="cfg-tt">Lien du compte TikTok</label><input id="cfg-tt" type="url" inputmode="url" placeholder="https://www.tiktok.com/@…"></div>
+      </div>
+    </div>
+
+    <div class="admin-bloc verre" id="bloc-comptes">
+      <h3>Gérants</h3>
+      <p>Chaque gérant se connecte avec son compte Google (Gmail) et peut modifier les articles et les prix. Seule la propriétaire ajoute ou retire un gérant.</p>
+      <ul class="comptes" id="comptes"></ul>
+      <div id="zone-ajout-compte">
+        <div class="ajout-compte"><input id="nouveau-compte" type="email" placeholder="gerant@gmail.com" aria-label="Adresse Gmail du gérant à ajouter"><button class="bouton or" type="button" id="ajouter-compte">Ajouter</button></div>
+        <p class="erreur-txt" id="erreur-compte" hidden></p>
+        <div class="invitation" id="invitation" hidden>
+          <p id="texte-invit"></p>
+          <div class="boutons"><a class="bouton wa petit" id="invit-wa" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-wa"/></svg>Envoyer par WhatsApp</a><button class="bouton petit" type="button" id="copier-invit">Copier</button></div>
+        </div>
+      </div>
+      <p class="note" id="note-comptes" hidden>Seule la propriétaire peut ajouter ou retirer un gérant.</p>
+    </div>
+  </section>
+</main>
+
+<nav class="onglets verre" id="onglets" aria-label="Navigation">
+  <span class="bulle" id="bulle" aria-hidden="true"></span>
+  <a href="#accueil" data-onglet="accueil"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-maison"/></svg><span>Accueil</span></a>
+  <a href="#boutique" data-onglet="boutique"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-boutique"/></svg><span>Boutique</span></a>
+  <a href="#livres" data-onglet="livres"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-livre"/></svg><span>Livres</span></a>
+  <button type="button" data-onglet="panier" id="onglet-panier"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-panier"/></svg><span>Panier</span><span class="nb" id="nb-panier-2" hidden>0</span></button>
+  <a href="#contact" data-onglet="contact"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-bulle"/></svg><span>Contact</span></a>
+</nav>
+
+<div class="sauvegarde verre" id="sauvegarde" role="status" hidden>
+  <span id="sv-texte"></span>
+  <button class="bouton petit" type="button" id="annuler">Annuler</button>
+  <button class="bouton or petit" type="button" id="enregistrer">Enregistrer</button>
+</div>
+<div class="voile" id="voile" hidden></div>
+<div class="installer verre" id="installer" role="dialog" aria-label="Installer l'appli" hidden>
+  <img src="assets/icone-192.png" alt="">
+  <div><b>Installer Shopping R-Lux</b><span id="installer-texte">La boutique sur votre écran d'accueil, comme une appli.</span></div>
+  <button class="bouton or" type="button" id="installer-oui">Installer</button>
+  <button class="fermer" type="button" id="installer-non" aria-label="Plus tard">×</button>
+</div>
+<div class="toast verre" id="toast" role="status" aria-live="polite" hidden></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="ico-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></symbol>
+<symbol id="ico-panier" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" d="M5.5 8h13l-1 12.2a1 1 0 0 1-1 .8h-9a1 1 0 0 1-1-.8L5.5 8ZM9 10.5V7a3 3 0 0 1 6 0v3.5"/></symbol>
+<symbol id="ico-loupe" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m15.5 15.5 5 5"/></symbol>
+<symbol id="ico-coeur" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.2-9.4C1.6 7.7 3.9 4.5 7.2 4.5c2 0 3.4 1.1 4.8 2.8 1.4-1.7 2.8-2.8 4.8-2.8 3.3 0 5.6 3.2 4.4 6.6-1.7 4.8-9.2 9.4-9.2 9.4Z"/></symbol>
+<symbol id="ico-partager" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol>
+<symbol id="ico-cloche" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Zm4 4a2 2 0 0 0 4 0"/></symbol>
+<symbol id="ico-maison" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z"/></symbol>
+<symbol id="ico-boutique" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M4 9l1.5-5h13L20 9M4 9h16M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9M5 11.5V20h14v-8.5M9.5 20v-5h5v5"/></symbol>
+<symbol id="ico-livre" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M12 6.5C10 5 7.5 4.5 3.5 4.5v13c4 0 6.5.5 8.5 2 2-1.5 4.5-2 8.5-2v-13c-4 0-6.5.5-8.5 2Zm0 0v13"/></symbol>
+<symbol id="ico-bulle" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M4 5h16v11H9l-5 4V5Z"/></symbol>
+<symbol id="ico-tout" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3ZM18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"/></symbol>
+<symbol id="ico-parfum" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" d="M9.5 2.5h5v3.5h-5zM10.5 6v2.2M13.5 6v2.2M8 8.2h8a2.5 2.5 0 0 1 2.5 2.5v8.3a2.5 2.5 0 0 1-2.5 2.5H8A2.5 2.5 0 0 1 5.5 19v-8.3A2.5 2.5 0 0 1 8 8.2ZM8.5 12.5c1 1.5 2.2 2.2 3.5 2.2s2.5-.7 3.5-2.2M16.5 3.5l2-1M16.8 5h2.4"/></symbol>
+<symbol id="ico-soin" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" d="M9 2.5h4l2.5 1.5M11 2.5v3M8.5 5.5h5V8M8 8h6a2 2 0 0 1 2 2v9.5a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2ZM8.5 13h5M19 13.5c1.2 1.6 1.8 2.7 1.8 3.5a1.8 1.8 0 0 1-3.6 0c0-.8.6-1.9 1.8-3.5Z"/></symbol>
+<symbol id="ico-cintre" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" d="M10 6.2a2 2 0 1 1 2.6 1.9c-.4.1-.6.5-.6.9v1L3.3 15.6a1 1 0 0 0 .6 1.9h16.2a1 1 0 0 0 .6-1.9L12 10"/></symbol>
+<symbol id="ico-sac" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" d="M4.5 10h15l-1.3 9.3a2 2 0 0 1-2 1.7H7.8a2 2 0 0 1-2-1.7L4.5 10ZM8.5 10V7.5a3.5 3.5 0 0 1 7 0V10M10.5 13.5h3v2h-3z"/></symbol>
+<symbol id="ico-bouclier" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round" d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6l7-3Zm-3 9 2.2 2.2L15.5 10"/></symbol>
+<symbol id="ico-camion" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M2.5 6h11v10h-11zM13.5 9.5h4l3 3.5V16h-7"/><circle cx="6.5" cy="17.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="17.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+<symbol id="ico-lieu" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+<symbol id="ico-tel" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M5 3.5h3.5l1.5 4.5-2.2 1.4a11 11 0 0 0 6.8 6.8l1.4-2.2 4.5 1.5V19a1.5 1.5 0 0 1-1.6 1.5C10.5 20 4 13.5 3.5 5.1A1.5 1.5 0 0 1 5 3.5Z"/></symbol>
+<symbol id="ico-mail" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M3.5 5.5h17v13h-17zM3.5 6l8.5 7 8.5-7"/></symbol>
+<symbol id="ico-fb" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 21v-7.5H16l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4a21 21 0 0 0-2.3-.1c-2.3 0-3.9 1.4-3.9 4v2.2H8v3h2.4V21h3.1Z"/></symbol>
+<symbol id="ico-tiktok" viewBox="0 0 24 24"><path fill="currentColor" d="M16.6 3c.4 2.2 1.8 3.6 4 3.8v3.1a7 7 0 0 1-4-1.3v6.3a5.9 5.9 0 1 1-5.9-5.9l.9.1v3.2a2.8 2.8 0 1 0 1.9 2.6V3h3.1Z"/></symbol>
+</svg>
+<script src="app.js" defer></script>
+</body>
+</html>
