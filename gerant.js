@@ -6,6 +6,7 @@ var API = 'api/gerant';
 var SITE = location.origin + location.pathname.replace(/[^\/]*$/, '');
 var FORMULES = { jour: '24 heures', semaine: '1 semaine', mois: '1 mois' };
 var GENRES = { roman: 'Roman', nouvelles: 'Nouvelles', poesie: 'Poésie', conte: 'Contes', theatre: 'Théâtre', essai: 'Essai', temoignage: 'Témoignage', jeunesse: 'Jeunesse', feuilleton: 'Feuilleton', autre: 'Autre' };
+var configSite = {};
 var gerant = null, donnees = null, onglet = 'codes', filtre = 'tous', recherche = '', typeCode = 'semaine', derniersCodes = [], editeur = null;
 
 function $(id) { return document.getElementById(id); }
@@ -26,7 +27,7 @@ function appel(methode, corps, params) {
   return fetch(API + (params ? '?' + params : ''), { method: methode, headers: h, body: corps ? JSON.stringify(corps) : undefined, cache: 'no-store' })
     .then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (d) {
-        if (r.status === 401 || (r.status === 403 && gerant && corps && corps.action !== 'inviter' && corps.action !== 'retirer')) { deconnecter(); }
+        if (r.status === 401 || (r.status === 403 && gerant && corps && ['inviter', 'retirer', 'role'].indexOf(corps.action) < 0)) { deconnecter(); }
         if (!r.ok) { var e = new Error(d.erreur || 'Erreur ' + r.status); e.statut = r.status; throw e; }
         return d;
       });
@@ -41,6 +42,7 @@ function occupe(bouton, texte) {
 function montrer(vue) { $('vue-connexion').hidden = vue !== 'connexion'; $('vue-admin').hidden = vue !== 'admin'; }
 function preparerGoogle() {
   appel('GET', null, 'action=config').then(function (c) {
+    configSite = c;
     var att = $('google-attente');
     if (!c.pret) { att.innerHTML = 'L’espace gérant n’est pas encore configuré sur Cloudflare (base D1 « DB », <code>GOOGLE_CLIENT_ID</code>, <code>SESSION_SECRET</code>). Voir le fichier <code>SALON-LECTURE.md</code> du dépôt.'; return; }
     var s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
@@ -72,7 +74,7 @@ function charger() {
   montrer('admin');
   return appel('GET', null, 'action=tableau').then(function (d) {
     donnees = d;
-    $('qui').textContent = d.moi + (d.estProprietaire ? ' · propriétaire' : ' · gérant');
+    $('qui').textContent = d.moi + ' · ' + (NOMS_ROLE[d.role] || 'Gérant').toLowerCase();
     rendre();
   }).catch(function (e) { if (gerant) { $('panneau').innerHTML = '<p class="message ko">' + esc(e.message) + '</p>'; } });
 }
@@ -195,9 +197,11 @@ function vueEditeur() {
     (e.existant ? '<p class="muet">' + e.nbChapitres + ' chapitre' + (e.nbChapitres > 1 ? 's' : '') + ' en ligne. Importez un fichier pour tout remplacer, ou pour ajouter les nouveaux chapitres à la suite (feuilleton).</p>' +
       '<div class="filtres" role="group" aria-label="Mode d’import"><button type="button" data-mode="remplacer" aria-pressed="' + (e.mode === 'remplacer') + '">Remplacer tout le livre</button><button type="button" data-mode="ajouter" aria-pressed="' + (e.mode === 'ajouter') + '">Ajouter à la suite</button></div>'
       : '<p class="muet">Un chapitre = un titre de niveau 1 (« Titre 1 » dans Word ou LibreOffice, # en Markdown), sinon une ligne qui commence par « Chapitre ». Gras, italique, centrage, citations, séparateurs *** et vers des poèmes sont gardés.</p>') +
-    '<div class="actions" style="margin-top:4px"><label for="ed-fichier" class="btn btn-verre">Choisir un fichier</label><button type="button" class="btn btn-verre" id="ed-coller-ouvrir" aria-expanded="' + !!e.coller + '">Coller le texte</button></div>' +
-    '<input type="file" id="ed-fichier" accept="' + window.APEL_TEXTES.formats + '" class="sr">' +
-    '<p class="muet" style="margin-top:8px">Formats : Word (.docx), LibreOffice (.odt), PDF, EPUB, RTF, page web (.html), texte (.txt), Markdown (.md).</p>' +
+    '<div class="actions" style="margin-top:4px"><label for="ed-fichier" class="btn btn-verre">Choisir un ou plusieurs fichiers</label>' +
+    (configSite.drive ? '<button type="button" class="btn btn-verre" id="ed-drive">' + LOGO_DRIVE + 'Google Drive</button>' : '') +
+    '<button type="button" class="btn btn-verre" id="ed-coller-ouvrir" aria-expanded="' + !!e.coller + '">Coller le texte</button></div>' +
+    '<input type="file" id="ed-fichier" accept="' + window.APEL_TEXTES.formats + '" multiple class="sr">' +
+    '<p class="muet" style="margin-top:8px">Formats : Word (.docx), LibreOffice (.odt), PDF, EPUB, RTF, page web (.html), texte (.txt), Markdown (.md). <b>Un fichier</b> : il est découpé en chapitres. <b>Plusieurs fichiers</b> (un par chapitre, comme « Chapitre 1 - L’Empire », « Chapitre 2 - Le Seuil »…) : chaque fichier devient un chapitre, rangé selon son numéro.</p>' +
     (e.coller ? '<label for="ed-colle">Texte du livre (une ligne « Chapitre … » ou « # … » avant chaque chapitre)</label><textarea id="ed-colle" style="min-height:200px" placeholder="Chapitre 1 : Le départ&#10;&#10;Il était une fois…"></textarea><div class="actions"><button type="button" class="btn btn-primaire btn-petit" id="ed-coller">Découper en chapitres</button></div>' : '') +
     '<p class="message ko" id="ed-erreur" role="alert" hidden></p>' +
     (imp ? '<div style="margin-top:12px"><h3>' + imp.chapitres.length + ' chapitre' + (imp.chapitres.length > 1 ? 's' : '') + ' trouvé' + (imp.chapitres.length > 1 ? 's' : '') + ' dans « ' + esc(imp.fichier) + ' »</h3><p class="muet">Décochez ce qu’il ne faut pas publier (page de titre, remerciements…) et corrigez les titres si besoin.</p><div>' +
@@ -253,8 +257,18 @@ function brancherEditeur() {
     }).catch(function (e) { if (lab) lab.textContent = 'Choisir un fichier'; err.hidden = false; err.textContent = e.message; });
   }
   $('ed-fichier').addEventListener('change', function (ev) {
-    var f = ev.target.files && ev.target.files[0];
-    if (f) importer(window.APEL_TEXTES.lire(f), f.name);
+    var l = ev.target.files || [];
+    if (l.length > 1) importer(window.APEL_TEXTES.lireChapitres(l), l.length + ' fichiers');
+    else if (l[0]) importer(window.APEL_TEXTES.lire(l[0]), l[0].name);
+  });
+  var bd = $('ed-drive');
+  if (bd) bd.addEventListener('click', function () {
+    var fin = occupe(bd, 'Google Drive…');
+    choisirDansDrive().then(function (l) {
+      fin();
+      if (!l.length) return;
+      importer(l.length > 1 ? window.APEL_TEXTES.lireChapitres(l) : window.APEL_TEXTES.lire(l[0]), l.length > 1 ? l.length + ' fichiers de Google Drive' : l[0].name);
+    }).catch(function (e) { fin(); var err = $('ed-erreur'); err.hidden = false; err.textContent = e.message; });
   });
   $('ed-coller-ouvrir').addEventListener('click', function () { lireChamps(); editeur.coller = !editeur.coller; rendre(); var z = $('ed-colle'); if (z) z.focus(); });
   var bc = $('ed-coller');
@@ -269,6 +283,62 @@ function brancherEditeur() {
     if (!sup.dataset.confirmer) { sup.dataset.confirmer = '1'; sup.textContent = 'Confirmer : retirer le livre et ses chapitres'; return; }
     var fin = occupe(sup);
     appel('POST', { action: 'supprimer', id: editeur.livre.id }).then(function () { editeur = null; toast('Livre retiré du Salon'); return charger(); }).catch(function (e) { fin(); afficherMessage(e.message, false); });
+  });
+}
+/* Google Drive : choisir un ou plusieurs textes (Google Docs, Word, PDF…) directement dans le Drive.
+   Accès limité aux fichiers choisis (droit « drive.file »). */
+var LOGO_DRIVE = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#1FB384" d="M8 3h8l6 10.5h-8z"/><path fill="#F2B705" d="M2 13.5L8 3l4 7-6 10.5z"/><path fill="#E2574A" d="M6 20.5l4-7h12l-4 7z"/></svg>';
+var TYPES_DRIVE = { 'application/vnd.google-apps.document': '.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx', 'application/pdf': '.pdf', 'application/epub+zip': '.epub', 'application/vnd.oasis.opendocument.text': '.odt', 'text/plain': '.txt', 'text/markdown': '.md', 'application/rtf': '.rtf', 'text/rtf': '.rtf', 'text/html': '.html' };
+function script(src) {
+  return new Promise(function (ok, ko) {
+    if (document.querySelector('script[src="' + src + '"]')) { ok(); return; }
+    var s = document.createElement('script'); s.src = src; s.async = true; s.onload = ok; s.onerror = function () { ko(new Error('Impossible de joindre Google Drive. Vérifiez la connexion internet.')); };
+    document.head.appendChild(s);
+  });
+}
+var jetonDrive = null;
+function autoriserDrive() {
+  if (jetonDrive && jetonDrive.fin > Date.now()) return Promise.resolve(jetonDrive.t);
+  return new Promise(function (ok, ko) {
+    if (!window.google || !google.accounts || !google.accounts.oauth2) { ko(new Error('Connexion Google indisponible : rechargez la page.')); return; }
+    var client = google.accounts.oauth2.initTokenClient({
+      client_id: configSite.clientId, scope: 'https://www.googleapis.com/auth/drive.file', login_hint: gerant && gerant.email,
+      callback: function (r) { if (!r || r.error || !r.access_token) { ko(new Error('Accès à Google Drive refusé.')); return; } jetonDrive = { t: r.access_token, fin: Date.now() + ((r.expires_in || 3000) - 60) * 1000 }; ok(r.access_token); },
+      error_callback: function () { ko(new Error('Accès à Google Drive annulé.')); }
+    });
+    client.requestAccessToken({ prompt: '' });
+  });
+}
+function choisirDansDrive() {
+  var jeton;
+  // Session reprise après un rechargement : la bibliothèque de connexion Google n'est peut-être pas encore là.
+  return Promise.all([script('https://accounts.google.com/gsi/client'), script('https://apis.google.com/js/api.js')]).then(function () {
+    return new Promise(function (ok) { gapi.load('picker', ok); });
+  }).then(autoriserDrive).then(function (t) {
+    jeton = t;
+    return new Promise(function (ok) {
+      var vue = new google.picker.DocsView(google.picker.ViewId.DOCS).setMimeTypes(Object.keys(TYPES_DRIVE).join(',')).setIncludeFolders(true).setSelectFolderEnabled(false);
+      new google.picker.PickerBuilder().addView(vue).enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+        .setOAuthToken(t).setDeveloperKey(configSite.drive.cle).setAppId(configSite.drive.projet).setLocale('fr').setTitle('Textes du livre (un ou plusieurs fichiers)')
+        .setCallback(function (d) {
+          if (d.action === google.picker.Action.PICKED) ok(d.docs || []);
+          else if (d.action === google.picker.Action.CANCEL) ok([]);
+        }).build().setVisible(true);
+    });
+  }).then(function (docs) {
+    // Téléchargement : un Google Doc est converti en Word, les autres fichiers arrivent tels quels.
+    return Promise.all(docs.map(function (doc) {
+      var gdoc = doc.mimeType === 'application/vnd.google-apps.document';
+      var url = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(doc.id) + (gdoc ? '/export?mimeType=' + encodeURIComponent('application/vnd.openxmlformats-officedocument.wordprocessingml.document') : '?alt=media');
+      return fetch(url, { headers: { authorization: 'Bearer ' + jeton } }).then(function (r) {
+        if (!r.ok) throw new Error('« ' + doc.name + ' » n’a pas pu être lu dans Google Drive.');
+        return r.blob();
+      }).then(function (b) {
+        var nom = doc.name || 'texte', ext = TYPES_DRIVE[doc.mimeType] || '';
+        if (ext && !new RegExp('\\' + ext + '$', 'i').test(nom)) nom += ext;
+        return new File([b], nom, { type: b.type });
+      });
+    }));
   });
 }
 function afficherMessage(t, ok) { var m = $('ed-message'); if (!m) { toast(t); return; } m.hidden = false; m.className = 'message ' + (ok ? 'ok' : 'ko'); m.textContent = t; }
@@ -398,16 +468,32 @@ function vueReglages() {
     '<div class="actions"><button type="button" class="btn btn-primaire" id="enregistrer-reglages">Enregistrer</button></div></section>';
 }
 
-/* ---------- Gérants ---------- */
+/* ---------- Équipe : administrateurs et gérants ---------- */
+var NOMS_ROLE = { proprietaire: 'Propriétaire', admin: 'Administrateur', gerant: 'Gérant' };
+function estAdmin() { return donnees && (donnees.role === 'proprietaire' || donnees.role === 'admin'); }
 function vueGerants() {
-  var d = donnees, g = d.gerants || [];
-  return '<section class="carte"><h2>Gérants</h2><p class="muet">Propriétaire : ' + esc(d.proprietaire) + '. Les gérants créent des codes et publient des livres. Seul le propriétaire en ajoute ou en retire.</p>' +
-    (g.length ? '<ul class="liste">' + g.map(function (x) {
-      return '<li><div class="infos"><b>' + esc(x.email) + '</b><small>' + (x.statut === 'actif' ? 'Actif depuis le ' : 'Invité le ') + esc(x.depuis || '') + '</small></div>' +
-        (d.estProprietaire ? '<button type="button" class="btn btn-danger btn-petit" data-retirer="' + esc(x.email) + '">Retirer</button>' : '') + '</li>';
-    }).join('') + '</ul>' : '<p class="muet">Aucun gérant pour l’instant.</p>') +
-    (d.estProprietaire ? '<label for="invite">Ajouter un gérant (adresse Gmail)</label><input type="email" id="invite" placeholder="prenom.nom@gmail.com"><div class="actions"><button type="button" class="btn btn-primaire" id="inviter">Ajouter</button></div>' : '') + '</section>';
+  var d = donnees, g = d.gerants || [], admin = estAdmin();
+  var membres = [{ email: d.proprietaire, role: 'proprietaire', fixe: true }]
+    .concat((d.secours || []).filter(function (e) { return e !== d.proprietaire; }).map(function (e) { return { email: e, role: 'admin', fixe: true, secours: true }; }))
+    .concat(g.map(function (x) { return { email: x.email, role: x.role === 'admin' ? 'admin' : 'gerant', statut: x.statut, depuis: x.depuis }; }));
+  return '<section class="carte"><h2>Équipe</h2><p class="muet"><b>Administrateurs</b> : tous les droits, y compris ajouter, retirer ou changer le rôle des membres. <b>Gérants</b> : codes de lecture, livres, vidéos et tarifs.</p>' +
+    '<ul class="liste">' + membres.map(function (m) {
+      var moi = m.email === d.moi;
+      var info = m.role === 'proprietaire' ? 'Propriétaire du site' : m.secours ? 'Administrateur de secours (réglage Cloudflare)' : (m.statut === 'actif' ? 'Actif depuis le ' : 'Invité le ') + (m.depuis || '');
+      var actions = '';
+      if (admin && !m.fixe && !moi) actions = '<label class="sr" for="role-' + esc(m.email) + '">Rôle de ' + esc(m.email) + '</label><select class="choix-role" id="role-' + esc(m.email) + '" data-role-de="' + esc(m.email) + '"><option value="admin"' + (m.role === 'admin' ? ' selected' : '') + '>Administrateur</option><option value="gerant"' + (m.role === 'gerant' ? ' selected' : '') + '>Gérant</option></select>' +
+        '<button type="button" class="btn btn-danger btn-petit" data-retirer="' + esc(m.email) + '">Retirer</button>';
+      return '<li><div class="infos"><b>' + esc(m.email) + '</b><span class="etat ' + (m.role === 'gerant' ? 'etat-neuf' : 'etat-actif') + '">' + NOMS_ROLE[m.role] + '</span>' + (moi ? ' <span class="etat etat-fini">Vous</span>' : '') + '<small>' + esc(info) + '</small></div>' +
+        (actions ? '<div class="actions" style="margin:0">' + actions + '</div>' : '') + '</li>';
+    }).join('') + '</ul></section>' +
+    (admin ? '<section class="carte"><h2>Ajouter un membre</h2>' +
+      '<label for="invite">Adresse e-mail (compte Google)</label><input type="email" id="invite" placeholder="prenom.nom@gmail.com" autocomplete="off">' +
+      '<div class="choix-type" role="group" aria-label="Rôle" style="grid-template-columns:1fr 1fr"><button type="button" data-nouveau-role="admin" aria-pressed="' + (nouveauRole === 'admin') + '">Administrateur<small>tous les droits</small></button><button type="button" data-nouveau-role="gerant" aria-pressed="' + (nouveauRole === 'gerant') + '">Gérant<small>codes, livres, vidéos</small></button></div>' +
+      '<p class="muet" style="margin-top:8px">La personne se connecte ensuite sur cette page avec « Se connecter avec Google », en utilisant cette adresse. Une adresse Gmail convient, ou une adresse professionnelle déjà liée à un compte Google.</p>' +
+      '<div class="actions"><button type="button" class="btn btn-primaire" id="inviter">Ajouter à l’équipe</button></div></section>'
+      : '<p class="muet">Seuls les administrateurs ajoutent ou retirent des membres de l’équipe.</p>');
 }
+var nouveauRole = 'admin';
 
 /* ---------- Clics ---------- */
 document.addEventListener('click', function (e) {
@@ -443,9 +529,10 @@ document.addEventListener('click', function (e) {
   }
   if ((v = b.getAttribute('data-retirer'))) {
     if (!b.dataset.confirmer) { b.dataset.confirmer = '1'; b.textContent = 'Confirmer'; return; }
-    appel('POST', { action: 'retirer', email: v }).then(function () { toast('Gérant retiré'); return charger(); }).catch(function (er) { toast(er.message); });
+    appel('POST', { action: 'retirer', email: v }).then(function () { toast('Membre retiré de l’équipe'); return charger(); }).catch(function (er) { toast(er.message); });
     return;
   }
+  if ((v = b.getAttribute('data-nouveau-role'))) { nouveauRole = v; [].forEach.call(document.querySelectorAll('[data-nouveau-role]'), function (x) { x.setAttribute('aria-pressed', String(x === b)); }); return; }
   switch (b.id) {
     case 'creer': {
       var fin = occupe(b, 'Création…');
@@ -468,7 +555,7 @@ document.addEventListener('click', function (e) {
       break;
     }
     case 'inviter':
-      appel('POST', { action: 'inviter', email: $('invite').value }).then(function () { toast('Gérant ajouté : il peut se connecter avec ce Gmail'); return charger(); }).catch(function (er) { toast(er.message); });
+      appel('POST', { action: 'inviter', email: $('invite').value, role: nouveauRole }).then(function (r) { toast((r.role === 'admin' ? 'Administrateur' : 'Gérant') + ' ajouté : connexion avec ' + r.email); return charger(); }).catch(function (er) { toast(er.message); });
       break;
     case 'pass': {
       var fpass = occupe(b);
@@ -484,6 +571,8 @@ document.addEventListener('click', function (e) {
   }
 });
 document.addEventListener('change', function (e) {
+  var rd = e.target.getAttribute && e.target.getAttribute('data-role-de');
+  if (rd) appel('POST', { action: 'role', email: rd, role: e.target.value }).then(function () { toast('Rôle changé : ' + (e.target.value === 'admin' ? 'administrateur' : 'gérant')); return charger(); }).catch(function (er) { toast(er.message); charger(); });
   var g = e.target.getAttribute && e.target.getAttribute('data-garder');
   if (g != null && editeur && editeur.import) editeur.import.chapitres[+g].garder = e.target.checked;
 });
@@ -499,5 +588,5 @@ document.addEventListener('input', function (e) {
 
 /* ---------- Démarrage ---------- */
 try { gerant = JSON.parse(sessionStorage.getItem('apel-gerant') || 'null'); } catch (e) { gerant = null; }
-if (gerant && gerant.expire * 1000 > Date.now()) charger(); else { gerant = null; montrer('connexion'); preparerGoogle(); }
+if (gerant && gerant.expire * 1000 > Date.now()) { charger(); appel('GET', null, 'action=config').then(function (c) { configSite = c; if (onglet === 'livres' && editeur) rendre(); }).catch(function () {}); } else { gerant = null; montrer('connexion'); preparerGoogle(); }
 })();

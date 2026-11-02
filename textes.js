@@ -522,14 +522,13 @@ function finir(ps, nom) {
   if (!res.chapitres.length) throw new Error('Ce fichier ne contient pas de texte lisible.');
   return res;
 }
-window.APEL_TEXTES = {
-  formats: '.docx,.odt,.epub,.pdf,.rtf,.html,.htm,.txt,.md,.markdown',
-  accepte: function (nom) { return /^(docx|odt|epub|pdf|rtf|html?|txt|md|markdown)$/.test(format(nom)); },
-  lire: function (fichier) {
+function accepte(nom) { return /^(docx|odt|epub|pdf|rtf|html?|txt|md|markdown)$/.test(format(nom)); }
+// Paragraphes d'un fichier, quel que soit son format
+function paragraphesDe(fichier) {
     var ext = format(fichier.name);
-    if (ext === 'doc') return Promise.reject(new Error('Ancien format Word (.doc) : dans Word, Fichier > Enregistrer sous > Document Word (.docx), puis importez le nouveau fichier.'));
-    if (ext === 'pages') return Promise.reject(new Error('Fichier Pages : dans Pages, Fichier > Exporter > Word, puis importez le fichier .docx.'));
-    if (!this.accepte(fichier.name)) return Promise.reject(new Error('Format non reconnu. Formats acceptés : ' + FORMATS + '.'));
+    if (ext === 'doc') return Promise.reject(new Error('« ' + fichier.name + ' » : ancien format Word (.doc). Dans Word, Fichier > Enregistrer sous > Document Word (.docx), puis importez le nouveau fichier.'));
+    if (ext === 'pages') return Promise.reject(new Error('« ' + fichier.name + ' » : fichier Pages. Dans Pages, Fichier > Exporter > Word, puis importez le fichier .docx.'));
+    if (!accepte(fichier.name)) return Promise.reject(new Error('« ' + fichier.name + ' » : format non reconnu. Formats acceptés : ' + FORMATS + '.'));
     return (fichier.arrayBuffer ? fichier.arrayBuffer() : new Response(fichier).arrayBuffer()).then(function (buf) {
       if (ext === 'docx') return lireDocx(lireZip(buf, 'document Word'));
       if (ext === 'odt') return lireOdt(lireZip(buf, 'document LibreOffice'));
@@ -538,7 +537,39 @@ window.APEL_TEXTES = {
       if (ext === 'rtf') return lireRtf(new Uint8Array(buf));
       if (ext === 'html' || ext === 'htm') return lireHtml(decoder(new Uint8Array(buf)));
       return lireTexte(decoder(new Uint8Array(buf)), ext === 'md' || ext === 'markdown');
-    }).then(function (ps) { return finir(ps, fichier.name); });
+    });
+}
+// Titre tiré du nom du fichier : « Chapitre 4 - Le Miroir.docx » → « Chapitre 4 - Le Miroir »
+function titreFichier(nom) {
+  return String(nom || '').replace(/\.[a-z0-9]{2,8}$/i, '').replace(/_\d{4,}$/, '').replace(/_+/g, ' ').replace(/\s+/g, ' ').trim() || 'Chapitre';
+}
+function plat(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); }
+function numero(t) { var m = String(t).match(/chap(?:itre|ter)?\.?\s*(\d+)/i) || String(t).match(/(\d+)/); return m ? parseInt(m[1], 10) : Infinity; }
+// Un fichier = un chapitre. Les titres du début (livre, partie, « Chapitre n ») sont retirés : le titre vient du nom du fichier.
+function unChapitre(ps, nom) {
+  var titre = titreFichier(nom), t = plat(titre), i = 0, fin = -1;
+  while (i < ps.length && ps[i].niveau != null) {
+    var p = plat(ps[i].texte);
+    if (ps[i].niveau === 0 || MOT_CHAPITRE.test(ps[i].texte) || (p && (t.indexOf(p) >= 0 || p.indexOf(t) >= 0))) fin = i;
+    i++;
+  }
+  var blocs = ps.slice(fin + 1).map(function (p) { return bloc(p, p.niveau != null); });
+  return { titre: titre.slice(0, 160), blocs: blocs, mots: blocs.reduce(function (s, b) { return s + (b.r ? b.r.reduce(function (n, x) { return n + compterMots(x[0]); }, 0) : 0); }, 0) };
+}
+window.APEL_TEXTES = {
+  formats: '.docx,.odt,.epub,.pdf,.rtf,.html,.htm,.txt,.md,.markdown',
+  accepte: accepte,
+  lire: function (fichier) { return paragraphesDe(fichier).then(function (ps) { return finir(ps, fichier.name); }); },
+  // Plusieurs fichiers d'un même livre : chacun devient un chapitre, rangés selon le numéro de leur nom.
+  lireChapitres: function (fichiers) {
+    fichiers = [].slice.call(fichiers);
+    return Promise.all(fichiers.map(function (f) { return paragraphesDe(f).then(function (ps) { return unChapitre(ps, f.name); }); })).then(function (chapitres) {
+      chapitres = chapitres.map(function (c, i) { return { c: c, i: i, n: numero(c.titre) }; })
+        .sort(function (a, b) { return a.n - b.n || a.c.titre.localeCompare(b.c.titre, 'fr', { numeric: true }) || a.i - b.i; })
+        .map(function (x) { return x.c; }).filter(function (c) { return c.blocs.length; });
+      if (!chapitres.length) throw new Error('Ces fichiers ne contiennent pas de texte lisible.');
+      return { titre: '', chapitres: chapitres };
+    });
   },
   // Texte collé dans l'Espace gérant (les marques Markdown # ** _ > sont comprises).
   lireColle: function (texte, nom) { return finir(lireTexte(texte, true), nom || 'Texte collé'); },

@@ -21,10 +21,13 @@ Les textes et les codes sont rangés dans une base **Cloudflare D1**, jamais dan
 | `GOOGLE_CLIENT_ID` | identifiant du client OAuth Google (`…apps.googleusercontent.com`), le même que pour R-Lux convient | Texte |
 | `SESSION_SECRET` | une longue phrase inventée, d'au moins 16 caractères, à ne jamais montrer | **Secret** |
 | `PROPRIETAIRE` | facultatif : `apeledition@gmail.com` par défaut | Texte |
+| `ADMINISTRATEURS` | facultatif : adresses de secours toujours administratrices, séparées par des virgules (utile si l'on perd l'accès au compte propriétaire) | Texte |
+| `GOOGLE_API_KEY` et `GOOGLE_PROJET` | facultatifs : bouton « Google Drive » de l'Espace gérant (voir plus bas) | Texte |
 
    Facultatif, pour envoyer des vidéos depuis le téléphone : Cloudflare > **R2** > Create bucket `apel-videos`, puis projet apel-offres > Settings > **Bindings** > Add > R2 bucket, Variable name **`MEDIAS`**. Sans lui, les vidéos s'ajoutent par lien (YouTube, TikTok…). La formule gratuite de R2 garde 10 Go, soit environ 300 vidéos de 2 minutes.
 
 4. **Google Cloud** > API et services > Identifiants > le client OAuth « Application Web » > **Origines JavaScript autorisées** : ajouter `https://apel-offres.pages.dev`.
+   Facultatif, pour choisir les textes **directement dans Google Drive** : dans le même projet Google Cloud, API et services > Bibliothèque > activer **Google Drive API** et **Google Picker API** ; Identifiants > Créer > **Clé API** (restreinte au site `apel-offres.pages.dev` et à ces deux API) → `GOOGLE_API_KEY` ; Accueil du projet > **Numéro du projet** → `GOOGLE_PROJET`. L'écran de consentement OAuth doit autoriser le droit `drive.file` (accès aux seuls fichiers choisis).
 5. **Cloudflare** > apel-offres > Deployments > dernier déploiement > **Retry deployment** (les réglages ne comptent qu'à la publication suivante).
 6. Ouvrir **https://apel-offres.pages.dev/gerant.html** (lien « Espace gérant » en bas de chaque page) et se connecter avec `apeledition@gmail.com`.
 
@@ -34,7 +37,10 @@ Tant que ces réglages manquent, le site marche comme avant : le Salon reste cac
 
 **Publier un livre** (onglet « Livres à lire »)
 1. Chaque chapitre commence par un titre de niveau 1 (style **Titre 1** dans Word ou LibreOffice, `#` en Markdown). Sans titres, une ligne courte qui commence par « Chapitre », « Prologue », « Épilogue », « Partie » ou « Acte » marche aussi. Le bouton « Télécharger le modèle Word » donne un exemple prêt à remplir.
-2. « Ajouter un livre », choisir le livre dans la liste de la bibliothèque (il garde sa couverture), son **genre** (roman, nouvelles, poésie, contes, théâtre, essai, témoignage, jeunesse, feuilleton), puis « Choisir un fichier » ou « Coller le texte ».
+2. « Ajouter un livre », choisir le livre dans la liste de la bibliothèque (il garde sa couverture), son **genre** (roman, nouvelles, poésie, contes, théâtre, essai, témoignage, jeunesse, feuilleton), puis « Choisir un ou plusieurs fichiers », « Google Drive » ou « Coller le texte ».
+   - **Un fichier** : il est découpé en chapitres.
+   - **Plusieurs fichiers** (un document par chapitre : « Chapitre 1 - L'Empire », « Chapitre 2 - Le Seuil »…) : chaque fichier devient un chapitre, titré d'après son nom et rangé selon son numéro. Les titres du début du fichier (titre du livre, partie, « Chapitre n ») sont retirés ; les intertitres plus bas sont gardés.
+   - **Google Drive** : on coche un ou plusieurs documents (Google Docs, Word, PDF, EPUB…) ; les Google Docs sont convertis en Word au passage.
 3. Vérifier la liste des chapitres : décocher la page de titre ou les remerciements, corriger un titre, ouvrir un « Aperçu ». Choisir le nombre de **chapitres offerts**.
 4. « Publier dans le Salon ». C'est en ligne tout de suite.
 
@@ -60,7 +66,11 @@ Un ancien fichier Word `.doc` s'enregistre d'abord en `.docx` (Fichier > Enregis
 
 **Tarifs** : les prix de 24 h, 1 semaine et 1 mois (texte libre, ex. « 1 000 FCFA ») s'affichent aux lecteurs quand ils demandent un code. Le mot d'accueil du Salon s'y règle aussi.
 
-**Gérants** : le propriétaire ajoute ou retire des Gmail. Un gérant crée des codes et publie des livres ; un gérant retiré perd l'accès tout de suite.
+**Équipe** (onglet « Équipe ») : deux rôles.
+- **Administrateur** : tous les droits, y compris ajouter, retirer ou changer le rôle des membres de l'équipe.
+- **Gérant** : codes de lecture, livres, vidéos et tarifs.
+
+Le propriétaire (`apeledition@gmail.com`) et les administrateurs ajoutent un membre par son adresse e-mail : Gmail, ou adresse professionnelle déjà liée à un compte Google. La personne se connecte ensuite avec « Se connecter avec Google ». Un membre retiré perd l'accès tout de suite ; personne ne peut se retirer soi-même ni changer son propre rôle, et le propriétaire ne peut pas être retiré.
 
 **Relire comme un abonné** : en bas de l'Espace gérant, « Lire comme un abonné sur cet appareil » donne un pass de 12 heures.
 
@@ -100,6 +110,6 @@ Le carnet, les badges et la progression restent dans le téléphone du lecteur (
 
 `node tests/formats.mjs` écrit le même livre en .docx, le fait convertir par LibreOffice en .odt, .rtf, .html, .epub et .pdf, ajoute un .txt, un .md et un texte collé, et vérifie que chacun donne les mêmes chapitres (avec gras, italique, séparateurs, citations, vers).
 
-`node tests/salon.mjs` (Playwright) fait tout le parcours avec une fausse base D1 et une fausse connexion Google : Salon vide, compte refusé, import Word et aperçu, publication, codes 24 h / semaine / promo, tarifs, bloc d'accueil, chapitre offert et mise en forme, badge, réaction, réglages de la liseuse, carte-citation, verrou et demande de code sur WhatsApp, mauvais code, vidéos (lien et fichier, lecture par morceaux), logo et onglets de l'accueil, réglages et mode sombre de la liseuse, mode lecture, marque-page, passage favori, Ma liseuse et reprise, lecture sans réseau, flèches du clavier, activation par le champ puis par le lien, refus au 3e appareil, promo limitée, révocation, feuilleton, gérants, pass gérant, sécurité de l'API, version anglaise, absence d'erreur et de défilement horizontal.
+`node tests/salon.mjs` (Playwright) fait tout le parcours avec une fausse base D1 et une fausse connexion Google : Salon vide, compte refusé, import Word et aperçu, publication, codes 24 h / semaine / promo, tarifs, bloc d'accueil, chapitre offert et mise en forme, badge, réaction, réglages de la liseuse, carte-citation, verrou et demande de code sur WhatsApp, mauvais code, équipe (administrateur avec adresse professionnelle, gérant, changement de rôle, retrait, administrateur de secours), import de plusieurs fichiers et depuis Google Drive (simulé), vidéos (lien et fichier, lecture par morceaux), logo et onglets de l'accueil, réglages et mode sombre de la liseuse, mode lecture, marque-page, passage favori, Ma liseuse et reprise, lecture sans réseau, flèches du clavier, activation par le champ puis par le lien, refus au 3e appareil, promo limitée, révocation, feuilleton, gérants, pass gérant, sécurité de l'API, version anglaise, absence d'erreur et de défilement horizontal.
 
 `node tests/serveur.mjs` lance le site de test sur http://localhost:8790.

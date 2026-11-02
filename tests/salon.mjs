@@ -15,7 +15,7 @@ import { fabriquerDocx } from "./docx.mjs";
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 const TMP = fs.mkdtempSync(path.join(process.env.TMPDIR || "/tmp", "salon-"));
-const FAUX_GIS = `window.google={accounts:{id:{initialize:function(o){window.__cb=o.callback},
+const FAUX_GIS = `window.google={accounts:{oauth2:{initTokenClient:function(o){return {requestAccessToken:function(){setTimeout(function(){o.callback({access_token:"jeton-drive",expires_in:3600})},10)}}}},id:{initialize:function(o){window.__cb=o.callback},
   renderButton:function(el){el.innerHTML='<button id="faux-google">Se connecter avec Google</button>'},
   disableAutoSelect:function(){}}}};window.__google=function(m){window.__cb({credential:"test:"+m})};`;
 
@@ -37,7 +37,15 @@ const SUITE = [{ style: "Heading1", runs: [["Chapitre 4 : Le retour", ""]] }, "E
 const fichierLivre = path.join(TMP, "souhaits-maudits.docx"); fs.writeFileSync(fichierLivre, fabriquerDocx(LIVRE));
 const fichierSuite = path.join(TMP, "suite.docx"); fs.writeFileSync(fichierSuite, fabriquerDocx(SUITE));
 
-const s = await demarrer();
+// Faux Google Drive : sélecteur qui « choisit » deux fichiers, et téléchargements servis par le test
+const FAUX_PICKER = `window.gapi={load:function(n,cb){cb()}};window.google=window.google||{};
+google.picker={ViewId:{DOCS:"docs"},Feature:{MULTISELECT_ENABLED:"multi"},Action:{PICKED:"picked",CANCEL:"cancel"},
+  DocsView:function(){var v=this;["setMimeTypes","setIncludeFolders","setSelectFolderEnabled"].forEach(function(k){v[k]=function(){return v}})},
+  PickerBuilder:function(){var b=this,cb;["addView","enableFeature","setOAuthToken","setDeveloperKey","setAppId","setLocale","setTitle"].forEach(function(k){b[k]=function(){return b}});
+    b.setCallback=function(f){cb=f;return b};b.build=function(){return {setVisible:function(){setTimeout(function(){cb({action:"picked",docs:[
+      {id:"doc2",name:"Chapitre 2 - Le Seuil",mimeType:"application/vnd.google-apps.document"},
+      {id:"txt1",name:"Chapitre 1 - L'Empire.txt",mimeType:"text/plain"}]})},20)}}}}};`;
+const s = await demarrer({ env: { GOOGLE_API_KEY: "cle-test", GOOGLE_PROJET: "123456" } });
 const navigateur = await chromium.launch();
 const erreurs = [];
 let etape = "";
@@ -48,6 +56,14 @@ async function contexte(opts = {}) {
   await ctx.route(/docs\.google\.com/, r => r.abort());
   await ctx.route(/googleusercontent|drive\.google/, r => r.abort());
   await ctx.route("https://accounts.google.com/gsi/client", r => r.fulfill({ contentType: "text/javascript", body: FAUX_GIS }));
+  await ctx.route("https://apis.google.com/js/api.js", r => r.fulfill({ contentType: "text/javascript", body: FAUX_PICKER }));
+  await ctx.route(/googleapis\.com\/drive\/v3\/files\//, r => {
+    const u = r.request().url();
+    if (r.request().headers().authorization !== "Bearer jeton-drive") return r.fulfill({ status: 401, body: "" });
+    if (u.includes("/doc2/export")) return r.fulfill({ contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", body: fabriquerDocx([{ style: "Title", runs: [["Le Masque d'ébène", ""]] }, { style: "Heading1", runs: [["Chapitre 2 : Le Seuil", ""]] }, "Gaétan franchit le seuil de la villa."]) });
+    if (u.includes("/txt1?alt=media")) return r.fulfill({ contentType: "text/plain", body: "Les gyrophares bleus tournoyaient sur les façades.\n\nMargareth Petit venait d'apparaître." });
+    return r.fulfill({ status: 404, body: "" });
+  });
   return ctx;
 }
 async function page(ctx) {
@@ -352,20 +368,63 @@ try {
   assert.equal((await api("lecture?action=chapitre&livre=souhaits-maudits&n=2")).statut, 200, "chapitre 2 désormais offert");
   assert.equal((await api("lecture?action=chapitre&livre=souhaits-maudits&n=3")).statut, 402);
 
-  log("Gérants : invitation, connexion d'un gérant sans droit d'inviter, retrait");
+  log("Équipe : administrateurs et gérants");
   await g.click("[data-onglet=gerants]");
-  await g.fill("#invite", "aide.apel@gmail.com");
+  await g.waitForSelector(".liste >> text=Propriétaire");
+  await g.fill("#invite", "Directrice@APEL-editions.cm");
+  await g.click("[data-nouveau-role=admin]");
   await g.click("#inviter");
-  await g.waitForSelector(".liste >> text=aide.apel@gmail.com");
+  await g.waitForSelector(".liste >> text=directrice@apel-editions.cm");
+  await g.fill("#invite", "pas-une-adresse");
+  await g.click("#inviter");
+  await g.waitForSelector("text=Entrez une adresse e-mail complète");
+  const adm = await api("gerant", { action: "connexion", credential: "test:directrice@apel-editions.cm" });
+  assert.equal(adm.statut, 200);
+  assert.equal(adm.d.role, "admin");
+  assert.equal((await api("gerant", { action: "inviter", email: "aide.apel@gmail.com", role: "gerant" }, adm.d.jeton)).statut, 200, "un administrateur ajoute un gérant");
   const c = await api("gerant", { action: "connexion", credential: "test:aide.apel@gmail.com" });
-  assert.equal(c.statut, 200);
-  assert.equal(c.d.proprietaire, false);
-  assert.equal((await api("gerant", { action: "inviter", email: "x.y@gmail.com" }, c.d.jeton)).statut, 403);
+  assert.equal(c.d.role, "gerant");
+  assert.equal((await api("gerant", { action: "inviter", email: "x.y@gmail.com" }, c.d.jeton)).statut, 403, "un gérant n'ajoute personne");
   assert.equal((await api("gerant", { action: "codes", type: "mois", nombre: 1 }, c.d.jeton)).statut, 200, "le gérant crée des codes");
+  assert.equal((await api("gerant", { action: "retirer", email: "directrice@apel-editions.cm" }, adm.d.jeton)).statut, 400, "pas de retrait de soi-même");
+  assert.equal((await api("gerant", { action: "role", email: "aide.apel@gmail.com", role: "admin" }, adm.d.jeton)).statut, 200);
+  assert.equal((await api("gerant", { action: "inviter", email: "x.y@gmail.com" }, c.d.jeton)).statut, 200, "devenu administrateur, il peut ajouter");
+  await g.reload();
+  await g.click("[data-onglet=gerants]");
+  await g.selectOption("[data-role-de='aide.apel@gmail.com']", "gerant");
+  await g.waitForSelector("text=Rôle changé : gérant");
   await g.click("[data-retirer='aide.apel@gmail.com']");
   await g.click("text=Confirmer");
-  await g.waitForSelector("text=Gérant retiré");
-  assert.equal((await api("gerant?action=tableau", null, c.d.jeton)).statut, 403, "un gérant retiré perd l'accès");
+  await g.waitForSelector("text=Membre retiré de l’équipe");
+  assert.equal((await api("gerant?action=tableau", null, c.d.jeton)).statut, 403, "un membre retiré perd l'accès");
+  const adminsSecours = await demarrer({ env: { ADMINISTRATEURS: "secours@gmail.com" } });
+  const sec = await (await fetch(adminsSecours.url + "/api/gerant", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "connexion", credential: "test:secours@gmail.com" }) })).json();
+  assert.equal(sec.role, "admin", "administrateur de secours (réglage Cloudflare)");
+  await adminsSecours.arreter();
+
+  log("Import de plusieurs fichiers d'un coup (un fichier = un chapitre), puis depuis Google Drive");
+  await g.click("[data-onglet=livres]");
+  await g.click("text=Ajouter un livre");
+  await g.selectOption("#ed-cat", "autre");
+  await g.fill("#ed-titre", "Le Masque d'ébène");
+  const f1 = path.join(TMP, "Chapitre 2 - Le Seuil.docx"), f2 = path.join(TMP, "Chapitre 1 - L'Empire.docx"), f3 = path.join(TMP, "Chapitre 10 - La Chute.docx");
+  fs.writeFileSync(f1, fabriquerDocx([{ style: "Title", runs: [["LE MASQUE", ""]] }, { style: "Heading1", runs: [["Chapitre 2 : Le Seuil", ""]] }, { style: "Heading2", runs: [["YAOUNDÉ, 21H45.", ""]] }, "Gaétan franchit le seuil."]));
+  fs.writeFileSync(f2, fabriquerDocx([{ runs: [["ACTE I", "b"]] }, "Les gyrophares bleus tournoyaient."]));
+  fs.writeFileSync(f3, fabriquerDocx(["Tout s'effondra."]));
+  await g.setInputFiles("#ed-fichier", [f1, f2, f3]);
+  await g.waitForSelector("text=3 chapitres trouvés dans « 3 fichiers »");
+  assert.deepEqual(await g.$$eval("[data-titre]", l => l.map(x => x.value)), ["Chapitre 1 - L'Empire", "Chapitre 2 - Le Seuil", "Chapitre 10 - La Chute"]);
+  await g.click("[data-apercu='1']");
+  const ap = await g.textContent(".apercu");
+  assert.ok(ap.includes("YAOUNDÉ, 21H45.") && ap.includes("Gaétan franchit") && !ap.includes("LE MASQUE") && !ap.includes("Chapitre 2 : Le Seuil"), ap);
+  await g.click("#ed-drive");
+  await g.waitForSelector("text=2 chapitres trouvés dans « 2 fichiers de Google Drive »");
+  assert.deepEqual(await g.$$eval("[data-titre]", l => l.map(x => x.value)), ["Chapitre 1 - L'Empire", "Chapitre 2 - Le Seuil"]);
+  await g.click("#ed-publier");
+  await g.waitForSelector("text=Publié : 2 chapitres en ligne");
+  const ch1 = (await api("lecture?action=chapitre&livre=le-masque-d-ebene&n=1")).d;
+  assert.equal(ch1.titre, "Chapitre 1 - L'Empire");
+  assert.equal(ch1.blocs[0].r[0][0], "Les gyrophares bleus tournoyaient sur les façades.");
 
   log("Pass gérant : lecture de tous les chapitres, flèches du clavier");
   await g.click("#pass");

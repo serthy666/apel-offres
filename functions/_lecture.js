@@ -8,6 +8,9 @@
 //   GOOGLE_CLIENT_ID  identifiant du client OAuth Google (…apps.googleusercontent.com)
 //   SESSION_SECRET    longue phrase secrète qui signe les sessions des gérants et des lecteurs (secret)
 //   PROPRIETAIRE      facultatif, Gmail du propriétaire (apeledition@gmail.com par défaut)
+//   ADMINISTRATEURS   facultatif, adresses de secours toujours administratrices, séparées par des virgules
+//   GOOGLE_API_KEY    facultatif, clé d'API Google (bouton « Google Drive » de l'Espace gérant)
+//   GOOGLE_PROJET     facultatif, numéro du projet Google Cloud (même bouton)
 // Liaisons (Settings > Bindings) : base D1 nommée « DB » ; facultatif, stockage R2 nommé « MEDIAS »
 // pour téléverser des vidéos depuis le téléphone (sans lui, les vidéos se mettent par lien YouTube, TikTok…).
 
@@ -29,7 +32,7 @@ const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS chapitres (livre TEXT NOT NULL, n INTEGER NOT NULL, titre TEXT, blocs TEXT NOT NULL, mots INTEGER NOT NULL DEFAULT 0, maj INTEGER, PRIMARY KEY (livre, n))",
   "CREATE TABLE IF NOT EXISTS codes (code TEXT PRIMARY KEY, affiche TEXT, type TEXT NOT NULL, jours REAL NOT NULL, max INTEGER NOT NULL DEFAULT 1, utilises INTEGER NOT NULL DEFAULT 0, jusqua INTEGER, debut INTEGER, fin INTEGER, note TEXT, cree INTEGER, par TEXT, revoque INTEGER NOT NULL DEFAULT 0)",
   "CREATE TABLE IF NOT EXISTS activations (code TEXT NOT NULL, appareil TEXT NOT NULL, debut INTEGER NOT NULL, fin INTEGER NOT NULL, PRIMARY KEY (code, appareil))",
-  "CREATE TABLE IF NOT EXISTS gerants (email TEXT PRIMARY KEY, statut TEXT NOT NULL, depuis TEXT)",
+  "CREATE TABLE IF NOT EXISTS gerants (email TEXT PRIMARY KEY, statut TEXT NOT NULL, depuis TEXT, role TEXT NOT NULL DEFAULT 'gerant')",
   "CREATE TABLE IF NOT EXISTS reactions (livre TEXT NOT NULL, n INTEGER NOT NULL, appareil TEXT NOT NULL, emoji TEXT NOT NULL, t INTEGER, PRIMARY KEY (livre, n, appareil))",
   "CREATE TABLE IF NOT EXISTS reglages (cle TEXT PRIMARY KEY, valeur TEXT)"
 ];
@@ -58,6 +61,8 @@ export async function base(env) {
   if (!pret(env)) throw new Refus(503, "Le Salon de lecture n'est pas encore configuré.");
   if (!schemaPret.has(env.DB)) {
     await env.DB.batch(SCHEMA.map(s => env.DB.prepare(s)));
+    // Base créée avant l'arrivée des rôles : on ajoute la colonne (sans effet si elle existe déjà).
+    try { await env.DB.prepare("ALTER TABLE gerants ADD COLUMN role TEXT NOT NULL DEFAULT 'gerant'").run(); } catch (e) { /* déjà là */ }
     schemaPret.add(env.DB);
   }
   return env.DB;
@@ -107,13 +112,19 @@ export async function reglages(db) {
   return o;
 }
 
-// Le gérant (ou le propriétaire) est-il toujours autorisé ?
-export async function estGerant(db, env, email) {
-  if (!email) return false;
-  if (email === proprietaire(env)) return true;
-  const g = await db.prepare("SELECT email FROM gerants WHERE email = ?").bind(email).first();
-  return !!g;
+// Rôle d'une adresse dans l'équipe : « proprietaire », « admin » (tous les droits, y compris l'équipe),
+// « gerant » (codes, livres, vidéos, tarifs) ; null si l'adresse n'a pas accès.
+export const ROLES = ["admin", "gerant"];
+export const EMAIL = /^[a-z0-9._%+'-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+export function adminsDeSecours(env) { return String(env.ADMINISTRATEURS || "").toLowerCase().split(/[\s,;]+/).filter(e => EMAIL.test(e)); }
+export async function roleDe(db, env, email) {
+  if (!email) return null;
+  if (email === proprietaire(env)) return "proprietaire";
+  const g = await db.prepare("SELECT role FROM gerants WHERE email = ?").bind(email).first();
+  if (adminsDeSecours(env).indexOf(email) >= 0) return "admin";
+  return g ? (g.role === "admin" ? "admin" : "gerant") : null;
 }
+export async function estGerant(db, env, email) { return !!(await roleDe(db, env, email)); }
 
 /* Vidéos par lien : YouTube (et Shorts), TikTok, Facebook, Instagram, Google Drive, ou fichier .mp4 en ligne.
    Renvoie la façon de l'afficher, ou null si le lien n'est pas reconnu. */
