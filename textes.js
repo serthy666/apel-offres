@@ -545,16 +545,41 @@ function titreFichier(nom) {
 }
 function plat(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); }
 function numero(t) { var m = String(t).match(/chap(?:itre|ter)?\.?\s*(\d+)/i) || String(t).match(/(\d+)/); return m ? parseInt(m[1], 10) : Infinity; }
-// Un fichier = un chapitre. Les titres du début (livre, partie, « Chapitre n ») sont retirés : le titre vient du nom du fichier.
+// Un fichier = un chapitre. Le titre vient du nom du fichier ; au début du texte :
+// - retirés : titre du livre, tome ou partie placés avant « Chapitre n », la ligne « Chapitre n » elle-même,
+//   un numéro seul (« 1 », « IV »), une ligne qui répète le titre du fichier ;
+// - gardés comme intertitres : « Acte I : Innocence », un lieu et une heure (« Pretoria, 21 h 45 »)…
+// Une ligne courte toute en gras compte comme un titre (beaucoup d'auteurs titrent ainsi au lieu d'utiliser « Titre 1 »).
+var MOT_SEUL_CHAPITRE = /^\s*(chapitre|chapter|chap\.)\b/i, NUMERO_SEUL = /^\s*(\d{1,3}|[IVXLC]{1,7})\s*[.)]?\s*$/;
+function commeTitre(p) { return p.niveau != null || NUMERO_SEUL.test(p.texte) || (p.texte.length < 100 && p.runs.every(function (r) { return (r[1] & 1) || !r[0].trim(); })); }
 function unChapitre(ps, nom) {
-  var titre = titreFichier(nom), t = plat(titre), i = 0, fin = -1;
-  while (i < ps.length && ps[i].niveau != null) {
-    var p = plat(ps[i].texte);
-    if (ps[i].niveau === 0 || MOT_CHAPITRE.test(ps[i].texte) || (p && (t.indexOf(p) >= 0 || p.indexOf(t) >= 0))) fin = i;
-    i++;
-  }
-  var blocs = ps.slice(fin + 1).map(function (p) { return bloc(p, p.niveau != null); });
-  return { titre: titre.slice(0, 160), blocs: blocs, mots: blocs.reduce(function (s, b) { return s + (b.r ? b.r.reduce(function (n, x) { return n + compterMots(x[0]); }, 0) : 0); }, 0) };
+  var titre = titreFichier(nom), t = plat(titre), zone = 0, marque = -1;
+  while (zone < ps.length && zone < 8 && commeTitre(ps[zone])) { if (MOT_SEUL_CHAPITRE.test(ps[zone].texte)) marque = zone; zone++; }
+  var garde = [];
+  ps.forEach(function (p, i) {
+    if (i < zone) {
+      var x = plat(p.texte);
+      if (i <= marque || p.niveau === 0 || NUMERO_SEUL.test(p.texte) || (x && (t.indexOf(x) >= 0 || x.indexOf(t) >= 0))) return;
+      garde.push(bloc(p, true));
+    } else garde.push(bloc(p, p.niveau != null));
+  });
+  return { titre: titre.slice(0, 160), blocs: garde, mots: garde.reduce(function (s, b) { return s + (b.r ? b.r.reduce(function (n, x) { return n + compterMots(x[0]); }, 0) : 0); }, 0) };
+}
+// Chapitre trop long pour une lecture sur téléphone (un PDF sans titres, par exemple) : découpé en parties
+// d'environ « mots » mots, aux limites de paragraphe, de préférence à un séparateur de scène.
+function decouperLong(c, mots) {
+  mots = mots || 2500;
+  if (c.mots <= mots * 1.6) return [c];
+  var parts = [], cour = [], n = 0, total = Math.ceil(c.mots / mots);
+  c.blocs.forEach(function (b, i) {
+    var m = b.r ? b.r.reduce(function (s, x) { return s + compterMots(x[0]); }, 0) : 0;
+    var fin = n >= mots && (b.s === 'sep' || n >= mots * 1.25) && c.blocs.length - i > 3;
+    if (fin) { parts.push({ blocs: cour, mots: n }); cour = []; n = 0; if (b.s === 'sep') return; }
+    cour.push(b); n += m;
+  });
+  if (cour.length) { if (n < mots * 0.3 && parts.length) { var d = parts[parts.length - 1]; d.blocs = d.blocs.concat(cour); d.mots += n; } else parts.push({ blocs: cour, mots: n }); }
+  total = parts.length;
+  return parts.map(function (x, i) { return { titre: (c.titre + ' (' + (i + 1) + '/' + total + ')').slice(0, 160), blocs: x.blocs, mots: x.mots }; });
 }
 window.APEL_TEXTES = {
   formats: '.docx,.odt,.epub,.pdf,.rtf,.html,.htm,.txt,.md,.markdown',
@@ -573,7 +598,8 @@ window.APEL_TEXTES = {
   },
   // Texte collé dans l'Espace gérant (les marques Markdown # ** _ > sont comprises).
   lireColle: function (texte, nom) { return finir(lireTexte(texte, true), nom || 'Texte collé'); },
-  decouper: decouper
+  decouper: decouper,
+  decouperLong: decouperLong
 };
 // Ancien nom, gardé pour les pages déjà ouvertes
 window.APEL_WORD = window.APEL_TEXTES;

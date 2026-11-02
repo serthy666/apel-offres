@@ -40,7 +40,7 @@ const fichierSuite = path.join(TMP, "suite.docx"); fs.writeFileSync(fichierSuite
 // Faux Google Drive : sélecteur qui « choisit » deux fichiers, et téléchargements servis par le test
 const FAUX_PICKER = `window.gapi={load:function(n,cb){cb()}};window.google=window.google||{};
 google.picker={ViewId:{DOCS:"docs"},Feature:{MULTISELECT_ENABLED:"multi"},Action:{PICKED:"picked",CANCEL:"cancel"},
-  DocsView:function(){var v=this;["setMimeTypes","setIncludeFolders","setSelectFolderEnabled"].forEach(function(k){v[k]=function(){return v}})},
+  DocsView:function(){var v=this;["setMimeTypes","setIncludeFolders","setSelectFolderEnabled"].forEach(function(k){v[k]=function(){return v}});v.setFileIds=function(x){window.__fileIds=x;return v}},
   PickerBuilder:function(){var b=this,cb;["addView","enableFeature","setOAuthToken","setDeveloperKey","setAppId","setLocale","setTitle"].forEach(function(k){b[k]=function(){return b}});
     b.setCallback=function(f){cb=f;return b};b.build=function(){return {setVisible:function(){setTimeout(function(){cb({action:"picked",docs:[
       {id:"doc2",name:"Chapitre 2 - Le Seuil",mimeType:"application/vnd.google-apps.document"},
@@ -425,6 +425,45 @@ try {
   const ch1 = (await api("lecture?action=chapitre&livre=le-masque-d-ebene&n=1")).d;
   assert.equal(ch1.titre, "Chapitre 1 - L'Empire");
   assert.equal(ch1.blocs[0].r[0][0], "Les gyrophares bleus tournoyaient sur les façades.");
+
+  log("Livres prêts à publier : fiche remplie, fichiers du Drive présélectionnés, titres en gras nettoyés");
+  await g.click("[data-onglet=livres]");
+  await g.waitForSelector(".carte-prete >> text=Le temps des comptes");
+  await g.waitForSelector(".carte-prete >> text=Le sort des hiboux boiteux");
+  await g.click("[data-pret='temps-des-comptes']");
+  assert.equal(await g.inputValue("#ed-titre"), "Le temps des comptes");
+  assert.equal(await g.inputValue("#ed-auteur"), "Stella Effa");
+  assert.equal(await g.inputValue("#ed-gratuits"), "1");
+  assert.match(await g.inputValue("#ed-resume"), /Maguy/);
+  await g.click("#ed-drive-pret");
+  await g.waitForSelector("text=2 chapitres trouvés");
+  assert.ok((await g.evaluate(() => window.__fileIds)).startsWith("1Ms-wBhPY_u-gznY95OIXee6oSraGhgGRCoqBLpD3os0,17RZx"), "les 5 chapitres sont présélectionnés dans Google Drive");
+  const m1 = path.join(TMP, "Chapitre 1 - L'Empire (Matriarche).docx"), m2 = path.join(TMP, "Chapitre 2 - Le Seuil.docx");
+  fs.writeFileSync(m1, fabriquerDocx([{ runs: [["ACTE I : INNOCENCE", "b"]] }, { runs: [["1", "b"]] }, "Les gyrophares bleus tournoyaient sur les façades des immeubles.", "Margareth Petit venait d'apparaître."]));
+  fs.writeFileSync(m2, fabriquerDocx([{ runs: [["Chapitre 2: Seuil", "b"]] }, "À sept heures quinze, le vieux taxi jaune cahotait sur l'asphalte."]));
+  await g.setInputFiles("#ed-fichier", [m2, m1]);
+  await g.waitForSelector("text=2 chapitres trouvés dans « 2 fichiers »");
+  assert.deepEqual(await g.$$eval("[data-titre]", l => l.map(x => x.value)), ["Chapitre 1 - L'Empire (Matriarche)", "Chapitre 2 - Le Seuil"]);
+  await g.click("#ed-publier");
+  await g.waitForSelector("text=Publié : 2 chapitres en ligne");
+  const tdc1 = (await api("lecture?action=chapitre&livre=temps-des-comptes&n=1")).d;
+  assert.deepEqual(tdc1.blocs.slice(0, 2).map(b => b.s + ":" + b.r[0][0]), ["h:ACTE I : INNOCENCE", "p:Les gyrophares bleus tournoyaient sur les façades des immeubles."], "« Acte I » gardé en intertitre, « 1 » retiré");
+  assert.equal((await api("lecture?action=chapitre&livre=temps-des-comptes&n=2")).statut, 402, "chapitre 2 réservé aux abonnés");
+  await g.waitForSelector(".carte-prete >> text=Le sort des hiboux boiteux");
+  assert.equal(await g.locator(".carte-prete >> text=Le temps des comptes").count(), 0, "publié : il quitte la liste des prêts");
+
+  log("Long texte sans titres (PDF) : coupé en parties de lecture");
+  await g.click("[data-pret='sort-des-hiboux-boiteux']");
+  await g.waitForSelector(".encadre >> text=Le Sort des Hiboux Boiteux (complet)");
+  const phrase = "Abenem marchait vers Nkol-Ewondo sous la pluie, le cœur battant, sans savoir ce que la nuit lui réservait. ";
+  const long = Array.from({ length: 60 }, (_, i) => phrase.repeat(10) + (i % 15 === 14 ? "\n\n* * *" : "")).join("\n\n");
+  const fl = path.join(TMP, "Le Sort des Hiboux Boiteux (complet).txt"); fs.writeFileSync(fl, long);
+  await g.setInputFiles("#ed-fichier", fl);
+  await g.waitForSelector("text=Chapitres très longs");
+  await g.click("#ed-decouper");
+  const parties = await g.$$eval("[data-titre]", l => l.map(x => x.value));
+  assert.ok(parties.length >= 3 && /\(1\/\d+\)$/.test(parties[0]), parties.join(" | "));
+  await g.click("[data-fermer-editeur]");
 
   log("Pass gérant : lecture de tous les chapitres, flèches du clavier");
   await g.click("#pass");

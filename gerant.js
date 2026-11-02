@@ -162,15 +162,40 @@ function vueCodes() {
 
 /* ---------- Livres du Salon ---------- */
 function catalogue() { return ((window.APEL_DEFAUT && window.APEL_DEFAUT.livres) || []).filter(function (l) { return l.id && l.titre; }); }
+/* Livres prêts à publier : fiche déjà remplie et textes repérés dans le Google Drive d'APEL Éditions.
+   Seuls les identifiants des fichiers sont ici : les textes restent dans le Drive, privés. */
+var PRETS = [
+  { id: 'sort-des-hiboux-boiteux', genre: 'roman', gratuits: 1, source: 'le PDF « Le Sort des Hiboux Boiteux (complet) »',
+    fichiers: [{ id: '1mHQlrv_5PLC4aHhB0mklQNmbC-fk1z8B', nom: 'Le Sort des Hiboux Boiteux (complet).pdf', pdf: true }] },
+  { id: 'temps-des-comptes', genre: 'roman', gratuits: 1, source: 'les 5 documents Google « Chapitre 1 - L\'Empire » à « Chapitre 5 - L\'Interdit » (un document par chapitre)',
+    fichiers: [
+      { id: '1Ms-wBhPY_u-gznY95OIXee6oSraGhgGRCoqBLpD3os0', nom: 'Chapitre 1 - L\'Empire' },
+      { id: '17RZxCrQaMyd7GpfCCAw-xToNcYUSOY-oxtkcVLsaOl4', nom: 'Chapitre 2 - Le Seuil' },
+      { id: '1z0knUTg_Ap5eABAMR8Q0LY-qnc-JA0MkvscqTRc-K2I', nom: 'Chapitre 3 - Le Premier Lien' },
+      { id: '17T4mX3GsqtwaznfvZT2DTfZbcDzSphtajQHcpPAdano', nom: 'Chapitre 4 - Le Miroir' },
+      { id: '1xk5xGyNolH9pkn5Cp2m0aS_E3JeyeHeH8Ui3lWmB7GE', nom: 'Chapitre 5 - L\'Interdit' }] }
+];
+function lienTelechargement(f) { return f.pdf ? 'https://drive.google.com/uc?export=download&id=' + f.id : 'https://docs.google.com/document/d/' + f.id + '/export?format=docx'; }
+function pretsAPublier() { return PRETS.filter(function (p) { return !(donnees.livres || []).some(function (l) { return l.id === p.id; }); }); }
 function vueLivres() {
   if (editeur) return vueEditeur();
   var l = donnees.livres || [];
   return '<section class="carte"><h2>Livres à lire en ligne</h2><p class="muet">Importez le texte (Word, LibreOffice, PDF, EPUB, RTF, page web, texte ou Markdown), ou collez-le directement. Vérifiez les chapitres, puis publiez. Le texte reste privé : il n’est jamais mis dans GitHub.</p>' +
     '<div class="actions"><button type="button" class="btn btn-primaire" data-livre="">Ajouter un livre</button><a class="btn btn-verre" href="assets/modele-salon-apel.docx" download>Télécharger le modèle Word</a></div></section>' +
+    (pretsAPublier().length ? '<section class="carte carte-prete"><h2>Prêts à publier</h2><p class="muet">Fiche déjà remplie (titre, auteur, résumé, couverture, 1 chapitre offert) et texte repéré dans votre Google Drive.</p><ul class="liste">' + pretsAPublier().map(function (p) {
+      var c = catalogue().filter(function (x) { return x.id === p.id; })[0] || {};
+      return '<li><div class="infos"><b>' + esc(c.titre || p.id) + '</b><small>' + esc((c.auteur ? c.auteur + ' · ' : '') + 'texte : ' + p.source) + '</small></div><div class="actions" style="margin:0"><button type="button" class="btn btn-primaire btn-petit" data-pret="' + esc(p.id) + '">Préparer la publication</button></div></li>';
+    }).join('') + '</ul></section>' : '') +
     (l.length ? '<section class="carte"><ul class="liste">' + l.map(function (x) {
       return '<li><div class="infos"><b>' + esc(x.titre) + '</b>' + (x.visible ? '' : '<span class="etat etat-fini">Masqué</span>') + '<small>' + esc([x.auteur, GENRES[x.genre] || '', x.chapitres + ' chapitre' + (x.chapitres > 1 ? 's' : ''), mille(x.mots) + ' mots', x.gratuits + ' offert' + (x.gratuits > 1 ? 's' : ''), x.majChapitres ? 'mis à jour le ' + date(x.majChapitres) : ''].filter(Boolean).join(' · ')) + '</small></div>' +
         '<div class="actions" style="margin:0"><a class="btn btn-verre btn-petit" href="./#/lire/' + encodeURIComponent(x.id) + '" target="_blank" rel="noopener">Voir</a><button type="button" class="btn btn-primaire btn-petit" data-livre="' + esc(x.id) + '">Modifier</button></div></li>';
     }).join('') + '</ul></section>' : '');
+}
+function ouvrirPret(id) {
+  var p = PRETS.filter(function (x) { return x.id === id; })[0], c = catalogue().filter(function (x) { return x.id === id; })[0] || {};
+  if (!p) return;
+  editeur = { existant: false, pret: p, livre: { id: p.id, titre: c.titre || '', auteur: c.auteur || '', resume: c.resume_fr || '', genre: p.genre, gratuits: p.gratuits, visible: true, ordre: 0 }, nbChapitres: 0, import: null, mode: 'remplacer', anciens: null };
+  rendre();
 }
 function ouvrirEditeur(id) {
   var x = (donnees.livres || []).filter(function (l) { return l.id === id; })[0];
@@ -197,6 +222,9 @@ function vueEditeur() {
     (e.existant ? '<p class="muet">' + e.nbChapitres + ' chapitre' + (e.nbChapitres > 1 ? 's' : '') + ' en ligne. Importez un fichier pour tout remplacer, ou pour ajouter les nouveaux chapitres à la suite (feuilleton).</p>' +
       '<div class="filtres" role="group" aria-label="Mode d’import"><button type="button" data-mode="remplacer" aria-pressed="' + (e.mode === 'remplacer') + '">Remplacer tout le livre</button><button type="button" data-mode="ajouter" aria-pressed="' + (e.mode === 'ajouter') + '">Ajouter à la suite</button></div>'
       : '<p class="muet">Un chapitre = un titre de niveau 1 (« Titre 1 » dans Word ou LibreOffice, # en Markdown), sinon une ligne qui commence par « Chapitre ». Gras, italique, centrage, citations, séparateurs *** et vers des poèmes sont gardés.</p>') +
+    (e.pret && !imp ? '<div class="encadre"><b>Texte : ' + esc(e.pret.source) + '.</b>' +
+      (configSite.drive ? '<p>Touchez « Prendre dans Google Drive », cochez ' + (e.pret.fichiers.length > 1 ? 'les ' + e.pret.fichiers.length + ' fichiers' : 'le fichier') + ', puis « Sélectionner ».</p><div class="actions"><button type="button" class="btn btn-primaire" id="ed-drive-pret">' + LOGO_DRIVE + 'Prendre dans Google Drive</button></div>'
+        : '<p>1. Téléchargez ' + (e.pret.fichiers.length > 1 ? 'ces fichiers' : 'ce fichier') + ' (connecté au compte apeledition@gmail.com) :</p><ul class="liens-drive">' + e.pret.fichiers.map(function (f) { return '<li><a href="' + esc(lienTelechargement(f)) + '" target="_blank" rel="noopener">' + esc(f.nom) + (f.pdf ? '' : ' (en Word)') + '</a></li>'; }).join('') + '</ul><p>2. Puis « Choisir un ou plusieurs fichiers » et sélectionnez ' + (e.pret.fichiers.length > 1 ? 'les ' + e.pret.fichiers.length + ' fichiers téléchargés ensemble' : 'le fichier téléchargé') + '.</p>') + '</div>' : '') +
     '<div class="actions" style="margin-top:4px"><label for="ed-fichier" class="btn btn-verre">Choisir un ou plusieurs fichiers</label>' +
     (configSite.drive ? '<button type="button" class="btn btn-verre" id="ed-drive">' + LOGO_DRIVE + 'Google Drive</button>' : '') +
     '<button type="button" class="btn btn-verre" id="ed-coller-ouvrir" aria-expanded="' + !!e.coller + '">Coller le texte</button></div>' +
@@ -204,6 +232,7 @@ function vueEditeur() {
     '<p class="muet" style="margin-top:8px">Formats : Word (.docx), LibreOffice (.odt), PDF, EPUB, RTF, page web (.html), texte (.txt), Markdown (.md). <b>Un fichier</b> : il est découpé en chapitres. <b>Plusieurs fichiers</b> (un par chapitre, comme « Chapitre 1 - L’Empire », « Chapitre 2 - Le Seuil »…) : chaque fichier devient un chapitre, rangé selon son numéro.</p>' +
     (e.coller ? '<label for="ed-colle">Texte du livre (une ligne « Chapitre … » ou « # … » avant chaque chapitre)</label><textarea id="ed-colle" style="min-height:200px" placeholder="Chapitre 1 : Le départ&#10;&#10;Il était une fois…"></textarea><div class="actions"><button type="button" class="btn btn-primaire btn-petit" id="ed-coller">Découper en chapitres</button></div>' : '') +
     '<p class="message ko" id="ed-erreur" role="alert" hidden></p>' +
+    (imp && imp.chapitres.some(function (c) { return c.garder && c.mots > 4000; }) ? '<div class="encadre"><b>Chapitres très longs pour une lecture sur téléphone.</b><p>Un PDF sans titres de chapitres arrive parfois en un seul bloc. Le site peut le couper en parties d’environ 10 minutes de lecture, aux fins de paragraphe ou de scène.</p><div class="actions"><button type="button" class="btn btn-primaire btn-petit" id="ed-decouper">Couper en parties de lecture</button></div></div>' : '') +
     (imp ? '<div style="margin-top:12px"><h3>' + imp.chapitres.length + ' chapitre' + (imp.chapitres.length > 1 ? 's' : '') + ' trouvé' + (imp.chapitres.length > 1 ? 's' : '') + ' dans « ' + esc(imp.fichier) + ' »</h3><p class="muet">Décochez ce qu’il ne faut pas publier (page de titre, remerciements…) et corrigez les titres si besoin.</p><div>' +
       imp.chapitres.map(function (c, i) {
         var debut = (c.blocs.filter(function (b) { return b.r; })[0] || { r: [['']] }).r.map(function (x) { return x[0]; }).join('').slice(0, 110);
@@ -261,6 +290,22 @@ function brancherEditeur() {
     if (l.length > 1) importer(window.APEL_TEXTES.lireChapitres(l), l.length + ' fichiers');
     else if (l[0]) importer(window.APEL_TEXTES.lire(l[0]), l[0].name);
   });
+  var dc = $('ed-decouper');
+  if (dc) dc.addEventListener('click', function () {
+    lireChamps();
+    var l = [];
+    editeur.import.chapitres.forEach(function (c) { if (c.garder && c.mots > 4000) window.APEL_TEXTES.decouperLong(c, 2500).forEach(function (x) { x.garder = true; l.push(x); }); else l.push(c); });
+    editeur.import.chapitres = l; rendre(); toast(l.length + ' parties de lecture');
+  });
+  var bp = $('ed-drive-pret');
+  if (bp) bp.addEventListener('click', function () {
+    var fin = occupe(bp, 'Google Drive…'), ids = editeur.pret.fichiers.map(function (f) { return f.id; });
+    choisirDansDrive(ids).then(function (l) {
+      fin();
+      if (!l.length) return;
+      importer(l.length > 1 ? window.APEL_TEXTES.lireChapitres(l) : window.APEL_TEXTES.lire(l[0]), l.length > 1 ? l.length + ' fichiers de Google Drive' : l[0].name);
+    }).catch(function (e) { fin(); var err = $('ed-erreur'); err.hidden = false; err.textContent = e.message; });
+  });
   var bd = $('ed-drive');
   if (bd) bd.addEventListener('click', function () {
     var fin = occupe(bd, 'Google Drive…');
@@ -309,7 +354,8 @@ function autoriserDrive() {
     client.requestAccessToken({ prompt: '' });
   });
 }
-function choisirDansDrive() {
+// ids : fichiers à montrer d'emblée dans le sélecteur (livres prêts à publier)
+function choisirDansDrive(ids) {
   var jeton;
   // Session reprise après un rechargement : la bibliothèque de connexion Google n'est peut-être pas encore là.
   return Promise.all([script('https://accounts.google.com/gsi/client'), script('https://apis.google.com/js/api.js')]).then(function () {
@@ -317,7 +363,8 @@ function choisirDansDrive() {
   }).then(autoriserDrive).then(function (t) {
     jeton = t;
     return new Promise(function (ok) {
-      var vue = new google.picker.DocsView(google.picker.ViewId.DOCS).setMimeTypes(Object.keys(TYPES_DRIVE).join(',')).setIncludeFolders(true).setSelectFolderEnabled(false);
+      var vue = new google.picker.DocsView(google.picker.ViewId.DOCS).setMimeTypes(Object.keys(TYPES_DRIVE).join(',')).setIncludeFolders(!ids).setSelectFolderEnabled(false);
+      if (ids && vue.setFileIds) vue.setFileIds(ids.join(','));
       new google.picker.PickerBuilder().addView(vue).enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
         .setOAuthToken(t).setDeveloperKey(configSite.drive.cle).setAppId(configSite.drive.projet).setLocale('fr').setTitle('Textes du livre (un ou plusieurs fichiers)')
         .setCallback(function (d) {
@@ -512,6 +559,7 @@ document.addEventListener('click', function (e) {
     return;
   }
   if (b.hasAttribute('data-livre')) { ouvrirEditeur(b.getAttribute('data-livre')); return; }
+  if ((v = b.getAttribute('data-pret'))) { ouvrirPret(v); return; }
   if (b.hasAttribute('data-fermer-editeur')) { editeur = null; rendre(); return; }
   if ((v = b.getAttribute('data-mode'))) { lireChamps(); editeur.mode = v; rendre(); return; }
   if ((v = b.getAttribute('data-apercu'))) { lireChamps(); var ch = editeur.import.chapitres[+v]; ch.ouvert = !ch.ouvert; rendre(); return; }
