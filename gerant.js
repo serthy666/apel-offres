@@ -5,6 +5,7 @@
 var API = 'api/gerant';
 var SITE = location.origin + location.pathname.replace(/[^\/]*$/, '');
 var FORMULES = { jour: '24 heures', semaine: '1 semaine', mois: '1 mois' };
+var GENRES = { roman: 'Roman', nouvelles: 'Nouvelles', poesie: 'Poésie', conte: 'Contes', theatre: 'Théâtre', essai: 'Essai', temoignage: 'Témoignage', jeunesse: 'Jeunesse', feuilleton: 'Feuilleton', autre: 'Autre' };
 var gerant = null, donnees = null, onglet = 'codes', filtre = 'tous', recherche = '', typeCode = 'semaine', derniersCodes = [], editeur = null;
 
 function $(id) { return document.getElementById(id); }
@@ -78,8 +79,10 @@ function charger() {
 function rendre() {
   [].forEach.call(document.querySelectorAll('[data-onglet]'), function (b) { b.setAttribute('aria-selected', String(b.getAttribute('data-onglet') === onglet)); });
   var p = $('panneau');
-  p.innerHTML = { codes: vueCodes, livres: vueLivres, reglages: vueReglages, gerants: vueGerants }[onglet]();
+  p.innerHTML = { codes: vueCodes, livres: vueLivres, videos: vueVideos, reglages: vueReglages, gerants: vueGerants }[onglet]();
+  p.classList.remove('entree'); void p.offsetWidth; p.classList.add('entree');
   if (onglet === 'livres' && editeur) brancherEditeur();
+  if (onglet === 'videos') brancherVideos();
 }
 
 /* ---------- Codes ---------- */
@@ -160,17 +163,17 @@ function catalogue() { return ((window.APEL_DEFAUT && window.APEL_DEFAUT.livres)
 function vueLivres() {
   if (editeur) return vueEditeur();
   var l = donnees.livres || [];
-  return '<section class="carte"><h2>Livres à lire en ligne</h2><p class="muet">Préparez le livre dans Word (un « Titre 1 » par chapitre), importez le fichier, vérifiez les chapitres, puis publiez. Le texte reste privé : il n’est jamais mis dans GitHub.</p>' +
+  return '<section class="carte"><h2>Livres à lire en ligne</h2><p class="muet">Importez le texte (Word, LibreOffice, PDF, EPUB, RTF, page web, texte ou Markdown), ou collez-le directement. Vérifiez les chapitres, puis publiez. Le texte reste privé : il n’est jamais mis dans GitHub.</p>' +
     '<div class="actions"><button type="button" class="btn btn-primaire" data-livre="">Ajouter un livre</button><a class="btn btn-verre" href="assets/modele-salon-apel.docx" download>Télécharger le modèle Word</a></div></section>' +
     (l.length ? '<section class="carte"><ul class="liste">' + l.map(function (x) {
-      return '<li><div class="infos"><b>' + esc(x.titre) + '</b>' + (x.visible ? '' : '<span class="etat etat-fini">Masqué</span>') + '<small>' + esc([x.auteur, x.chapitres + ' chapitre' + (x.chapitres > 1 ? 's' : ''), mille(x.mots) + ' mots', x.gratuits + ' offert' + (x.gratuits > 1 ? 's' : ''), x.majChapitres ? 'mis à jour le ' + date(x.majChapitres) : ''].filter(Boolean).join(' · ')) + '</small></div>' +
+      return '<li><div class="infos"><b>' + esc(x.titre) + '</b>' + (x.visible ? '' : '<span class="etat etat-fini">Masqué</span>') + '<small>' + esc([x.auteur, GENRES[x.genre] || '', x.chapitres + ' chapitre' + (x.chapitres > 1 ? 's' : ''), mille(x.mots) + ' mots', x.gratuits + ' offert' + (x.gratuits > 1 ? 's' : ''), x.majChapitres ? 'mis à jour le ' + date(x.majChapitres) : ''].filter(Boolean).join(' · ')) + '</small></div>' +
         '<div class="actions" style="margin:0"><a class="btn btn-verre btn-petit" href="./#/lire/' + encodeURIComponent(x.id) + '" target="_blank" rel="noopener">Voir</a><button type="button" class="btn btn-primaire btn-petit" data-livre="' + esc(x.id) + '">Modifier</button></div></li>';
     }).join('') + '</ul></section>' : '');
 }
 function ouvrirEditeur(id) {
   var x = (donnees.livres || []).filter(function (l) { return l.id === id; })[0];
-  editeur = x ? { existant: true, livre: { id: x.id, titre: x.titre, auteur: x.auteur || '', resume: x.resume || '', gratuits: x.gratuits, visible: !!x.visible, ordre: x.ordre || 0 }, nbChapitres: x.chapitres, import: null, mode: 'remplacer', anciens: null }
-    : { existant: false, livre: { id: '', titre: '', auteur: '', resume: '', gratuits: 1, visible: true, ordre: 0 }, nbChapitres: 0, import: null, mode: 'remplacer', anciens: null };
+  editeur = x ? { existant: true, livre: { id: x.id, titre: x.titre, auteur: x.auteur || '', resume: x.resume || '', genre: x.genre || '', gratuits: x.gratuits, visible: !!x.visible, ordre: x.ordre || 0 }, nbChapitres: x.chapitres, import: null, mode: 'remplacer', anciens: null }
+    : { existant: false, livre: { id: '', titre: '', auteur: '', resume: '', genre: 'roman', gratuits: 1, visible: true, ordre: 0 }, nbChapitres: 0, import: null, mode: 'remplacer', anciens: null };
   rendre();
   if (x) appel('GET', null, 'action=chapitres&livre=' + encodeURIComponent(x.id)).then(function (d) { if (editeur && editeur.livre.id === x.id) editeur.anciens = d.chapitres; }).catch(function () {});
 }
@@ -183,15 +186,19 @@ function vueEditeur() {
     '<div class="ligne2"><div><label for="ed-titre">Titre</label><input type="text" id="ed-titre" maxlength="160" value="' + esc(l.titre) + '"></div>' +
     '<div><label for="ed-auteur">Auteur</label><input type="text" id="ed-auteur" maxlength="120" value="' + esc(l.auteur) + '"></div></div>' +
     '<label for="ed-id">Code du livre (lettres minuscules et tirets ; le même que dans la bibliothèque pour garder la couverture)</label><input type="text" id="ed-id" maxlength="80" value="' + esc(l.id) + '"' + (e.existant ? ' readonly' : '') + ' placeholder="ex. souhaits-maudits">' +
+    '<label for="ed-genre">Genre</label><select id="ed-genre"><option value="">—</option>' + Object.keys(GENRES).map(function (g) { return '<option value="' + g + '"' + (l.genre === g ? ' selected' : '') + '>' + GENRES[g] + '</option>'; }).join('') + '</select>' +
     '<label for="ed-resume">Résumé (accroche du Salon)</label><textarea id="ed-resume" maxlength="1500">' + esc(l.resume) + '</textarea>' +
     '<div class="ligne3"><div><label for="ed-gratuits">Chapitres offerts</label><input type="number" id="ed-gratuits" min="0" max="50" value="' + l.gratuits + '"></div>' +
     '<div><label for="ed-ordre">Ordre dans le Salon</label><input type="number" id="ed-ordre" min="0" max="9999" value="' + l.ordre + '"></div>' +
     '<div><label class="case" style="margin-top:34px"><input type="checkbox" id="ed-visible"' + (l.visible ? ' checked' : '') + '> Visible</label></div></div></section>' +
-    '<section class="carte"><h2>Texte du livre (fichier Word)</h2>' +
+    '<section class="carte"><h2>Texte du livre</h2>' +
     (e.existant ? '<p class="muet">' + e.nbChapitres + ' chapitre' + (e.nbChapitres > 1 ? 's' : '') + ' en ligne. Importez un fichier pour tout remplacer, ou pour ajouter les nouveaux chapitres à la suite (feuilleton).</p>' +
       '<div class="filtres" role="group" aria-label="Mode d’import"><button type="button" data-mode="remplacer" aria-pressed="' + (e.mode === 'remplacer') + '">Remplacer tout le livre</button><button type="button" data-mode="ajouter" aria-pressed="' + (e.mode === 'ajouter') + '">Ajouter à la suite</button></div>'
-      : '<p class="muet">Un chapitre = un paragraphe de style « Titre 1 » dans Word (sinon, une ligne qui commence par « Chapitre »). Gras, italique, centrage et séparateurs *** sont gardés.</p>') +
-    '<label for="ed-fichier" class="btn btn-verre" style="display:inline-flex;margin-top:4px">Choisir le fichier Word (.docx)</label><input type="file" id="ed-fichier" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="sr">' +
+      : '<p class="muet">Un chapitre = un titre de niveau 1 (« Titre 1 » dans Word ou LibreOffice, # en Markdown), sinon une ligne qui commence par « Chapitre ». Gras, italique, centrage, citations, séparateurs *** et vers des poèmes sont gardés.</p>') +
+    '<div class="actions" style="margin-top:4px"><label for="ed-fichier" class="btn btn-verre">Choisir un fichier</label><button type="button" class="btn btn-verre" id="ed-coller-ouvrir" aria-expanded="' + !!e.coller + '">Coller le texte</button></div>' +
+    '<input type="file" id="ed-fichier" accept="' + window.APEL_TEXTES.formats + '" class="sr">' +
+    '<p class="muet" style="margin-top:8px">Formats : Word (.docx), LibreOffice (.odt), PDF, EPUB, RTF, page web (.html), texte (.txt), Markdown (.md).</p>' +
+    (e.coller ? '<label for="ed-colle">Texte du livre (une ligne « Chapitre … » ou « # … » avant chaque chapitre)</label><textarea id="ed-colle" style="min-height:200px" placeholder="Chapitre 1 : Le départ&#10;&#10;Il était une fois…"></textarea><div class="actions"><button type="button" class="btn btn-primaire btn-petit" id="ed-coller">Découper en chapitres</button></div>' : '') +
     '<p class="message ko" id="ed-erreur" role="alert" hidden></p>' +
     (imp ? '<div style="margin-top:12px"><h3>' + imp.chapitres.length + ' chapitre' + (imp.chapitres.length > 1 ? 's' : '') + ' trouvé' + (imp.chapitres.length > 1 ? 's' : '') + ' dans « ' + esc(imp.fichier) + ' »</h3><p class="muet">Décochez ce qu’il ne faut pas publier (page de titre, remerciements…) et corrigez les titres si besoin.</p><div>' +
       imp.chapitres.map(function (c, i) {
@@ -216,6 +223,7 @@ function lireChamps() {
   if (!editeur.existant && $('ed-id')) l.id = $('ed-id').value.trim().toLowerCase();
   l.gratuits = parseInt($('ed-gratuits').value, 10) || 0;
   l.ordre = parseInt($('ed-ordre').value, 10) || 0;
+  if ($('ed-genre')) l.genre = $('ed-genre').value;
   l.visible = $('ed-visible').checked;
 }
 function codeDepuis(titre) { return String(titre || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60); }
@@ -230,19 +238,30 @@ function brancherEditeur() {
   });
   var titre = $('ed-titre');
   if (titre && !editeur.existant) titre.addEventListener('input', function () { var id = $('ed-id'); if (id && (!id.value || id.dataset.auto)) { id.value = codeDepuis(titre.value); id.dataset.auto = '1'; } });
-  $('ed-fichier').addEventListener('change', function (ev) {
-    var f = ev.target.files && ev.target.files[0], err = $('ed-erreur');
-    if (!f) return;
+  function importer(promesse, nom) {
+    var err = $('ed-erreur'), lab = document.querySelector('label[for="ed-fichier"]');
     lireChamps(); err.hidden = true;
-    if (!/\.docx$/i.test(f.name)) { err.hidden = false; err.textContent = 'Choisissez un fichier .docx. Un ancien fichier .doc s’enregistre en .docx dans Word : Fichier > Enregistrer sous > Document Word (.docx).'; return; }
-    window.APEL_WORD.lire(f).then(function (r) {
+    if (lab) lab.textContent = 'Lecture du texte…';
+    promesse.then(function (r) {
       // Le texte avant le premier chapitre (page de titre, dédicace…) n'est gardé que s'il est long.
       r.chapitres.forEach(function (c) { c.garder = !c.avant || c.mots >= 150 || r.chapitres.length === 1; });
-      editeur.import = { fichier: f.name, chapitres: r.chapitres };
+      editeur.import = { fichier: nom, chapitres: r.chapitres };
+      editeur.coller = false;
       if (!editeur.livre.titre && r.titre) editeur.livre.titre = r.titre;
       if (!editeur.livre.id && editeur.livre.titre && !editeur.existant) editeur.livre.id = codeDepuis(editeur.livre.titre);
       rendre();
-    }).catch(function (e) { err.hidden = false; err.textContent = e.message; });
+    }).catch(function (e) { if (lab) lab.textContent = 'Choisir un fichier'; err.hidden = false; err.textContent = e.message; });
+  }
+  $('ed-fichier').addEventListener('change', function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    if (f) importer(window.APEL_TEXTES.lire(f), f.name);
+  });
+  $('ed-coller-ouvrir').addEventListener('click', function () { lireChamps(); editeur.coller = !editeur.coller; rendre(); var z = $('ed-colle'); if (z) z.focus(); });
+  var bc = $('ed-coller');
+  if (bc) bc.addEventListener('click', function () {
+    var t = $('ed-colle').value;
+    if (!t.trim()) { $('ed-colle').focus(); return; }
+    importer(Promise.resolve().then(function () { return window.APEL_TEXTES.lireColle(t, editeur.livre.titre || 'Texte collé'); }), 'le texte collé');
   });
   $('ed-publier').addEventListener('click', publier);
   var sup = $('ed-supprimer');
@@ -273,6 +292,99 @@ function publier() {
     toast(r.chapitres ? 'Publié : ' + r.chapitres + ' chapitre' + (r.chapitres > 1 ? 's' : '') + ' en ligne' : 'Enregistré');
     return charger();
   }).catch(function (er) { fin(); afficherMessage(er.message, false); });
+}
+
+/* ---------- Vidéos ---------- */
+var sourceVideo = 'fichier', envoiVideo = null;
+var NOMS_SOURCE = { youtube: 'YouTube', tiktok: 'TikTok', facebook: 'Facebook', instagram: 'Instagram', drive: 'Google Drive', fichier: 'Vidéo du téléphone' };
+function livresPourVideo() {
+  var vus = {}, l = [];
+  (donnees.livres || []).concat(catalogue()).forEach(function (x) { if (x.id && !vus[x.id]) { vus[x.id] = 1; l.push(x); } });
+  return l;
+}
+function vueVideos() {
+  var v = donnees.videos || [], medias = donnees.medias;
+  if (!medias) sourceVideo = 'lien';
+  var titreLivre = {}; livresPourVideo().forEach(function (x) { titreLivre[x.id] = x.titre; });
+  return '<section class="carte"><h2>Ajouter une petite vidéo</h2><p class="muet">Bande-annonce d’un livre, mot de l’auteur, coulisses d’une séance de dédicace… Les vidéos s’affichent dans le Salon de lecture, et sur la page du livre choisi.</p>' +
+    '<label for="vi-titre">Titre</label><input type="text" id="vi-titre" maxlength="120" placeholder="Ex. Robyn Tyo’o présente Souhaits maudits">' +
+    '<label for="vi-desc">Description (facultatif)</label><textarea id="vi-desc" maxlength="500" style="min-height:70px"></textarea>' +
+    '<label for="vi-livre">Livre concerné (facultatif)</label><select id="vi-livre"><option value="">— Aucun —</option>' + livresPourVideo().map(function (x) { return '<option value="' + esc(x.id) + '">' + esc(x.titre) + '</option>'; }).join('') + '</select>' +
+    '<div class="filtres" role="group" aria-label="Source de la vidéo" style="margin-top:14px"><button type="button" data-source="fichier" aria-pressed="' + (sourceVideo === 'fichier') + '"' + (medias ? '' : ' disabled') + '>Depuis le téléphone</button><button type="button" data-source="lien" aria-pressed="' + (sourceVideo === 'lien') + '">Lien YouTube, TikTok…</button></div>' +
+    (sourceVideo === 'fichier'
+      ? '<label for="vi-fichier" class="btn btn-verre" style="display:inline-flex">Choisir la vidéo</label><input type="file" id="vi-fichier" accept="video/*" class="sr"><p class="muet" id="vi-nom" style="margin-top:8px">Vidéo courte (1 à 3 minutes, 60 Mo au plus), au format MP4. Sur iPhone : Réglages > Appareil photo > Formats > « Le plus compatible ».</p>'
+      : '<label for="vi-lien">Lien de la vidéo</label><input type="text" id="vi-lien" inputmode="url" placeholder="https://www.youtube.com/shorts/…  ou  https://www.tiktok.com/@…/video/…">' +
+        (medias ? '' : '<p class="muet" style="margin-top:8px">Pour envoyer des vidéos depuis le téléphone, reliez le stockage R2 « MEDIAS » au site (voir SALON-LECTURE.md).</p>')) +
+    '<div class="progres-envoi" id="vi-progres" hidden><i></i></div><p class="message ko" id="vi-erreur" role="alert" hidden></p>' +
+    '<div class="actions"><button type="button" class="btn btn-primaire" id="vi-publier">Publier la vidéo</button></div></section>' +
+    (v.length ? '<section class="carte"><h2>Vidéos publiées</h2><ul class="liste">' + v.map(function (x) {
+      var a = x.apercu || {};
+      return '<li><span class="vignette-video" aria-hidden="true">' + (a.vignette ? '<img src="' + esc(a.vignette) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'▶\'">' : '▶') + '</span><div class="infos"><b>' + esc(x.titre) + '</b>' + (x.visible ? '' : '<span class="etat etat-fini">Masquée</span>') +
+        '<small>' + esc([NOMS_SOURCE[a.type] || 'Lien', x.livre ? titreLivre[x.livre] || x.livre : '', 'ajoutée le ' + date(x.cree)].filter(Boolean).join(' · ')) + '</small></div>' +
+        '<div class="actions" style="margin:0"><button type="button" class="btn btn-verre btn-petit" data-video-visible="' + esc(x.id) + '">' + (x.visible ? 'Masquer' : 'Afficher') + '</button><button type="button" class="btn btn-danger btn-petit" data-video-suppr="' + esc(x.id) + '">Supprimer</button></div></li>';
+    }).join('') + '</ul></section>' : '');
+}
+// Image d'affiche prise dans la vidéo (vers la 1re seconde), pour l'afficher avant la lecture.
+function afficheDe(fichier) {
+  return new Promise(function (ok) {
+    var v = document.createElement('video'), url = URL.createObjectURL(fichier), fini = false;
+    function finir(b, d) { if (fini) return; fini = true; URL.revokeObjectURL(url); ok({ blob: b, duree: d || 0 }); }
+    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+    v.addEventListener('loadedmetadata', function () { try { v.currentTime = Math.min(1, (v.duration || 2) / 3); } catch (e) { finir(null); } });
+    v.addEventListener('seeked', function () {
+      try {
+        var w = Math.min(540, v.videoWidth || 540), h = Math.round(w * (v.videoHeight || 960) / (v.videoWidth || 540));
+        var c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(v, 0, 0, w, h);
+        c.toBlob(function (b) { finir(b, Math.round(v.duration || 0)); }, 'image/jpeg', 0.8);
+      } catch (e) { finir(null, Math.round(v.duration || 0)); }
+    });
+    v.addEventListener('error', function () { finir(null); });
+    setTimeout(function () { finir(null); }, 8000);
+  });
+}
+// Envoi d'un fichier avec sa progression
+function envoyer(fichier, sorte, type, progression) {
+  return new Promise(function (ok, ko) {
+    var x = new XMLHttpRequest();
+    x.open('POST', API + '?action=televerser&sorte=' + sorte);
+    x.setRequestHeader('authorization', 'Bearer ' + gerant.jeton);
+    x.setRequestHeader('content-type', type);
+    if (progression) x.upload.onprogress = function (e) { if (e.lengthComputable) progression(e.loaded / e.total); };
+    x.onload = function () { var d = {}; try { d = JSON.parse(x.responseText); } catch (e) {} if (x.status >= 200 && x.status < 300) ok(d); else ko(new Error(d.erreur || 'Envoi refusé (' + x.status + ').')); };
+    x.onerror = function () { ko(new Error('Envoi interrompu : vérifiez la connexion internet puis réessayez.')); };
+    x.send(fichier);
+  });
+}
+function brancherVideos() {
+  var f = $('vi-fichier');
+  if (f) f.addEventListener('change', function () { var x = f.files[0]; if (x) $('vi-nom').textContent = x.name + ' · ' + (x.size / 1048576).toFixed(1) + ' Mo'; });
+  $('vi-publier').addEventListener('click', function () {
+    var b = this, err = $('vi-erreur'), titre = $('vi-titre').value.trim();
+    err.hidden = true;
+    function echec(e) { fin(); envoiVideo = null; $('vi-progres').hidden = true; err.hidden = false; err.textContent = e.message; }
+    if (!titre) { err.hidden = false; err.textContent = 'Donnez un titre à la vidéo.'; $('vi-titre').focus(); return; }
+    var video = { titre: titre, description: $('vi-desc').value, livre: $('vi-livre').value };
+    var fin = occupe(b, 'Publication…');
+    if (sourceVideo === 'lien') {
+      video.lien = $('vi-lien').value.trim();
+      appel('POST', { action: 'video', video: video }).then(function () { fin(); toast('Vidéo publiée'); return charger(); }).catch(echec);
+      return;
+    }
+    var fichier = f && f.files[0];
+    if (!fichier) { fin(); err.hidden = false; err.textContent = 'Choisissez la vidéo.'; return; }
+    if (fichier.size > 60 * 1048576) { fin(); err.hidden = false; err.textContent = 'Vidéo trop lourde (' + Math.round(fichier.size / 1048576) + ' Mo) : 60 Mo au plus. Raccourcissez-la (1 à 3 minutes).'; return; }
+    var barre = $('vi-progres'); barre.hidden = false;
+    var type = fichier.type || (/\.mov$/i.test(fichier.name) ? 'video/quicktime' : 'video/mp4');
+    envoiVideo = afficheDe(fichier).then(function (a) {
+      video.duree = a.duree;
+      return (a.blob ? envoyer(a.blob, 'affiche', 'image/jpeg').then(function (r) { video.affiche = r.cle; }, function () {}) : Promise.resolve());
+    }).then(function () {
+      return envoyer(fichier, 'video', type, function (x) { barre.firstChild.style.width = Math.round(x * 100) + '%'; b.textContent = 'Envoi… ' + Math.round(x * 100) + ' %'; });
+    }).then(function (r) {
+      video.cle = r.cle;
+      return appel('POST', { action: 'video', video: video });
+    }).then(function () { envoiVideo = null; fin(); toast('Vidéo publiée'); return charger(); }).catch(echec);
+  });
 }
 
 /* ---------- Tarifs ---------- */
@@ -317,6 +429,18 @@ document.addEventListener('click', function (e) {
   if (b.hasAttribute('data-fermer-editeur')) { editeur = null; rendre(); return; }
   if ((v = b.getAttribute('data-mode'))) { lireChamps(); editeur.mode = v; rendre(); return; }
   if ((v = b.getAttribute('data-apercu'))) { lireChamps(); var ch = editeur.import.chapitres[+v]; ch.ouvert = !ch.ouvert; rendre(); return; }
+  if ((v = b.getAttribute('data-source'))) { sourceVideo = v; rendre(); return; }
+  if ((v = b.getAttribute('data-video-visible'))) {
+    var vi = (donnees.videos || []).filter(function (x) { return x.id === v; })[0];
+    if (vi) appel('POST', { action: 'video', video: { id: vi.id, titre: vi.titre, description: vi.description, livre: vi.livre, lien: vi.lien, cle: vi.cle, affiche: vi.affiche, duree: vi.duree, ordre: vi.ordre, visible: !vi.visible } })
+      .then(function () { toast(vi.visible ? 'Vidéo masquée' : 'Vidéo affichée'); return charger(); }).catch(function (er) { toast(er.message); });
+    return;
+  }
+  if ((v = b.getAttribute('data-video-suppr'))) {
+    if (!b.dataset.confirmer) { b.dataset.confirmer = '1'; b.textContent = 'Confirmer'; return; }
+    appel('POST', { action: 'video_supprimer', id: v }).then(function () { toast('Vidéo supprimée'); return charger(); }).catch(function (er) { toast(er.message); });
+    return;
+  }
   if ((v = b.getAttribute('data-retirer'))) {
     if (!b.dataset.confirmer) { b.dataset.confirmer = '1'; b.textContent = 'Confirmer'; return; }
     appel('POST', { action: 'retirer', email: v }).then(function () { toast('Gérant retiré'); return charger(); }).catch(function (er) { toast(er.message); });

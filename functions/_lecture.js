@@ -8,7 +8,8 @@
 //   GOOGLE_CLIENT_ID  identifiant du client OAuth Google (…apps.googleusercontent.com)
 //   SESSION_SECRET    longue phrase secrète qui signe les sessions des gérants et des lecteurs (secret)
 //   PROPRIETAIRE      facultatif, Gmail du propriétaire (apeledition@gmail.com par défaut)
-// Liaison (Settings > Bindings) : base D1 nommée « DB ».
+// Liaisons (Settings > Bindings) : base D1 nommée « DB » ; facultatif, stockage R2 nommé « MEDIAS »
+// pour téléverser des vidéos depuis le téléphone (sans lui, les vidéos se mettent par lien YouTube, TikTok…).
 
 export const PROPRIETAIRE_DEFAUT = "apeledition@gmail.com";
 export const JOUR = 86400;
@@ -19,9 +20,12 @@ export const APPAREILS_MAX = 2;
 export const EMOJIS = ["coeur", "rire", "choc", "larme", "feu"];
 export const APPAREIL = /^[a-z0-9]{16,40}$/;
 export const ID_LIVRE = /^[a-z0-9][a-z0-9-]{0,79}$/;
+export const GENRES = ["roman", "nouvelles", "poesie", "conte", "theatre", "essai", "temoignage", "jeunesse", "feuilleton", "autre"];
+export const CLE_MEDIA = /^(videos|affiches)\/[a-z0-9]{8,40}\.(mp4|webm|mov|m4v|3gp|jpg|webp|png)$/;
 
 const SCHEMA = [
-  "CREATE TABLE IF NOT EXISTS livres (id TEXT PRIMARY KEY, titre TEXT NOT NULL, auteur TEXT, resume TEXT, gratuits INTEGER NOT NULL DEFAULT 1, visible INTEGER NOT NULL DEFAULT 1, ordre INTEGER NOT NULL DEFAULT 0, maj INTEGER)",
+  "CREATE TABLE IF NOT EXISTS livres (id TEXT PRIMARY KEY, titre TEXT NOT NULL, auteur TEXT, resume TEXT, genre TEXT, gratuits INTEGER NOT NULL DEFAULT 1, visible INTEGER NOT NULL DEFAULT 1, ordre INTEGER NOT NULL DEFAULT 0, maj INTEGER)",
+  "CREATE TABLE IF NOT EXISTS videos (id TEXT PRIMARY KEY, titre TEXT NOT NULL, description TEXT, livre TEXT, lien TEXT, cle TEXT, affiche TEXT, duree INTEGER, visible INTEGER NOT NULL DEFAULT 1, ordre INTEGER NOT NULL DEFAULT 0, cree INTEGER)",
   "CREATE TABLE IF NOT EXISTS chapitres (livre TEXT NOT NULL, n INTEGER NOT NULL, titre TEXT, blocs TEXT NOT NULL, mots INTEGER NOT NULL DEFAULT 0, maj INTEGER, PRIMARY KEY (livre, n))",
   "CREATE TABLE IF NOT EXISTS codes (code TEXT PRIMARY KEY, affiche TEXT, type TEXT NOT NULL, jours REAL NOT NULL, max INTEGER NOT NULL DEFAULT 1, utilises INTEGER NOT NULL DEFAULT 0, jusqua INTEGER, debut INTEGER, fin INTEGER, note TEXT, cree INTEGER, par TEXT, revoque INTEGER NOT NULL DEFAULT 0)",
   "CREATE TABLE IF NOT EXISTS activations (code TEXT NOT NULL, appareil TEXT NOT NULL, debut INTEGER NOT NULL, fin INTEGER NOT NULL, PRIMARY KEY (code, appareil))",
@@ -109,4 +113,48 @@ export async function estGerant(db, env, email) {
   if (email === proprietaire(env)) return true;
   const g = await db.prepare("SELECT email FROM gerants WHERE email = ?").bind(email).first();
   return !!g;
+}
+
+/* Vidéos par lien : YouTube (et Shorts), TikTok, Facebook, Instagram, Google Drive, ou fichier .mp4 en ligne.
+   Renvoie la façon de l'afficher, ou null si le lien n'est pas reconnu. */
+export function lienVideo(u) {
+  u = String(u || "").trim();
+  if (!/^https:\/\/[^\s"'<>]{6,500}$/.test(u)) return null;
+  let m;
+  if ((m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/))) {
+    return { type: "youtube", vertical: /\/shorts\//.test(u), embed: "https://www.youtube-nocookie.com/embed/" + m[1] + "?autoplay=1&playsinline=1&rel=0&modestbranding=1", vignette: "https://i.ytimg.com/vi/" + m[1] + "/hqdefault.jpg" };
+  }
+  if ((m = u.match(/tiktok\.com\/@[\w.-]+\/video\/(\d{6,25})/)) || (m = u.match(/tiktok\.com\/(?:embed\/v2|player\/v1)\/(\d{6,25})/))) {
+    return { type: "tiktok", vertical: true, embed: "https://www.tiktok.com/player/v1/" + m[1] + "?autoplay=1&rel=0", vignette: "" };
+  }
+  if ((m = u.match(/instagram\.com\/(?:reel|reels|p|tv)\/([\w-]{5,40})/))) {
+    return { type: "instagram", vertical: true, embed: "https://www.instagram.com/reel/" + m[1] + "/embed", vignette: "" };
+  }
+  if (/(?:facebook\.com\/.+\/videos\/|facebook\.com\/(?:watch|reel)|fb\.watch\/)/.test(u)) {
+    return { type: "facebook", vertical: /\/reel/.test(u), embed: "https://www.facebook.com/plugins/video.php?href=" + encodeURIComponent(u) + "&show_text=false&autoplay=true", vignette: "" };
+  }
+  if ((m = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]{20,})/))) {
+    return { type: "drive", vertical: false, embed: "https://drive.google.com/file/d/" + m[1] + "/preview", vignette: "https://drive.google.com/thumbnail?id=" + m[1] + "&sz=w600" };
+  }
+  if (/\.(mp4|webm|m4v)(\?|#|$)/i.test(u)) return { type: "fichier", vertical: false, src: u, vignette: "" };
+  return null;
+}
+// Liens courts de TikTok (vm.tiktok.com…) : on suit la redirection pour trouver l'adresse complète de la vidéo.
+export async function deplierLien(u) {
+  if (!/^https:\/\/(vm|vt)\.tiktok\.com\/[\w-]+\/?$/.test(String(u || "").trim())) return u;
+  try {
+    const r = await fetch(u, { redirect: "manual" });
+    const l = r.headers.get("location");
+    return l && /^https:\/\//.test(l) ? l : u;
+  } catch (e) { return u; }
+}
+export function adresseMedia(cle) { return cle ? "api/lecture?action=media&cle=" + encodeURIComponent(cle) : ""; }
+
+// Vidéo telle que la page l'affiche : fichier téléversé, ou lecteur intégré du site d'origine.
+export function video(v) {
+  const base = { id: v.id, titre: v.titre, description: v.description || "", livre: v.livre || "", duree: v.duree || 0 };
+  if (v.cle) return { ...base, type: "fichier", src: adresseMedia(v.cle), vignette: adresseMedia(v.affiche), vertical: true };
+  const l = lienVideo(v.lien);
+  if (!l) return null;
+  return { ...base, ...l, vignette: v.affiche ? (CLE_MEDIA.test(v.affiche) ? adresseMedia(v.affiche) : v.affiche) : l.vignette, lien: v.lien };
 }

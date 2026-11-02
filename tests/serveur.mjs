@@ -34,6 +34,22 @@ export function fausseD1() {
   };
 }
 
+// Faux stockage R2 (vidéos et affiches) : put, get avec morceaux (range), delete.
+export function fauxR2() {
+  const objets = new Map();
+  return {
+    objets,
+    async put(cle, valeur, o) { objets.set(cle, { b: Buffer.from(valeur instanceof ArrayBuffer ? new Uint8Array(valeur) : valeur), type: o && o.httpMetadata && o.httpMetadata.contentType }); return { key: cle }; },
+    async get(cle, o) {
+      const x = objets.get(cle); if (!x) return null;
+      const r = o && o.range; let debut = 0, n = x.b.length;
+      if (r) { if (r.suffix != null) { debut = x.b.length - r.suffix; n = r.suffix; } else { debut = r.offset || 0; n = r.length != null ? r.length : x.b.length - debut; } }
+      return { body: x.b.subarray(debut, debut + n), size: x.b.length, httpMetadata: { contentType: x.type }, range: r || undefined };
+    },
+    async delete(cle) { objets.delete(cle); }
+  };
+}
+
 function reponse(statut, corps) { return new Response(JSON.stringify(corps), { status: statut, headers: { "content-type": "application/json" } }); }
 function fauxGoogle(url) {
   const jeton = new URL(url).searchParams.get("id_token") || "";
@@ -42,7 +58,7 @@ function fauxGoogle(url) {
   return reponse(200, { iss: "https://accounts.google.com", aud: CLIENT_ID, email: m[1], email_verified: "true", exp: String(Math.floor(Date.now() / 1000) + 3600) });
 }
 
-const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json", ".webp": "image/webp", ".jpg": "image/jpeg", ".png": "image/png", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json", ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document" };
+const TYPES = { ".svg": "image/svg+xml", ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json", ".webp": "image/webp", ".jpg": "image/jpeg", ".png": "image/png", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json", ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document" };
 
 export async function demarrer({ port = 0, env = {} } = {}) {
   const vraiFetch = globalThis.fetch;
@@ -54,7 +70,7 @@ export async function demarrer({ port = 0, env = {} } = {}) {
   const lecture = await import(path.join(RACINE, "functions/api/lecture.js"));
   const gerant = await import(path.join(RACINE, "functions/api/gerant.js"));
   const DB = fausseD1();
-  const ENV = { GOOGLE_CLIENT_ID: CLIENT_ID, SESSION_SECRET: "une phrase secrète de test assez longue", DB, ...env };
+  const ENV = { GOOGLE_CLIENT_ID: CLIENT_ID, SESSION_SECRET: "une phrase secrète de test assez longue", DB, MEDIAS: fauxR2(), ...env };
   const serveur = http.createServer(async (req, res) => {
     try {
       const u = new URL(req.url, "http://localhost");

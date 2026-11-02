@@ -13,7 +13,7 @@ L'ancienne adresse https://serthy666.github.io/apel-offres/ renvoie vers la nouv
 
 ## Salon de lecture et Espace gérant
 
-Les livres se lisent aussi en ligne, chapitre par chapitre : premiers chapitres offerts, puis codes de lecture de 24 heures, d'une semaine ou d'un mois, et codes promo, créés dans l'**Espace gérant** (https://apel-offres.pages.dev/gerant.html, connexion Google avec apeledition@gmail.com). Les livres arrivent par un fichier Word. Mise en route et mode d'emploi : `SALON-LECTURE.md`.
+Les livres se lisent aussi en ligne, chapitre par chapitre : premiers chapitres offerts, puis codes de lecture de 24 heures, d'une semaine ou d'un mois, et codes promo, créés dans l'**Espace gérant** (https://apel-offres.pages.dev/gerant.html, connexion Google avec apeledition@gmail.com). Les livres arrivent par un fichier (Word, LibreOffice, PDF, EPUB, RTF, HTML, texte, Markdown) ou un texte collé ; de petites vidéos s'y ajoutent. Liseuse avec mode lecture et mode sombre. Mise en route et mode d'emploi : `SALON-LECTURE.md`.
 
 ## Autre site dans ce dépôt
 

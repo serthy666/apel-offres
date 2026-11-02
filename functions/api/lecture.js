@@ -2,9 +2,10 @@
 //   GET  ?action=catalogue                    livres à lire en ligne et leurs chapitres (sans le texte)
 //   GET  ?action=chapitre&livre=…&n=…          texte d'un chapitre (chapitres offerts, ou pass de lecture)
 //   GET  ?action=reactions&livre=…&n=…&appareil=…
+//   GET  ?action=media&cle=…                    vidéo ou affiche téléversée (lecture par morceaux pour les téléphones)
 //   POST { action: "activer", code, appareil } un code de lecture donne un pass jusqu'à sa date de fin
 //   POST { action: "reagir", livre, n, emoji, appareil }
-import { Refus, json, erreur, traiter, base, maintenant, signer, lireJeton, jetonDe, cleCode, reglages, estGerant, FORMULES, APPAREILS_MAX, EMOJIS, APPAREIL, ID_LIVRE, JOUR } from "../_lecture.js";
+import { Refus, json, erreur, traiter, base, maintenant, signer, lireJeton, jetonDe, cleCode, reglages, estGerant, video, FORMULES, APPAREILS_MAX, EMOJIS, APPAREIL, ID_LIVRE, CLE_MEDIA, JOUR } from "../_lecture.js";
 
 export function onRequest({ request, env }) {
   return traiter(async () => {
@@ -14,6 +15,7 @@ export function onRequest({ request, env }) {
       if (action === "catalogue") return catalogue(env);
       if (action === "chapitre") return chapitre(url, request, env);
       if (action === "reactions") return reactionsGet(url, env);
+      if (action === "media") return media(url, request, env);
       return erreur(400, "Action inconnue.");
     }
     if (request.method !== "POST") return erreur(405, "Méthode non acceptée.");
@@ -27,20 +29,43 @@ export function onRequest({ request, env }) {
 
 async function catalogue(env) {
   const db = await base(env);
-  const [livres, chapitres, r] = await Promise.all([
-    db.prepare("SELECT id, titre, auteur, resume, gratuits, ordre, maj FROM livres WHERE visible = 1 ORDER BY ordre, titre").all(),
+  const [livres, chapitres, r, vids] = await Promise.all([
+    db.prepare("SELECT id, titre, auteur, resume, genre, gratuits, ordre, maj FROM livres WHERE visible = 1 ORDER BY ordre, titre").all(),
     db.prepare("SELECT livre, n, titre, mots, maj FROM chapitres ORDER BY livre, n").all(),
-    reglages(db)
+    reglages(db),
+    db.prepare("SELECT * FROM videos WHERE visible = 1 ORDER BY ordre, cree DESC").all()
   ]);
   const parLivre = {};
   (chapitres.results || []).forEach(c => { (parLivre[c.livre] = parLivre[c.livre] || []).push({ n: c.n, titre: c.titre || "", mots: c.mots || 0, maj: c.maj || 0 }); });
-  const liste = (livres.results || []).map(l => ({ id: l.id, titre: l.titre, auteur: l.auteur || "", resume: l.resume || "", gratuits: l.gratuits, maj: l.maj || 0, chapitres: parLivre[l.id] || [] }))
+  const liste = (livres.results || []).map(l => ({ id: l.id, titre: l.titre, auteur: l.auteur || "", resume: l.resume || "", genre: l.genre || "", gratuits: l.gratuits, maj: l.maj || 0, chapitres: parLivre[l.id] || [] }))
     .filter(l => l.chapitres.length);
   return json({
     livres: liste,
+    videos: (vids.results || []).map(video).filter(Boolean),
     tarifs: { jour: r.prix_jour || "", semaine: r.prix_semaine || "", mois: r.prix_mois || "" },
     accueil: r.accueil || ""
   }, 200, "public, max-age=60");
+}
+
+// Fichier du stockage R2, avec les « morceaux » (Range) que demandent les lecteurs vidéo des téléphones.
+async function media(url, request, env) {
+  const cle = String(url.searchParams.get("cle") || "");
+  if (!CLE_MEDIA.test(cle) || !env.MEDIAS) return erreur(404, "Fichier introuvable.");
+  const plage = (request.headers.get("range") || "").match(/^bytes=(\d*)-(\d*)$/);
+  let options = {};
+  if (plage && (plage[1] || plage[2])) options.range = plage[1] ? (plage[2] ? { offset: +plage[1], length: +plage[2] - +plage[1] + 1 } : { offset: +plage[1] }) : { suffix: +plage[2] };
+  const o = await env.MEDIAS.get(cle, options);
+  if (!o) return erreur(404, "Fichier introuvable.");
+  const h = new Headers({ "content-type": (o.httpMetadata && o.httpMetadata.contentType) || "application/octet-stream", "cache-control": "public, max-age=31536000, immutable", "accept-ranges": "bytes" });
+  if (options.range && o.range) {
+    const debut = o.range.offset != null ? o.range.offset : o.size - o.range.suffix;
+    const longueur = o.range.length != null ? o.range.length : o.size - debut;
+    h.set("content-range", "bytes " + debut + "-" + (debut + longueur - 1) + "/" + o.size);
+    h.set("content-length", String(longueur));
+    return new Response(o.body, { status: 206, headers: h });
+  }
+  h.set("content-length", String(o.size));
+  return new Response(o.body, { status: 200, headers: h });
 }
 
 // Pass valide : jeton signé, pas expiré, code toujours actif (un code révoqué coupe l'accès tout de suite).

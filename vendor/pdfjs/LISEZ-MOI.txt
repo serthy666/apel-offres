@@ -1,0 +1,2 @@
+pdf.js 3.11.174 (Mozilla, licence Apache 2.0), copié de pdfjs-dist sur npm.
+Sert seulement à l’Espace gérant pour lire les fichiers PDF des livres.
