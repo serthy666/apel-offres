@@ -294,6 +294,11 @@ details>div{padding:0 16px 16px;color:var(--texte-2)}
 @media (max-width:340px){.marque b{letter-spacing:.04em}.pack .actions .btn svg{display:none}}
 @media (orientation:landscape) and (max-height:480px){.entete{position:static}.voile{overflow-y:auto;align-items:flex-start}}
 
+.salon-couvs{display:flex;gap:10px;margin:4px 0 18px;padding:6px 2px 4px;overflow:hidden}
+.salon-couvs>span{display:block;flex:0 0 22%;max-width:84px;transform:rotate(-3deg)}
+.salon-couvs>span:nth-child(even){transform:rotate(3deg) translateY(6px)}
+.mode-lecture .barre{display:none}
+.mode-lecture .pied{padding-bottom:40px}
 @media (min-width:520px){.rayon{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (min-width:600px){h1{font-size:32px}.heros h1{font-size:36px}main{padding-top:26px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}.livre3d{transform:rotateY(-20deg)}}
@@ -383,6 +388,9 @@ var IC = {
   retour: '<path d="M15 6l-6 6 6 6"/>',
   web: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.5 5.8 3.5 9s-1 6.2-3.5 9c-2.5-2.8-3.5-5.8-3.5-9s1-6.2 3.5-9z"/>',
   lien: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  cadenas: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  flamme: '<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 2 1.3 3 2.5 3-1-3 0-6 0-8z"/>',
+  ouvert: '<path d="M2 5.5C4.5 4 8 4 12 6c4-2 7.5-2 10-.5V19c-2.5-1.5-6-1.5-10 .5-4-2-7.5-2-10-.5z"/><path d="M12 6v13.5"/>',
   biblio: '<rect x="3" y="4" width="4.5" height="16" rx="1"/><rect x="9.5" y="4" width="4.5" height="16" rx="1"/><path d="M15.6 5.6l3.9-1.1 3.3 14.4-3.9 1.1z"/>'
 };
 function svg(n, taille) { return '<svg viewBox="0 0 24 24"' + (taille ? ' width="' + taille + '" height="' + taille + '"' : '') + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (IC[n] || '') + '</svg>'; }
@@ -485,7 +493,12 @@ var T = {
     p_entreprise: 'Entreprise / entrepreneur', p_entreprise_d: 'Affiches, logo, visibilité',
     p_association: 'Association / institution', p_association_d: 'Rapports, magazines, événements',
     p_particulier: 'Particulier', p_particulier_d: 'Un visuel ou un document soigné',
-    p_autre: 'Autres offres'
+    p_autre: 'Autres offres',
+    salon: 'Le Salon de lecture', salonD: 'Lisez nos romans chapitre par chapitre, ici',
+    salonAccroche: 'Nouveau : lisez en ligne', salonTitre: 'Des histoires à dévorer, <em>chapitre par chapitre.</em>',
+    salonTexte: 'Premiers chapitres offerts. Pour la suite, un code de lecture de 24 heures, d’une semaine ou d’un mois, reçu sur WhatsApp.',
+    entrerSalon: 'Entrer dans le Salon', lireEnLigne: 'Lire en ligne', premierOffert: 'premier chapitre offert', premiersOfferts: '{n} premiers chapitres offerts',
+    msgSalon: 'Je souhaite un code de lecture pour le Salon de lecture.', gerant: 'Espace gérant'
   },
   en: {
     realisationsD0: 'Our book and its launch poster',
@@ -581,13 +594,18 @@ var T = {
     p_entreprise: 'Business / entrepreneur', p_entreprise_d: 'Posters, logo, visibility',
     p_association: 'Association / institution', p_association_d: 'Reports, magazines, events',
     p_particulier: 'Individual', p_particulier_d: 'A design or a polished document',
-    p_autre: 'Other offers'
+    p_autre: 'Other offers',
+    salon: 'The Reading Lounge', salonD: 'Read our novels chapter by chapter, right here',
+    salonAccroche: 'New: read online', salonTitre: 'Stories to devour, <em>chapter by chapter.</em>',
+    salonTexte: 'First chapters are free. For the rest, a reading code for 24 hours, a week or a month, sent on WhatsApp.',
+    entrerSalon: 'Enter the Lounge', lireEnLigne: 'Read online', premierOffert: 'first chapter free', premiersOfferts: 'first {n} chapters free',
+    msgSalon: 'I would like a reading code for the Reading Lounge.', gerant: 'Manager area'
   }
 };
 var PROFILS = ['auteur', 'enseignant', 'ecole', 'entreprise', 'association', 'particulier'];
 
 /* ---------- État ---------- */
-var etat = { lang: 'fr', d: { packs: [], faq: [], temoignages: [], reglages: {}, livres: [] }, pret: false, src: '', parrain: '', guide: {} };
+var etat = { lang: 'fr', d: { packs: [], faq: [], temoignages: [], reglages: {}, livres: [] }, pret: false, src: '', parrain: '', guide: {}, salon: null };
 var pile = [], positions = {}, dernierLien = '';
 var LIBRES = { accueil: 1, etapes: 1, publier: 1, contact: 1 };
 
@@ -970,7 +988,47 @@ function blocPrixLivre(l) {
     (l.prix_num ? '<span><small>' + esc(t('numerique')) + '</small><strong>' + fcfa(l.prix_num) + '</strong></span>' : '') + '</div>';
 }
 
+/* ---------- Salon de lecture (vues dans lecture.js, chargé à la demande) ---------- */
+function salonOuvert() { return !!(etat.salon && etat.salon.livres && etat.salon.livres.length); }
+function livreSalon(id) { if (!salonOuvert()) return null; for (var i = 0; i < etat.salon.livres.length; i++) if (etat.salon.livres[i].id === id) return etat.salon.livres[i]; return null; }
+function offerts(ls) { return ls.gratuits === 1 ? t('premierOffert') : ls.gratuits > 1 ? t('premiersOfferts', { n: ls.gratuits }) : ''; }
+function boutonLire(id) {
+  var ls = livreSalon(id);
+  if (!ls) return '';
+  return '<a class="btn btn-primaire btn-plein" href="#/lire/' + encodeURIComponent(id) + '">' + svg('ouvert') + '<span>' + esc(t('lireEnLigne')) + (offerts(ls) ? ' · ' + esc(offerts(ls)) : '') + '</span></a>';
+}
+function blocSalon() {
+  if (!salonOuvert()) return '';
+  var ls = etat.salon.livres.slice(0, 6).map(function (x) { return livreParId(x.id) || { id: x.id, titre: x.titre, auteur: x.auteur }; });
+  return '<section class="heros verre salon-accueil" style="margin-top:30px"><span class="etiquette">' + esc(t('salonAccroche')) + '</span><h2 style="margin:14px 0 8px;font-size:24px">' + t('salonTitre') + '</h2><p>' + esc(t('salonTexte')) + '</p>' +
+    '<div class="salon-couvs" aria-hidden="true">' + ls.map(function (l) { return '<span><span class="couv" style="padding-top:' + (ratioLivre(l) * 100).toFixed(1) + '%">' + imgCouv(l, 132) + '</span></span>'; }).join('') + '</div>' +
+    '<a class="btn btn-primaire btn-plein" href="#/lire">' + svg('ouvert') + '<span>' + esc(t('entrerSalon')) + '</span></a></section>';
+}
+// Livres lisibles en ligne : lus une fois par visite (réponse gardée 1 minute par Cloudflare).
+function chargerSalon() {
+  if (APERCU || !window.fetch || !/^https?:/.test(location.protocol)) return;
+  var vide = { livres: [], tarifs: {}, indisponible: true };
+  fetch('api/lecture?action=catalogue').then(function (r) { return r.ok ? r.json() : vide; }, function () { return vide; }).then(function (d) {
+    etat.salon = d && Array.isArray(d.livres) ? d : vide;
+    var r = route();
+    if (r.nom === 'accueil' || r.nom === 'livre' || r.nom === 'lire') afficher(true);
+  }).catch(function () {});
+}
+var chargementLecture = null;
+function chargerLecture() {
+  if (window.APEL_LECTURE || chargementLecture) return;
+  chargementLecture = document.createElement('script');
+  chargementLecture.src = 'lecture.js';
+  chargementLecture.onload = function () { if (route().nom === 'lire') afficher(true); };
+  chargementLecture.onerror = function () { chargementLecture = null; var m = document.getElementById('contenu'); if (route().nom === 'lire' && m) m.innerHTML = retour() + '<p class="muet" style="margin:24px 4px">' + esc(etat.lang === 'en' ? 'The Reading Lounge could not load. Check your connection and try again.' : 'Le Salon de lecture n’a pas pu se charger. Vérifiez la connexion internet, puis réessayez.') + '</p>'; };
+  document.head.appendChild(chargementLecture);
+}
+
 var VUES = {
+  lire: function (arg, args) {
+    if (!window.APEL_LECTURE) { chargerLecture(); return '<p class="muet" aria-busy="true" style="margin:24px 4px">' + esc(t('chargement')) + '</p>'; }
+    return window.APEL_LECTURE.vue(args || []);
+  },
   accueil: function () {
     var vedettes = etat.d.packs.filter(function (p) { return p.vedette; }).slice(0, 3);
     return '<section class="heros verre"><span class="orbe-logo" aria-hidden="true"></span><span class="etiquette">' + esc(t('herosEtiquette')) + '</span><h1>' + t('herosTitre') + '</h1><p>' + esc(t('herosTexte')) + '</p>' +
@@ -978,8 +1036,10 @@ var VUES = {
       aWa([t('msgGeneral')], t('ecrireWa'), 'btn-verre') + '</div></section>' +
       '<h2>' + esc(t('jeSuis')) + '</h2><div class="profils">' + PROFILS.map(carteProfil).join('') + '</div>' +
       (vedettes.length ? '<h2>' + esc(t('enVedette')) + '</h2><div class="pile">' + vedettes.map(function (x) { return cartePack(x); }).join('') + '</div>' : '') +
+      blocSalon() +
       (etat.d.livres.length ? '<h2>' + esc(t('bibliotheque')) + '</h2>' + etagere(etat.d.livres) : '') +
       '<h2>' + esc(t('mieuxConnaitre')) + '</h2><ul class="liens verre">' +
+      (salonOuvert() ? lienRapide('#/lire', 'ouvert', t('salon'), t('salonD'), 'o-rouge') : '') +
       lienRapide('#/etapes', 'etapes', t('commentCaMarche'), t('commentCaMarcheD')) +
       lienRapide('#/publier', 'livre', t('publier'), t('publierD')) +
       lienRapide('#/offres', 'grille', t('toutesOffres'), t('toutesOffresD')) +
@@ -1117,6 +1177,7 @@ var VUES = {
         (resume ? '<h2 class="h3" style="margin-bottom:8px">' + esc(t('resume')) + '</h2><p style="margin:0"' + langFr(l, 'resume') + '>' + esc(resume).replace(/\n/g, '<br>') + '</p>' : '') +
         (details ? '<p class="muet" style="margin:' + (resume ? '10px' : '0') + ' 0 0;font-size:14px"' + langFr(l, 'details') + '>' + esc(details) + '</p>' : '') + '</div>' : '') +
       (note ? '<p class="info">' + svg('info') + '<span' + langFr(l, 'note') + '>' + esc(note) + '</span></p>' : '') +
+      boutonLire(l.id) +
       aWa(lignesLivre(l), t(l.vente ? 'commanderWa' : 'livreInteresse'), 'btn-primaire btn-plein') +
       (num ? '<a class="btn btn-verre btn-plein" href="' + esc(num) + '" target="_blank" rel="noopener">' + svg('web') + esc(t(l.prix_num ? 'obtenirNum' : 'versionNum')) + '</a>' : '') +
       (pk ? '<a class="btn btn-verre btn-plein" href="#/pack/' + encodeURIComponent(pk.id) + '">' + esc(t('offreEtab')) + '</a>' : '') +
@@ -1147,12 +1208,13 @@ var VUES = {
 /* ---------- Rendu ---------- */
 function route() {
   var h = (location.hash || '').replace(/^#\/?/, '').split('/');
-  return { nom: Object.prototype.hasOwnProperty.call(VUES, h[0]) ? h[0] : 'accueil', arg: h[1] || '' };
+  return { nom: Object.prototype.hasOwnProperty.call(VUES, h[0]) ? h[0] : 'accueil', arg: h[1] || '', args: h.slice(1).map(decoder) };
 }
 function messageBarre(r) {
   if (r.nom === 'pack') { var pk = packParId(decoder(r.arg)); if (pk) return lignesPack(pk); }
   if (r.nom === 'livre') { var lv = livreParId(decoder(r.arg)); if (lv) return lignesLivre(lv); }
   if (r.nom === 'profil' && PROFILS.indexOf(r.arg) !== -1) return [t('msgProfil') + t('p_' + r.arg), t('msgProjet')];
+  if (r.nom === 'lire') return [t('msgSalon')];
   return [t('msgGeneral')];
 }
 function afficher(silencieux, y) {
@@ -1160,9 +1222,12 @@ function afficher(silencieux, y) {
   var garde = window.scrollY, html;
   var libre = LIBRES[r.nom] || (r.nom === 'guide' && etapeGuide(r.arg) === 1);
   if (!etat.pret && !libre) html = '<p class="muet" aria-busy="true" style="margin:24px 4px">' + esc(t('chargement')) + '</p>';
-  else { try { html = VUES[r.nom](r.arg); } catch (e) { html = VUES.accueil(); } }
+  else { try { html = VUES[r.nom](r.arg, r.args); } catch (e) { html = VUES.accueil(); } }
+  // Lecture d'un chapitre : la barre du bas s'efface pour laisser toute la place au texte.
+  document.body.classList.toggle('mode-lecture', r.nom === 'lire' && r.args.length > 1);
   main.innerHTML = html;
-  document.getElementById('pied').innerHTML = '<p>' + esc(t(r.nom === 'livre' || r.nom === 'bibliotheque' ? 'pied1Livres' : 'pied1')) + '</p><p>' + esc(t('pied2')) + '</p>';
+  document.getElementById('pied').innerHTML = '<p>' + esc(t(r.nom === 'livre' || r.nom === 'bibliotheque' ? 'pied1Livres' : 'pied1')) + '</p><p>' + esc(t('pied2')) + '</p>' +
+    '<p><a href="gerant.html" style="color:var(--texte-3)">' + esc(t('gerant')) + '</a></p>';
   var wa = document.getElementById('barre-wa');
   wa.href = lienWa(messageBarre(r)); wa.innerHTML = svg('wa') + '<span>' + esc(t('ecrireWa')) + '</span>';
   document.getElementById('barre-partage').innerHTML = svg('partage') + '<span>' + esc(t('partager')) + '</span>';
@@ -1206,10 +1271,19 @@ function message(txt) {
   document.body.appendChild(el); setTimeout(function () { el.remove(); }, 2200);
 }
 function partager(cible) {
+  if (cible && cible.indexOf('lire:') === 0) {
+    var morceaux = cible.slice(5).split('/'), ls = livreSalon(morceaux[0]);
+    var adresse = (/^https?:/.test(location.protocol) ? location.origin + location.pathname : CONFIG.adresse) + '?src=partage' + (etat.lang === 'en' ? '&lang=en' : '') + '#/lire/' + morceaux.map(encodeURIComponent).join('/');
+    var invite = etat.lang === 'en' ? 'I’m reading “{t}” in the APEL Éditions Reading Lounge. First chapter free: ' : 'Je lis « {t} » dans le Salon de lecture d’APEL Éditions. Premier chapitre offert : ';
+    return partagerAdresse(adresse, ls ? invite.replace('{t}', ls.titre) : t('salonD'));
+  }
   var p = cible && cible.indexOf('pack:') === 0 ? packParId(cible.slice(5)) : null;
   var lv = !p && cible && cible.indexOf('livre:') === 0 ? livreParId(cible.slice(6)) : null;
   var url = adressePartage(p ? p.id : '', lv ? lv.id : '');
   var texte = p ? t('partagePackTexte') + champ(p, 'titre') : lv ? t(deApel(lv) ? 'partageLivreTexte' : 'partageLivreTexteAutre') + champ(lv, 'titre') : t('partageTexte');
+  partagerAdresse(url, texte);
+}
+function partagerAdresse(url, texte) {
   // Feuille du téléphone sur écran tactile ; sur ordinateur, la feuille de l'appli propose WhatsApp et Facebook.
   var ua = navigator.userAgent || '';
   var mobile = (window.matchMedia && matchMedia('(pointer: coarse)').matches) || /Android|iPhone|iPad|iPod/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
@@ -1279,6 +1353,12 @@ function quandDonnees(suite) {
   s.addEventListener('load', function () { suite(window.APEL_DEFAUT || null); });
   s.addEventListener('error', function () { suite(null); });
 }
+window.APEL_OUTILS = {
+  etat: etat, t: t, esc: esc, svg: svg, orbe: orbe, retour: retour, titrePage: titrePage, montant: montant,
+  livreParId: livreParId, imgCouv: imgCouv, ratioLivre: ratioLivre, lienWa: lienWa, aWa: aWa, numeroWa: numeroWa,
+  message: message, afficher: afficher, route: route, partager: partager, stock: stock, chargerSalon: chargerSalon,
+  livreSalon: livreSalon, offerts: offerts
+};
 function demarrer() {
   var params = new URLSearchParams(location.search);
   var src = nettoyer(params.get('src') || params.get('ref'), 30), parrain = nettoyer(params.get('parrain'), 40);
@@ -1293,6 +1373,8 @@ function demarrer() {
   if (window.APEL_DEFAUT || (sh && sh.packs && sh.packs.length)) prendre(fusion(window.APEL_DEFAUT, sh));
 
   etat.lang = langue(params.get('lang')) || langue(stock('apel-langue')) || ((navigator.language || 'fr').slice(0, 2) === 'en' ? 'en' : 'fr');
+  var codeLien = String(params.get('code') || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 30);
+  if (codeLien) { try { sessionStorage.setItem('apel-code', codeLien); } catch (e) {} etat.codeLien = codeLien; if (!location.hash) { try { history.replaceState(null, '', location.pathname + location.search + '#/lire'); } catch (e) {} } }
   var pk = params.get('pack'), lp = params.get('livre');
   if ((pk || lp) && !location.hash) { try { history.replaceState(null, '', location.pathname + location.search + (pk ? '#/pack/' + encodeURIComponent(pk) : '#/livre/' + encodeURIComponent(lp))); } catch (e) {} }
   pile = [location.hash || '#/'];
@@ -1318,7 +1400,7 @@ function demarrer() {
     }
     var s = e.target.closest('[data-partage]');
     if (s) { partager(s.getAttribute('data-partage')); return; }
-    if (e.target.closest('#barre-partage')) { var rr = route(); partager(rr.nom === 'pack' ? 'pack:' + decoder(rr.arg) : rr.nom === 'livre' ? 'livre:' + decoder(rr.arg) : ''); }
+    if (e.target.closest('#barre-partage')) { var rr = route(); partager(rr.nom === 'pack' ? 'pack:' + decoder(rr.arg) : rr.nom === 'livre' ? 'livre:' + decoder(rr.arg) : rr.nom === 'lire' && rr.args[0] ? 'lire:' + rr.args.join('/') : ''); }
   });
   window.addEventListener('hashchange', function () {
     var depart = pile[pile.length - 1];
@@ -1341,6 +1423,7 @@ function demarrer() {
   changerLangue(etat.lang, true);
   afficher();
   activerInclinaison();
+  chargerSalon();
   quandDonnees(function (d) {
     etat.donneesVues = true;
     var avant = etat.pret ? JSON.stringify(etat.d) : '';

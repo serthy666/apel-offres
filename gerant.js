@@ -1,0 +1,379 @@
+/* Espace gérant d'APEL Éditions (gerant.html) : codes de lecture, livres du Salon, tarifs, gérants.
+   Tout passe par /api/gerant (functions/api/gerant.js). */
+(function () {
+'use strict';
+var API = 'api/gerant';
+var SITE = location.origin + location.pathname.replace(/[^\/]*$/, '');
+var FORMULES = { jour: '24 heures', semaine: '1 semaine', mois: '1 mois' };
+var gerant = null, donnees = null, onglet = 'codes', filtre = 'tous', recherche = '', typeCode = 'semaine', derniersCodes = [], editeur = null;
+
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function date(s, heure) { if (!s) return ''; try { return new Date(s * 1000).toLocaleString('fr-FR', heure ? { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' } : { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return ''; } }
+function mille(n) { return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+var minuteToast;
+function toast(t) { var e = $('toast'); e.textContent = t; e.hidden = false; clearTimeout(minuteToast); minuteToast = setTimeout(function () { e.hidden = true; }, 3000); }
+function copier(t) {
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { toast('Copié'); }, function () { window.prompt('Copiez :', t); });
+  else window.prompt('Copiez :', t);
+}
+
+/* ---------- Appels au serveur ---------- */
+function appel(methode, corps, params) {
+  var h = { 'content-type': 'application/json' };
+  if (gerant) h.authorization = 'Bearer ' + gerant.jeton;
+  return fetch(API + (params ? '?' + params : ''), { method: methode, headers: h, body: corps ? JSON.stringify(corps) : undefined, cache: 'no-store' })
+    .then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (r.status === 401 || (r.status === 403 && gerant && corps && corps.action !== 'inviter' && corps.action !== 'retirer')) { deconnecter(); }
+        if (!r.ok) { var e = new Error(d.erreur || 'Erreur ' + r.status); e.statut = r.status; throw e; }
+        return d;
+      });
+    }, function () { throw new Error('Pas de connexion internet. Vérifiez le réseau puis réessayez.'); });
+}
+function occupe(bouton, texte) {
+  var avant = bouton.innerHTML; bouton.disabled = true; bouton.textContent = texte || 'Patientez…';
+  return function () { bouton.disabled = false; bouton.innerHTML = avant; };
+}
+
+/* ---------- Connexion Google ---------- */
+function montrer(vue) { $('vue-connexion').hidden = vue !== 'connexion'; $('vue-admin').hidden = vue !== 'admin'; }
+function preparerGoogle() {
+  appel('GET', null, 'action=config').then(function (c) {
+    var att = $('google-attente');
+    if (!c.pret) { att.innerHTML = 'L’espace gérant n’est pas encore configuré sur Cloudflare (base D1 « DB », <code>GOOGLE_CLIENT_ID</code>, <code>SESSION_SECRET</code>). Voir le fichier <code>SALON-LECTURE.md</code> du dépôt.'; return; }
+    var s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
+    s.onload = function () {
+      google.accounts.id.initialize({ client_id: c.clientId, callback: function (rep) { connexion(rep.credential); }, ux_mode: 'popup', auto_select: false });
+      att.hidden = true;
+      google.accounts.id.renderButton($('btn-google'), { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signin_with', locale: 'fr', width: 280 });
+    };
+    s.onerror = function () { att.textContent = 'Impossible de joindre Google. Vérifiez la connexion internet, puis rechargez la page.'; };
+    document.head.appendChild(s);
+  }).catch(function (e) { $('google-attente').textContent = e.message; });
+}
+function connexion(credential) {
+  var rf = $('refus'); rf.hidden = true;
+  appel('POST', { action: 'connexion', credential: credential }).then(function (g) {
+    gerant = g; try { sessionStorage.setItem('apel-gerant', JSON.stringify(g)); } catch (e) {}
+    charger();
+  }).catch(function (e) { rf.hidden = false; rf.textContent = e.message; });
+}
+function deconnecter() {
+  gerant = null; donnees = null; try { sessionStorage.removeItem('apel-gerant'); } catch (e) {}
+  if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
+  montrer('connexion'); $('qui').textContent = 'APEL Éditions · Salon de lecture';
+  if (!$('btn-google').firstChild) preparerGoogle();
+}
+
+/* ---------- Tableau de bord ---------- */
+function charger() {
+  montrer('admin');
+  return appel('GET', null, 'action=tableau').then(function (d) {
+    donnees = d;
+    $('qui').textContent = d.moi + (d.estProprietaire ? ' · propriétaire' : ' · gérant');
+    rendre();
+  }).catch(function (e) { if (gerant) { $('panneau').innerHTML = '<p class="message ko">' + esc(e.message) + '</p>'; } });
+}
+function rendre() {
+  [].forEach.call(document.querySelectorAll('[data-onglet]'), function (b) { b.setAttribute('aria-selected', String(b.getAttribute('data-onglet') === onglet)); });
+  var p = $('panneau');
+  p.innerHTML = { codes: vueCodes, livres: vueLivres, reglages: vueReglages, gerants: vueGerants }[onglet]();
+  if (onglet === 'livres' && editeur) brancherEditeur();
+}
+
+/* ---------- Codes ---------- */
+function etatTexte(c) {
+  if (c.etat === 'revoque') return ['revoque', 'Révoqué'];
+  if (c.type === 'promo') {
+    var u = c.utilises + (c.max ? ' / ' + c.max : '') + ' utilisation' + (c.utilises > 1 ? 's' : '');
+    return [c.etat, (c.etat === 'actif' ? 'Promo active' : 'Promo terminée') + ' · ' + u + (c.jusqua ? ' · jusqu’au ' + date(c.jusqua) : '')];
+  }
+  if (c.etat === 'neuf') return ['neuf', 'Pas encore utilisé'];
+  if (c.etat === 'actif') return ['actif', 'Actif jusqu’au ' + date(c.fin, true)];
+  return ['fini', 'Expiré le ' + date(c.fin, true)];
+}
+function numeroDans(note) {
+  // Numéro écrit avec ou sans espaces, points ou tirets : « 677 12 34 56 », « +237 6.77.12.34.56 »…
+  var m = String(note || '').match(/\+?\d[\d\s.()-]{7,}\d/), d = m ? m[0].replace(/\D/g, '').replace(/^00/, '') : '';
+  if (/^6\d{8}$|^2\d{8}$/.test(d)) d = '237' + d;
+  return /^\d{11,15}$/.test(d) ? d : '';
+}
+function lienCode(c) { return SITE + '?code=' + encodeURIComponent(c.affiche) + '#/lire'; }
+function messageCode(c) {
+  var nom = String(c.note || '').replace(/[\d+()\s.-]{8,}/g, ' ').trim();
+  if (c.type === 'promo') return 'Bonjour' + (nom ? ' ' + nom : '') + ' ! Voici un code promo du Salon de lecture d’APEL Éditions : ' + c.affiche + '\n' +
+    c.jours + ' jour' + (c.jours > 1 ? 's' : '') + ' de lecture offerts, à partir de son utilisation.\nTouchez ce lien pour en profiter : ' + lienCode(c) + '\nBonne lecture !';
+  return 'Bonjour' + (nom ? ' ' + nom : '') + ', voici votre code de lecture APEL Éditions : ' + c.affiche + '\n' +
+    'Formule : ' + FORMULES[c.type] + ', à partir de la première utilisation (sur 2 appareils au plus).\n' +
+    'Touchez ce lien pour l’activer : ' + lienCode(c) + '\nBonne lecture dans le Salon !';
+}
+function lienWaCode(c) { return 'https://wa.me/' + numeroDans(c.note) + '?text=' + encodeURIComponent(messageCode(c)); }
+function boutonsCode(c) {
+  return '<button type="button" class="btn btn-verre btn-petit" data-copier="' + esc(c.code) + '">Copier</button>' +
+    '<a class="btn btn-primaire btn-petit" target="_blank" rel="noopener" href="' + esc(lienWaCode(c)) + '">' + (numeroDans(c.note) ? 'Envoyer sur WhatsApp' : 'WhatsApp') + '</a>';
+}
+function trouverCode(k) {
+  var l = derniersCodes.concat((donnees && donnees.codes) || []);
+  for (var i = 0; i < l.length; i++) if (l[i].code === k) return l[i];
+  return null;
+}
+function vueCodes() {
+  var d = donnees, codes = d.codes || [];
+  var neufs = codes.filter(function (c) { return c.etat === 'neuf'; }).length;
+  var q = recherche.toLowerCase();
+  var liste = codes.filter(function (c) {
+    if (filtre === 'promo' && c.type !== 'promo') return false;
+    if (filtre !== 'tous' && filtre !== 'promo' && c.etat !== filtre) return false;
+    return !q || (c.affiche + ' ' + (c.note || '') + ' ' + c.type).toLowerCase().indexOf(q) >= 0;
+  });
+  return '<div class="chiffres"><div><b>' + d.lecteursActifs + '</b><span>appareils avec un code actif</span></div><div><b>' + neufs + '</b><span>codes pas encore utilisés</span></div><div><b>' + (d.livres || []).length + '</b><span>livres dans le Salon</span></div></div>' +
+    '<section class="carte"><h2>Code pour un lecteur</h2><p class="muet">Après le paiement reçu (Orange Money, MTN MoMo…), créez son code puis envoyez-le-lui sur WhatsApp. La durée commence à sa première utilisation.</p>' +
+    '<div class="choix-type" role="group" aria-label="Durée">' + Object.keys(FORMULES).map(function (k) { return '<button type="button" data-type="' + k + '" aria-pressed="' + (typeCode === k) + '">' + FORMULES[k] + '<small>' + esc(((d.reglages || {})['prix_' + k]) || 'tarif à régler') + '</small></button>'; }).join('') + '</div>' +
+    '<div class="ligne2"><div><label for="note">Lecteur (nom et numéro WhatsApp, facultatif)</label><input type="text" id="note" maxlength="120" placeholder="Ex. Marie 6 77 12 34 56"></div>' +
+    '<div><label for="nombre">Nombre de codes</label><input type="number" id="nombre" min="1" max="50" value="1"></div></div>' +
+    '<div class="actions"><button type="button" class="btn btn-primaire" id="creer">Créer le code</button></div><div id="crees">' + derniersCodes.map(function (c) {
+      return '<div class="code-cree"><b>' + esc(c.affiche) + '</b><p class="muet" style="margin:4px 0 0">' + esc(c.type === 'promo' ? 'Code promo · ' + c.jours + ' jours' : FORMULES[c.type]) + (c.note ? ' · ' + esc(c.note) : '') + '</p><div class="actions">' + boutonsCode(c) + '</div></div>';
+    }).join('') + '</div></section>' +
+    '<section class="carte"><h2>Code promo</h2><p class="muet">Un mot facile à retenir (ex. RENTREE2026), partagé à tous : chaque lecteur qui l’utilise reçoit des jours de lecture offerts.</p>' +
+    '<div class="ligne2"><div><label for="promo-mot">Mot du code</label><input type="text" id="promo-mot" maxlength="24" placeholder="RENTREE2026" style="text-transform:uppercase"></div>' +
+    '<div><label for="promo-jours">Jours de lecture offerts</label><input type="number" id="promo-jours" min="1" max="365" value="3"></div></div>' +
+    '<div class="ligne2"><div><label for="promo-max">Nombre de lecteurs au plus (0 = sans limite)</label><input type="number" id="promo-max" min="0" value="50"></div>' +
+    '<div><label for="promo-fin">Valable jusqu’au (facultatif)</label><input type="date" id="promo-fin"></div></div>' +
+    '<label for="promo-note">Note (facultatif)</label><input type="text" id="promo-note" maxlength="120" placeholder="Ex. Salon du livre de Yaoundé">' +
+    '<div class="actions"><button type="button" class="btn btn-primaire" id="creer-promo">Créer le code promo</button></div></section>' +
+    '<section class="carte"><h2>Tous les codes</h2><label for="cherche-code" class="sr">Chercher un code</label><input type="text" id="cherche-code" placeholder="Chercher un code ou un lecteur" value="' + esc(recherche) + '">' +
+    '<div class="filtres" role="group" aria-label="Filtrer">' + [['tous', 'Tous'], ['actif', 'Actifs'], ['neuf', 'Pas encore utilisés'], ['fini', 'Terminés'], ['promo', 'Promos'], ['revoque', 'Révoqués']].map(function (f) {
+      return '<button type="button" data-filtre="' + f[0] + '" aria-pressed="' + (filtre === f[0]) + '">' + f[1] + '</button>';
+    }).join('') + '</div>' +
+    (liste.length ? '<ul class="liste">' + liste.map(function (c) {
+      var e = etatTexte(c);
+      return '<li><div class="infos"><span class="code">' + esc(c.affiche) + '</span><span class="etat etat-' + e[0] + '">' + esc(c.type === 'promo' ? 'Promo ' + c.jours + ' j' : FORMULES[c.type] || c.type) + '</span>' +
+        '<small>' + esc(e[1]) + (c.note ? ' · ' + esc(c.note) : '') + ' · créé le ' + esc(date(c.cree)) + '</small></div><div class="actions" style="margin:0">' +
+        (c.etat !== 'revoque' && c.etat !== 'fini' ? boutonsCode(c) : '') +
+        '<button type="button" class="btn btn-verre btn-petit" data-revoquer="' + esc(c.code) + '"' + (c.etat === 'revoque' ? ' data-annuler="1">Rétablir' : '>Révoquer') + '</button></div></li>';
+    }).join('') + '</ul>' : '<p class="muet">Aucun code ici pour l’instant.</p>') + '</section>';
+}
+
+/* ---------- Livres du Salon ---------- */
+function catalogue() { return ((window.APEL_DEFAUT && window.APEL_DEFAUT.livres) || []).filter(function (l) { return l.id && l.titre; }); }
+function vueLivres() {
+  if (editeur) return vueEditeur();
+  var l = donnees.livres || [];
+  return '<section class="carte"><h2>Livres à lire en ligne</h2><p class="muet">Préparez le livre dans Word (un « Titre 1 » par chapitre), importez le fichier, vérifiez les chapitres, puis publiez. Le texte reste privé : il n’est jamais mis dans GitHub.</p>' +
+    '<div class="actions"><button type="button" class="btn btn-primaire" data-livre="">Ajouter un livre</button><a class="btn btn-verre" href="assets/modele-salon-apel.docx" download>Télécharger le modèle Word</a></div></section>' +
+    (l.length ? '<section class="carte"><ul class="liste">' + l.map(function (x) {
+      return '<li><div class="infos"><b>' + esc(x.titre) + '</b>' + (x.visible ? '' : '<span class="etat etat-fini">Masqué</span>') + '<small>' + esc([x.auteur, x.chapitres + ' chapitre' + (x.chapitres > 1 ? 's' : ''), mille(x.mots) + ' mots', x.gratuits + ' offert' + (x.gratuits > 1 ? 's' : ''), x.majChapitres ? 'mis à jour le ' + date(x.majChapitres) : ''].filter(Boolean).join(' · ')) + '</small></div>' +
+        '<div class="actions" style="margin:0"><a class="btn btn-verre btn-petit" href="./#/lire/' + encodeURIComponent(x.id) + '" target="_blank" rel="noopener">Voir</a><button type="button" class="btn btn-primaire btn-petit" data-livre="' + esc(x.id) + '">Modifier</button></div></li>';
+    }).join('') + '</ul></section>' : '');
+}
+function ouvrirEditeur(id) {
+  var x = (donnees.livres || []).filter(function (l) { return l.id === id; })[0];
+  editeur = x ? { existant: true, livre: { id: x.id, titre: x.titre, auteur: x.auteur || '', resume: x.resume || '', gratuits: x.gratuits, visible: !!x.visible, ordre: x.ordre || 0 }, nbChapitres: x.chapitres, import: null, mode: 'remplacer', anciens: null }
+    : { existant: false, livre: { id: '', titre: '', auteur: '', resume: '', gratuits: 1, visible: true, ordre: 0 }, nbChapitres: 0, import: null, mode: 'remplacer', anciens: null };
+  rendre();
+  if (x) appel('GET', null, 'action=chapitres&livre=' + encodeURIComponent(x.id)).then(function (d) { if (editeur && editeur.livre.id === x.id) editeur.anciens = d.chapitres; }).catch(function () {});
+}
+function vueEditeur() {
+  var e = editeur, l = e.livre, cat = catalogue();
+  var choix = e.existant ? '' : '<label for="ed-cat">Livre du catalogue</label><select id="ed-cat"><option value="">— Choisir un livre de la bibliothèque —</option>' + cat.map(function (c) { return '<option value="' + esc(c.id) + '"' + (c.id === l.id ? ' selected' : '') + '>' + esc(c.titre + (c.auteur ? ' · ' + c.auteur : '')) + '</option>'; }).join('') + '<option value="autre">Autre livre (pas encore dans la bibliothèque)</option></select>';
+  var imp = e.import;
+  return '<section class="carte"><button type="button" class="btn btn-verre btn-petit" data-fermer-editeur>← Retour à la liste</button>' +
+    '<h2 style="margin-top:12px">' + (e.existant ? 'Modifier « ' + esc(l.titre) + ' »' : 'Ajouter un livre au Salon') + '</h2>' + choix +
+    '<div class="ligne2"><div><label for="ed-titre">Titre</label><input type="text" id="ed-titre" maxlength="160" value="' + esc(l.titre) + '"></div>' +
+    '<div><label for="ed-auteur">Auteur</label><input type="text" id="ed-auteur" maxlength="120" value="' + esc(l.auteur) + '"></div></div>' +
+    '<label for="ed-id">Code du livre (lettres minuscules et tirets ; le même que dans la bibliothèque pour garder la couverture)</label><input type="text" id="ed-id" maxlength="80" value="' + esc(l.id) + '"' + (e.existant ? ' readonly' : '') + ' placeholder="ex. souhaits-maudits">' +
+    '<label for="ed-resume">Résumé (accroche du Salon)</label><textarea id="ed-resume" maxlength="1500">' + esc(l.resume) + '</textarea>' +
+    '<div class="ligne3"><div><label for="ed-gratuits">Chapitres offerts</label><input type="number" id="ed-gratuits" min="0" max="50" value="' + l.gratuits + '"></div>' +
+    '<div><label for="ed-ordre">Ordre dans le Salon</label><input type="number" id="ed-ordre" min="0" max="9999" value="' + l.ordre + '"></div>' +
+    '<div><label class="case" style="margin-top:34px"><input type="checkbox" id="ed-visible"' + (l.visible ? ' checked' : '') + '> Visible</label></div></div></section>' +
+    '<section class="carte"><h2>Texte du livre (fichier Word)</h2>' +
+    (e.existant ? '<p class="muet">' + e.nbChapitres + ' chapitre' + (e.nbChapitres > 1 ? 's' : '') + ' en ligne. Importez un fichier pour tout remplacer, ou pour ajouter les nouveaux chapitres à la suite (feuilleton).</p>' +
+      '<div class="filtres" role="group" aria-label="Mode d’import"><button type="button" data-mode="remplacer" aria-pressed="' + (e.mode === 'remplacer') + '">Remplacer tout le livre</button><button type="button" data-mode="ajouter" aria-pressed="' + (e.mode === 'ajouter') + '">Ajouter à la suite</button></div>'
+      : '<p class="muet">Un chapitre = un paragraphe de style « Titre 1 » dans Word (sinon, une ligne qui commence par « Chapitre »). Gras, italique, centrage et séparateurs *** sont gardés.</p>') +
+    '<label for="ed-fichier" class="btn btn-verre" style="display:inline-flex;margin-top:4px">Choisir le fichier Word (.docx)</label><input type="file" id="ed-fichier" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="sr">' +
+    '<p class="message ko" id="ed-erreur" role="alert" hidden></p>' +
+    (imp ? '<div style="margin-top:12px"><h3>' + imp.chapitres.length + ' chapitre' + (imp.chapitres.length > 1 ? 's' : '') + ' trouvé' + (imp.chapitres.length > 1 ? 's' : '') + ' dans « ' + esc(imp.fichier) + ' »</h3><p class="muet">Décochez ce qu’il ne faut pas publier (page de titre, remerciements…) et corrigez les titres si besoin.</p><div>' +
+      imp.chapitres.map(function (c, i) {
+        var debut = (c.blocs.filter(function (b) { return b.r; })[0] || { r: [['']] }).r.map(function (x) { return x[0]; }).join('').slice(0, 110);
+        return '<div class="chap"><div class="chap-tete"><input type="checkbox" data-garder="' + i + '"' + (c.garder ? ' checked' : '') + ' aria-label="Publier ce chapitre"><label class="sr" for="chap-' + i + '">Titre du chapitre ' + (i + 1) + '</label><input type="text" id="chap-' + i + '" data-titre="' + i + '" value="' + esc(c.titre) + '" maxlength="160"></div>' +
+          '<small>' + mille(c.mots) + ' mots · ' + esc(debut) + (debut.length >= 110 ? '…' : '') + ' · <button type="button" class="btn-lien" data-apercu="' + i + '" style="background:none;border:0;color:var(--jaune-clair);text-decoration:underline;cursor:pointer;padding:0">' + (c.ouvert ? 'Masquer' : 'Aperçu') + '</button></small>' +
+          (c.ouvert ? '<div class="apercu">' + apercu(c.blocs) + '</div>' : '') + '</div>';
+      }).join('') + '</div></div>' : '') + '</section>' +
+    '<div class="actions"><button type="button" class="btn btn-primaire" id="ed-publier">' + (imp ? 'Publier dans le Salon' : 'Enregistrer') + '</button>' +
+    (e.existant ? '<button type="button" class="btn btn-danger" id="ed-supprimer">Retirer du Salon</button>' : '') + '</div><p class="message" id="ed-message" hidden></p>';
+}
+function apercu(blocs) {
+  return blocs.slice(0, 60).map(function (b) {
+    if (b.s === 'sep') return '<p class="c">✦ ✦ ✦</p>';
+    var h = b.r.map(function (x) { var t = esc(x[0]).replace(/\n/g, '<br>'); if (x[1] & 2) t = '<em>' + t + '</em>'; if (x[1] & 1) t = '<strong>' + t + '</strong>'; return t; }).join('');
+    return b.s === 'h' ? '<p class="c"><strong>' + h + '</strong></p>' : '<p class="' + (b.s === 'c' ? 'c' : b.s === 'q' ? 'q' : '') + '">' + h + '</p>';
+  }).join('') + (blocs.length > 60 ? '<p class="c">…</p>' : '');
+}
+function lireChamps() {
+  var l = editeur.livre;
+  ['titre', 'auteur', 'resume'].forEach(function (k) { var c = $('ed-' + k); if (c) l[k] = c.value; });
+  if (!editeur.existant && $('ed-id')) l.id = $('ed-id').value.trim().toLowerCase();
+  l.gratuits = parseInt($('ed-gratuits').value, 10) || 0;
+  l.ordre = parseInt($('ed-ordre').value, 10) || 0;
+  l.visible = $('ed-visible').checked;
+}
+function codeDepuis(titre) { return String(titre || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60); }
+function brancherEditeur() {
+  var cat = $('ed-cat');
+  if (cat) cat.addEventListener('change', function () {
+    lireChamps();
+    var c = catalogue().filter(function (x) { return x.id === cat.value; })[0];
+    if (c) { editeur.livre.id = c.id; editeur.livre.titre = c.titre; editeur.livre.auteur = c.auteur || ''; editeur.livre.resume = c.resume_fr || editeur.livre.resume; }
+    else if (cat.value === 'autre') { editeur.livre.id = ''; }
+    rendre();
+  });
+  var titre = $('ed-titre');
+  if (titre && !editeur.existant) titre.addEventListener('input', function () { var id = $('ed-id'); if (id && (!id.value || id.dataset.auto)) { id.value = codeDepuis(titre.value); id.dataset.auto = '1'; } });
+  $('ed-fichier').addEventListener('change', function (ev) {
+    var f = ev.target.files && ev.target.files[0], err = $('ed-erreur');
+    if (!f) return;
+    lireChamps(); err.hidden = true;
+    if (!/\.docx$/i.test(f.name)) { err.hidden = false; err.textContent = 'Choisissez un fichier .docx. Un ancien fichier .doc s’enregistre en .docx dans Word : Fichier > Enregistrer sous > Document Word (.docx).'; return; }
+    window.APEL_WORD.lire(f).then(function (r) {
+      // Le texte avant le premier chapitre (page de titre, dédicace…) n'est gardé que s'il est long.
+      r.chapitres.forEach(function (c) { c.garder = !c.avant || c.mots >= 150 || r.chapitres.length === 1; });
+      editeur.import = { fichier: f.name, chapitres: r.chapitres };
+      if (!editeur.livre.titre && r.titre) editeur.livre.titre = r.titre;
+      if (!editeur.livre.id && editeur.livre.titre && !editeur.existant) editeur.livre.id = codeDepuis(editeur.livre.titre);
+      rendre();
+    }).catch(function (e) { err.hidden = false; err.textContent = e.message; });
+  });
+  $('ed-publier').addEventListener('click', publier);
+  var sup = $('ed-supprimer');
+  if (sup) sup.addEventListener('click', function () {
+    if (!sup.dataset.confirmer) { sup.dataset.confirmer = '1'; sup.textContent = 'Confirmer : retirer le livre et ses chapitres'; return; }
+    var fin = occupe(sup);
+    appel('POST', { action: 'supprimer', id: editeur.livre.id }).then(function () { editeur = null; toast('Livre retiré du Salon'); return charger(); }).catch(function (e) { fin(); afficherMessage(e.message, false); });
+  });
+}
+function afficherMessage(t, ok) { var m = $('ed-message'); if (!m) { toast(t); return; } m.hidden = false; m.className = 'message ' + (ok ? 'ok' : 'ko'); m.textContent = t; }
+function publier() {
+  lireChamps();
+  var e = editeur, l = e.livre, corps = { action: 'livre', livre: l };
+  if (!l.titre.trim()) return afficherMessage('Donnez un titre au livre.', false);
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(l.id)) return afficherMessage('Code du livre : lettres minuscules, chiffres et tirets seulement (ex. souhaits-maudits).', false);
+  if (e.import) {
+    var garde = e.import.chapitres.filter(function (c) { return c.garder; });
+    if (!garde.length) return afficherMessage('Cochez au moins un chapitre à publier.', false);
+    // Un chapitre inchangé garde sa date de publication : seuls les nouveaux sont signalés « Nouveau » aux lecteurs.
+    var anciens = {};
+    (e.anciens || []).forEach(function (a) { anciens[a.titre + '|' + JSON.stringify(a.blocs)] = a; });
+    corps.chapitres = garde.map(function (c) { var a = anciens[c.titre + '|' + JSON.stringify(c.blocs)]; return { titre: c.titre, blocs: c.blocs, ancien: a ? a.maj : 0 }; });
+    corps.mode = e.existant ? e.mode : 'remplacer';
+  } else if (!e.existant) return afficherMessage('Importez le fichier Word du livre.', false);
+  var fin = occupe($('ed-publier'), 'Publication…');
+  appel('POST', corps).then(function (r) {
+    editeur = null;
+    toast(r.chapitres ? 'Publié : ' + r.chapitres + ' chapitre' + (r.chapitres > 1 ? 's' : '') + ' en ligne' : 'Enregistré');
+    return charger();
+  }).catch(function (er) { fin(); afficherMessage(er.message, false); });
+}
+
+/* ---------- Tarifs ---------- */
+function vueReglages() {
+  var r = donnees.reglages || {};
+  return '<section class="carte"><h2>Tarifs des codes de lecture</h2><p class="muet">Affichés aux lecteurs quand ils demandent un code. Laissez vide pour « tarif sur WhatsApp ».</p>' +
+    '<div class="ligne3"><div><label for="prix-jour">24 heures</label><input type="text" id="prix-jour" maxlength="40" placeholder="ex. 200 FCFA" value="' + esc(r.prix_jour || '') + '"></div>' +
+    '<div><label for="prix-semaine">1 semaine</label><input type="text" id="prix-semaine" maxlength="40" placeholder="ex. 1 000 FCFA" value="' + esc(r.prix_semaine || '') + '"></div>' +
+    '<div><label for="prix-mois">1 mois</label><input type="text" id="prix-mois" maxlength="40" placeholder="ex. 3 000 FCFA" value="' + esc(r.prix_mois || '') + '"></div></div>' +
+    '<label for="accueil">Mot d’accueil du Salon (facultatif)</label><textarea id="accueil" maxlength="400" placeholder="Ex. Cette semaine : 2 nouveaux chapitres de Souhaits maudits !">' + esc(r.accueil || '') + '</textarea>' +
+    '<div class="actions"><button type="button" class="btn btn-primaire" id="enregistrer-reglages">Enregistrer</button></div></section>';
+}
+
+/* ---------- Gérants ---------- */
+function vueGerants() {
+  var d = donnees, g = d.gerants || [];
+  return '<section class="carte"><h2>Gérants</h2><p class="muet">Propriétaire : ' + esc(d.proprietaire) + '. Les gérants créent des codes et publient des livres. Seul le propriétaire en ajoute ou en retire.</p>' +
+    (g.length ? '<ul class="liste">' + g.map(function (x) {
+      return '<li><div class="infos"><b>' + esc(x.email) + '</b><small>' + (x.statut === 'actif' ? 'Actif depuis le ' : 'Invité le ') + esc(x.depuis || '') + '</small></div>' +
+        (d.estProprietaire ? '<button type="button" class="btn btn-danger btn-petit" data-retirer="' + esc(x.email) + '">Retirer</button>' : '') + '</li>';
+    }).join('') + '</ul>' : '<p class="muet">Aucun gérant pour l’instant.</p>') +
+    (d.estProprietaire ? '<label for="invite">Ajouter un gérant (adresse Gmail)</label><input type="email" id="invite" placeholder="prenom.nom@gmail.com"><div class="actions"><button type="button" class="btn btn-primaire" id="inviter">Ajouter</button></div>' : '') + '</section>';
+}
+
+/* ---------- Clics ---------- */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('button,a');
+  if (!b) return;
+  var v;
+  if ((v = b.getAttribute('data-onglet'))) { onglet = v; editeur = null; rendre(); return; }
+  if ((v = b.getAttribute('data-type'))) { typeCode = v; [].forEach.call(document.querySelectorAll('[data-type]'), function (x) { x.setAttribute('aria-pressed', String(x === b)); }); return; }
+  if ((v = b.getAttribute('data-filtre'))) { filtre = v; rendre(); return; }
+  if ((v = b.getAttribute('data-copier'))) { var c = trouverCode(v); if (c) copier(messageCode(c)); return; }
+  if ((v = b.getAttribute('data-revoquer'))) {
+    var annuler = !!b.getAttribute('data-annuler');
+    if (!annuler && !b.dataset.confirmer) { b.dataset.confirmer = '1'; b.textContent = 'Confirmer'; return; }
+    var f = occupe(b);
+    appel('POST', { action: 'revoquer', code: v, annuler: annuler }).then(function () { toast(annuler ? 'Code rétabli' : 'Code révoqué : la lecture est coupée'); return charger(); }).catch(function (er) { f(); toast(er.message); });
+    return;
+  }
+  if (b.hasAttribute('data-livre')) { ouvrirEditeur(b.getAttribute('data-livre')); return; }
+  if (b.hasAttribute('data-fermer-editeur')) { editeur = null; rendre(); return; }
+  if ((v = b.getAttribute('data-mode'))) { lireChamps(); editeur.mode = v; rendre(); return; }
+  if ((v = b.getAttribute('data-apercu'))) { lireChamps(); var ch = editeur.import.chapitres[+v]; ch.ouvert = !ch.ouvert; rendre(); return; }
+  if ((v = b.getAttribute('data-retirer'))) {
+    if (!b.dataset.confirmer) { b.dataset.confirmer = '1'; b.textContent = 'Confirmer'; return; }
+    appel('POST', { action: 'retirer', email: v }).then(function () { toast('Gérant retiré'); return charger(); }).catch(function (er) { toast(er.message); });
+    return;
+  }
+  switch (b.id) {
+    case 'creer': {
+      var fin = occupe(b, 'Création…');
+      appel('POST', { action: 'codes', type: typeCode, nombre: $('nombre').value, note: $('note').value }).then(function (r) {
+        derniersCodes = r.codes; toast(r.codes.length > 1 ? r.codes.length + ' codes créés' : 'Code créé'); return charger();
+      }).catch(function (er) { fin(); toast(er.message); });
+      break;
+    }
+    case 'creer-promo': {
+      var fp = occupe(b, 'Création…');
+      appel('POST', { action: 'promo', mot: $('promo-mot').value, jours: $('promo-jours').value, max: $('promo-max').value, jusqua: $('promo-fin').value, note: $('promo-note').value }).then(function (r) {
+        derniersCodes = [Object.assign({ note: $('promo-note').value }, r.code)]; toast('Code promo créé'); return charger();
+      }).catch(function (er) { fp(); toast(er.message); });
+      break;
+    }
+    case 'enregistrer-reglages': {
+      var fr = occupe(b, 'Enregistrement…');
+      appel('POST', { action: 'reglages', reglages: { prix_jour: $('prix-jour').value, prix_semaine: $('prix-semaine').value, prix_mois: $('prix-mois').value, accueil: $('accueil').value } })
+        .then(function () { toast('Tarifs enregistrés'); return charger(); }).catch(function (er) { fr(); toast(er.message); });
+      break;
+    }
+    case 'inviter':
+      appel('POST', { action: 'inviter', email: $('invite').value }).then(function () { toast('Gérant ajouté : il peut se connecter avec ce Gmail'); return charger(); }).catch(function (er) { toast(er.message); });
+      break;
+    case 'pass': {
+      var fpass = occupe(b);
+      var a = localStorage.getItem('apel-appareil');
+      if (!/^[a-z0-9]{16,40}$/.test(a || '')) { a = ''; for (var i = 0; i < 24; i++) a += Math.floor(Math.random() * 36).toString(36); localStorage.setItem('apel-appareil', a); }
+      appel('POST', { action: 'pass', appareil: a }).then(function (r) {
+        localStorage.setItem('apel-pass', JSON.stringify({ jeton: r.jeton, fin: r.fin, formule: r.formule, type: r.type }));
+        fpass(); toast('Pass gérant actif 12 heures sur cet appareil');
+      }).catch(function (er) { fpass(); toast(er.message); });
+      break;
+    }
+    case 'deconnexion': deconnecter(); break;
+  }
+});
+document.addEventListener('change', function (e) {
+  var g = e.target.getAttribute && e.target.getAttribute('data-garder');
+  if (g != null && editeur && editeur.import) editeur.import.chapitres[+g].garder = e.target.checked;
+});
+document.addEventListener('input', function (e) {
+  var t = e.target.getAttribute && e.target.getAttribute('data-titre');
+  if (t != null && editeur && editeur.import) editeur.import.chapitres[+t].titre = e.target.value;
+  if (e.target.id === 'cherche-code') {
+    recherche = e.target.value;
+    var pos = e.target.selectionStart; rendre();
+    var c = $('cherche-code'); if (c) { c.focus(); try { c.setSelectionRange(pos, pos); } catch (er) {} }
+  }
+});
+
+/* ---------- Démarrage ---------- */
+try { gerant = JSON.parse(sessionStorage.getItem('apel-gerant') || 'null'); } catch (e) { gerant = null; }
+if (gerant && gerant.expire * 1000 > Date.now()) charger(); else { gerant = null; montrer('connexion'); preparerGoogle(); }
+})();
