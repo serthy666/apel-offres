@@ -11,6 +11,27 @@
   },
   "produits": [
     {
+      "id": "pmw14ziyu4jck",
+      "nom": "Brume Crush",
+      "rayon": "parfums",
+      "categorie": "Parfums",
+      "marque": "",
+      "details": "Rafraîchir le corps durant la journée et même au couchée.",
+      "options": "100ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 1000,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw14ziyu4jck-mw1534kjcscm.jpg",
+        "photos/pmw14ziyu4jck-mw1534lz86xv.jpg"
+      ]
+    },
+    {
       "id": "pmw14x5fudlij",
       "nom": "Vanilla voyage et Way milk",
       "rayon": "parfums",
