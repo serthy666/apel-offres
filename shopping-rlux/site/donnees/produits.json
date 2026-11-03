@@ -11,6 +11,28 @@
   },
   "produits": [
     {
+      "id": "pmw15lums0v09",
+      "nom": "Crème mixa cica, Niacinamide, céramide",
+      "rayon": "soins",
+      "categorie": "Laits de toilette",
+      "marque": "",
+      "details": "Unifie le teint, lisse la texture de la peau, estompe les tâches pigmentaires, repare",
+      "options": "400ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 5500,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw15lums0v09-mw15mgum0h19.jpg",
+        "photos/pmw15lums0v09-mw15mgxrymaz.jpg",
+        "photos/pmw15lums0v09-mw15mgzubd0t.jpg"
+      ]
+    },
+    {
       "id": "pmw156eiata1k",
       "nom": "Masque de visage",
       "rayon": "soins",
