@@ -11,6 +11,26 @@
   },
   "produits": [
     {
+      "id": "pmw14qrp43oc2",
+      "nom": "Ruth-Valérie et les esprits errants",
+      "rayon": "livres",
+      "categorie": "Romans",
+      "marque": "",
+      "details": "Résumé : Sur cette terre, chacun a un don. Il peut être physique ou spirituel. Personne ne le choisit. Ruth-Valérie est un jeune homme qui ne rêvait que de la vie facile, argent, femme, boisson...il est choisi comme élu et voit sa vie basculée en un seul clin d'œil. Il découvre qu'il a des dons physiques et spirituels qui n'ont rien avoir avec la vie qu'il aurait voulu avoir. Il se retrouve donc dans l'obligation de se ranger du côté de la lumière pour sauver des vies humaines et, aider des esprits coincés encore dans le monde réel.",
+      "options": "",
+      "auteur": "Robyn Tyo’o",
+      "lien": "",
+      "prix": 2000,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw14qrp43oc2-mw14rv8xw2s0.jpg"
+      ]
+    },
+    {
       "id": "pmw14njxv3gw1",
       "nom": "Choco musk",
       "rayon": "parfums",
