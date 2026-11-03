@@ -75,6 +75,11 @@ try {
   const colle = await p.evaluate(() => APEL_TEXTES.lireColle("Chapitre 1\n\nBonjour **Douala**.\n\nChapitre 2\n\nAu revoir."));
   assert.deepEqual(colle.chapitres.map(c => c.titre), ["Chapitre 1", "Chapitre 2"]);
   console.log("• texte collé");
+  const faux = await p.evaluate(() => APEL_TEXTES.lireColle("Chapitre 1\n\nIl marchait.\n\npartie des sorts et on n'entend plus rien.\n\nLa nuit tomba.\n\nScène étrange. Une lueur blanche.\n\nLe hibou cria.\n\nPartie de chasse au village.\n\nTout le monde courut.\n\nChapitre un peu long à lire.\n\nIl dormit.\n\nCHAPITRE II\n\nFin."));
+  assert.deepEqual(faux.chapitres.map(c => c.titre), ["Chapitre 1", "CHAPITRE II"], "faux titres : " + JSON.stringify(faux.chapitres.map(c => c.titre)));
+  const titres = await p.evaluate(() => ["Chapitre premier", "Partie deux : le retour", "Acte II", "Prologue", "Épilogue : le retour", "partie des sorts", "Partie civile"].map(APEL_TEXTES.estTitreChapitre));
+  assert.deepEqual(titres, [true, true, true, true, true, false, false]);
+  console.log("• lignes qui commencent par « partie », « scène »… : pas des titres");
 
   // Livre mis en page comme un PDF imprimé : page de titre, épigraphe, dédicace seule sur sa page,
   // puis « Chapitre I » en haut de page, texte justifié (cas du Sort des Hiboux Boiteux).
@@ -87,7 +92,10 @@ try {
       { saut: true, aligne: "right", runs: [["À ma famille", "i"]] },
       { saut: true, centre: true, runs: [["Chapitre I", "b"]] },
       "« Abe, viens ici ! »",
-      { aligne: "both", runs: [[long, ""]] }, { aligne: "both", runs: [[long + " " + long, ""]] },
+      { aligne: "both", runs: [[long, ""]] },
+      // Lignes de texte qui commencent par « partie », « Scène »… : ce ne sont pas des titres.
+      "partie des sorts et on n'entend plus rien.", "Scène étrange. Une lueur blanche passa.", "Partie de chasse au village.",
+      { aligne: "both", runs: [[long + " " + long, ""]] },
       { saut: true, centre: true, runs: [["Chapitre II", "b"]] },
       { aligne: "both", runs: [["Mon père me donna le nom d'Abenem, mauvais cœur, le jour de ma naissance. " + long, ""]] }
     ]));
@@ -101,6 +109,7 @@ try {
     const ch1 = r.find(c => c.titre === "Chapitre I").blocs;
     assert.equal(ch1[0].r[0][0], "« Abe, viens ici ! »");
     assert.ok(ch1.slice(1).every(b => b.s === "p"), "texte justifié jamais centré : " + JSON.stringify(ch1.map(b => b.s)));
+    assert.ok(JSON.stringify(ch1).includes("partie des sorts") && JSON.stringify(ch1).includes("Scène étrange"), "les lignes « partie… », « Scène… » restent dans le chapitre");
     await p.evaluate(() => document.getElementById("essai").remove());
     console.log("• pdf imprimé (dédicace, Chapitre I en haut de page)");
   }

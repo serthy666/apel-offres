@@ -466,13 +466,13 @@ function lirePdf(octets) {
     var ecarts = []; for (var i = 1; i < toutes.length; i++) if (toutes[i].page === toutes[i - 1].page) ecarts.push(toutes[i - 1].y - toutes[i].y);
     var ecart = mediane(ecarts.filter(function (e) { return e > 0; })) || hMed * 1.4;
     var gauche = mediane(toutes.map(function (l) { return l.x; })), droite = mediane(toutes.map(function (l) { return l.fin; }));
-    var avecMot = toutes.some(function (l) { return MOT_CHAPITRE.test(l.texte) && l.texte.length < 100; });
+    var avecMot = toutes.some(function (l) { return estTitreChapitre(l.texte); });
     var res = [], cour = null, largeur = droite - gauche;
     toutes.forEach(function (l, i) {
       var prec = toutes[i - 1], t = l.texte.replace(/\s+/g, ' ').trim();
       var grand = l.h >= hMed * 1.35 && t.length < 80;
       // Une ligne « Chapitre I », « Prologue »… est toujours un paragraphe à elle seule.
-      var titre = MOT_CHAPITRE.test(t) && t.length < 60;
+      var titre = estTitreChapitre(t) && t.length < 60;
       var courte = prec && prec.fin < droite - largeur * 0.15;
       var nouveau = !prec || !cour || grand || cour.grand || titre || cour.titre ||
         (prec.page === l.page && prec.y - l.y > ecart * 1.45) ||
@@ -497,7 +497,20 @@ function lirePdf(octets) {
 }
 
 /* ---------- Découpe en chapitres ---------- */
-var MOT_CHAPITRE = /^\s*(chapitre|chapter|chap\.|partie|prologue|[ée]pilogue|epilogue|introduction|avant-propos|acte|sc[èe]ne)\b/i;
+// Titre de chapitre écrit dans le texte (sans style de titre) : une ligne courte qui commence par une majuscule et
+// qui est soit numérotée (« Chapitre XII », « Partie 2 », « Acte I », « Chapitre premier »), soit un mot seul
+// (« Prologue », « Épilogue : le retour »). Une phrase coupée en fin de ligne (« partie des sorts et… »,
+// « Scène étrange. Une lueur… ») n'est donc jamais prise pour un titre.
+var NOMBRE_EN_LETTRES = '(premier|premi[èe]re|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|dix-sept|dix-huit|dix-neuf|vingt\\S*|trente\\S*|quarante\\S*|cinquante\\S*|dernier|derni[èe]re|final)';
+// En chiffres ou en romain : « Chapitre 12 », « Chapitre XII ». En lettres : seulement en fin de ligne ou avant « : », « - »
+// (« Chapitre premier », « Partie deux : le retour », mais pas « Chapitre un peu long »).
+var TITRE_NUMEROTE = new RegExp('^(chapitre|chapter|chap\\.|partie|livre|tome|acte|sc[èe]ne)\\s+((\\d{1,3}|[IVXLCDM]{1,7})(?![0-9A-Za-zÀ-ÿ])|' + NOMBRE_EN_LETTRES + '\\s*($|[:.,–—-]))', 'i');
+var TITRE_SEUL = /^(prologue|[ée]pilogue|epilogue|introduction|avant-propos|pr[ée]face|postface|conclusion)\s*([.:–—-].{0,80})?$/i;
+function estTitreChapitre(t) {
+  t = String(t || '').replace(/\s+/g, ' ').trim();
+  if (!t || t.length > 100 || !/^[A-ZÀ-ÖØ-Þ]/.test(t)) return false;
+  return TITRE_NUMEROTE.test(t) || TITRE_SEUL.test(t);
+}
 function compterMots(t) { return (t.match(/[A-Za-zÀ-ÿ0-9]+(?:['’-][A-Za-zÀ-ÿ0-9]+)*/g) || []).length; }
 function bloc(p, sousTitre) {
   if (/^[\s*#~•·—–_=-]{1,20}$/.test(p.texte) && /[*#~•·]/.test(p.texte)) return { s: 'sep' };
@@ -512,7 +525,7 @@ function decouper(ps, nomFichier) {
   var titreDoc = '', chapitres = [], cour = null;
   ps.forEach(function (p) {
     if (p.niveau === 0 && !titreDoc && !chapitres.length && !cour) { titreDoc = p.texte.trim(); return; }
-    var debut = coupe ? p.niveau === coupe : (MOT_CHAPITRE.test(p.texte) && p.texte.length < 100);
+    var debut = coupe ? p.niveau === coupe : estTitreChapitre(p.texte);
     if (debut) { cour = { titre: p.texte.replace(/\s+/g, ' ').trim().slice(0, 160), blocs: [] }; chapitres.push(cour); return; }
     if (!cour) { cour = { titre: '', blocs: [], avant: true }; chapitres.push(cour); }
     cour.blocs.push(bloc(p, coupe && p.niveau > coupe));
@@ -609,7 +622,8 @@ window.APEL_TEXTES = {
   // Texte collé dans l'Espace gérant (les marques Markdown # ** _ > sont comprises).
   lireColle: function (texte, nom) { return finir(lireTexte(texte, true), nom || 'Texte collé'); },
   decouper: decouper,
-  decouperLong: decouperLong
+  decouperLong: decouperLong,
+  estTitreChapitre: estTitreChapitre
 };
 // Ancien nom, gardé pour les pages déjà ouvertes
 window.APEL_WORD = window.APEL_TEXTES;
