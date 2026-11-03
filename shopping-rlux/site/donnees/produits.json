@@ -11,6 +11,27 @@
   },
   "produits": [
     {
+      "id": "pmw14v15vnwu9",
+      "nom": "Marshmalow",
+      "rayon": "parfums",
+      "categorie": "Parfums",
+      "marque": "",
+      "details": "Parfum gourmand disponible en rose, vert et bleu",
+      "options": "50ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 2500,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw14v15vnwu9-mw14vb896ckv.jpg",
+        "photos/pmw14v15vnwu9-mw14vkgn4ytc.jpg"
+      ]
+    },
+    {
       "id": "pmw14qrp43oc2",
       "nom": "Ruth-Valérie et les esprits errants",
       "rayon": "livres",
