@@ -1,9 +1,9 @@
 // Mise en cache pour un chargement rapide et un usage hors connexion.
 // Changer VERSION à chaque publication (garder le préfixe apel-offres-) pour que les téléphones récupèrent la nouvelle version.
-const VERSION = 'apel-offres-v11';
+const VERSION = 'apel-offres-v13';
 // Indispensables : sans eux, pas d'installation. Les autres sont mis en cache s'ils existent.
 const ESSENTIELS = ['index.html', 'donnees.js'];
-const SECONDAIRES = ['assets/logo-96.webp', 'assets/logo-192.webp',
+const SECONDAIRES = ['lecture.js', 'assets/logo-plume.webp', 'assets/logo-96.webp', 'assets/logo-192.webp',
   'polices/inter-Regular.woff2', 'polices/inter-SemiBold.woff2', 'polices/inter-ExtraBold.woff2'];
 
 // cache: 'no-cache' : le navigateur revérifie auprès du serveur (réponse 304 légère si rien n'a changé)
@@ -116,6 +116,8 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   const url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== self.location.origin) return;
+  // Salon de lecture et espace gérant : toujours le réseau (codes, chapitres et tableau de bord à jour).
+  if (/\/api\//.test(url.pathname) || /\/vendor\//.test(url.pathname) || /\/(gerant\.(html|js)|textes\.js|word\.js)$/.test(url.pathname) || /\/gerant\/?$/.test(url.pathname)) return;
   if (req.mode === 'navigate') {
     const horsLigne = adresseHorsLigne(url);
     if (horsLigne) { e.respondWith(fetch(req).catch(() => Response.redirect(horsLigne, 302))); return; }

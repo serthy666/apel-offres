@@ -52,6 +52,7 @@ a{color:var(--jaune-clair)}
 button{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--jaune);outline-offset:3px;border-radius:12px}
 h1[tabindex="-1"]:focus{outline:none}
+[hidden]{display:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .sr:focus{position:fixed;left:16px;top:16px;width:auto;height:auto;clip:auto;z-index:99;background:var(--jaune);color:var(--encre);padding:10px 14px;border-radius:12px;font-weight:700}
 
@@ -91,6 +92,8 @@ h1[tabindex="-1"]:focus{outline:none}
   background:radial-gradient(120% 120% at 50% -30%,rgba(255,255,255,.6),rgba(255,255,255,0) 55%),linear-gradient(180deg,var(--jaune-clair),var(--jaune));box-shadow:0 8px 20px -10px rgba(242,183,5,.8)}
 
 /* Mise en page */
+/* Les animations 3D ne doivent jamais faire défiler la page de côté */
+main{overflow-x:clip}
 main{max-width:560px;margin:0 auto;padding:18px 16px 112px;padding-bottom:calc(112px + env(safe-area-inset-bottom))}
 h1,h2,h3{line-height:1.18;margin:0;font-weight:800;letter-spacing:-.015em}
 h1{font-size:28px}
@@ -274,9 +277,28 @@ details[open] summary::after{content:"–"}
 details>div{padding:0 16px 16px;color:var(--texte-2)}
 
 /* Barre flottante du bas */
-.barre{position:fixed;left:12px;right:12px;bottom:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:30}
-.barre-in{max-width:536px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:8px;padding:7px;border-radius:999px}
-.barre .btn{min-height:50px;padding:10px 16px;font-size:15px;gap:6px}
+/* Barre d'onglets : bulle de verre qui glisse vers l'onglet actif, bouton WhatsApp rond au centre */
+.barre{position:fixed;left:12px;right:12px;bottom:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:30;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s ease}
+.barre-in{position:relative;max-width:536px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 64px 1fr 1fr;align-items:center;gap:2px;padding:6px;border-radius:999px}
+.onglet{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;border-radius:999px;text-decoration:none;color:var(--texte-2);font-size:11.5px;font-weight:700;-webkit-tap-highlight-color:transparent;transition:color .25s ease,transform .2s ease}
+.onglet svg{width:22px;height:22px;transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.onglet[aria-current="page"]{color:var(--jaune-clair)}
+.onglet[aria-current="page"] svg{transform:translateY(-1px) scale(1.12)}
+.onglet:active{transform:scale(.92)}
+.bulle{position:absolute;z-index:0;top:6px;bottom:6px;left:0;width:0;border-radius:999px;opacity:0;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 0%,rgba(255,255,255,.22),rgba(255,255,255,.04) 60%),rgba(255,255,255,.06);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(255,255,255,.14),0 6px 14px -8px rgba(0,0,0,.8);
+  transition:transform .45s cubic-bezier(.2,.9,.25,1.15),width .45s cubic-bezier(.2,.9,.25,1.15),opacity .3s ease}
+.bulle::after{content:"";position:absolute;left:28%;right:28%;bottom:3px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--vert-vif) 0 33%,var(--rouge-clair) 33% 66%,var(--jaune) 66%)}
+.wa-rond{position:relative;z-index:2;justify-self:center;width:60px;height:60px;margin-top:-26px;border-radius:50%;display:grid;place-items:center;color:var(--encre);text-decoration:none;
+  background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.9) 0 6%,rgba(255,255,255,.3) 16%,rgba(255,255,255,0) 34%),radial-gradient(circle at 45% 40%,#FFDA5C,#C98F00 82%);
+  box-shadow:0 0 0 4px rgba(3,37,27,.85),0 0 0 6px rgba(242,183,5,.35),inset 0 -6px 10px rgba(0,0,0,.25),0 14px 26px -8px rgba(242,183,5,.75);animation:wa-respire 3.2s ease-in-out infinite}
+.wa-rond svg{width:28px;height:28px}
+.wa-rond:active{transform:scale(.92)}
+@keyframes wa-respire{0%,100%{box-shadow:0 0 0 4px rgba(3,37,27,.85),0 0 0 6px rgba(242,183,5,.35),inset 0 -6px 10px rgba(0,0,0,.25),0 14px 26px -8px rgba(242,183,5,.75)}50%{box-shadow:0 0 0 4px rgba(3,37,27,.85),0 0 0 10px rgba(31,179,132,.28),inset 0 -6px 10px rgba(0,0,0,.25),0 14px 30px -6px rgba(242,183,5,.9)}}
+.partage-tete{flex:none;width:40px;height:40px;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--texte);background:rgba(0,0,0,.28);box-shadow:inset 0 1px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.12)}
+.partage-tete svg{width:19px;height:19px}
+.partage-tete:active{transform:scale(.9)}
 
 /* Fenêtre de partage */
 .voile{position:fixed;top:0;right:0;bottom:0;left:0;z-index:40;background:rgba(1,16,11,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
@@ -290,13 +312,72 @@ details>div{padding:0 16px 16px;color:var(--texte-2)}
 
 /* Inclinaison 3D au survol (ordinateur uniquement) */
 @media (hover:hover) and (pointer:fine){.inclinable{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}}
-@media (max-width:379px){#barre-partage span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}#barre-partage{padding:10px 14px}}
+@media (max-width:359px){.onglet span{font-size:10.5px}.barre-in{grid-template-columns:1fr 1fr 58px 1fr 1fr}#sous-titre{display:none}}
 @media (max-width:340px){.marque b{letter-spacing:.04em}.pack .actions .btn svg{display:none}}
 @media (orientation:landscape) and (max-height:480px){.entete{position:static}.voile{overflow-y:auto;align-items:flex-start}}
 
+/* Médaillon du logo APEL : disque noir, plume blanche, anneau tricolore qui tourne, relief qui suit le doigt */
+.vitrine{text-align:center;padding-top:30px}
+.vitrine .etiquette{max-width:100%}
+.vitrine .boutons{justify-content:center}
+.medaillon{position:relative;width:156px;height:156px;margin:0 auto 18px;transform-style:preserve-3d;
+  transform:perspective(700px) rotateX(var(--mx,0deg)) rotateY(var(--my,0deg));transition:transform .25s ease-out;animation:flotte 6s ease-in-out infinite}
+.medaillon .anneau{position:absolute;inset:-7px;border-radius:50%;background:conic-gradient(from 0deg,var(--vert-vif),var(--jaune),var(--rouge-clair),var(--vert-vif));animation:tourne 9s linear infinite;
+  filter:drop-shadow(0 0 14px rgba(242,183,5,.45))}
+.medaillon .anneau::after{content:"";position:absolute;inset:5px;border-radius:50%;background:#03251B}
+.medaillon .disque{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;transform:translateZ(18px);
+  background:radial-gradient(circle at 50% 120%,#1a1a1a,#000 70%);box-shadow:inset 0 -10px 22px rgba(255,255,255,.08),inset 0 6px 12px rgba(255,255,255,.12),0 24px 40px -14px rgba(0,0,0,.95)}
+.medaillon img{width:56%;height:auto;transform:translateZ(14px);filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
+.medaillon .reflet{position:absolute;inset:0;border-radius:50%;transform:translateZ(30px);pointer-events:none;
+  background:radial-gradient(circle at calc(30% + var(--my,0deg) * 2) calc(22% - var(--mx,0deg) * 2),rgba(255,255,255,.45),rgba(255,255,255,.08) 24%,rgba(255,255,255,0) 44%)}
+@keyframes tourne{to{transform:rotate(360deg)}}
+@keyframes flotte{0%,100%{translate:0 0}50%{translate:0 -6px}}
+.raccourcis{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tuile{position:relative;display:flex;flex-direction:column;gap:8px;padding:16px 14px;min-height:132px;text-decoration:none;color:var(--texte);overflow:hidden}
+.tuile b{font-size:16px;line-height:1.2}.tuile span:last-child{font-size:13px;color:var(--texte-2);line-height:1.35}
+.tuile::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--c,var(--vert-vif))}
+.tuile.t-rouge{--c:var(--rouge-clair)}.tuile.t-jaune{--c:var(--jaune)}.tuile.t-vert{--c:var(--vert-vif)}
+main>h2::after{content:"";display:block;width:42px;height:3px;margin-top:8px;border-radius:3px;background:linear-gradient(90deg,var(--vert-vif) 0 33%,var(--rouge-clair) 33% 66%,var(--jaune) 66%)}
+/* Transitions entre les pages : les blocs arrivent en 3D, un par un */
+main.anim-avant>*{animation:vue-avant .55s cubic-bezier(.2,.8,.2,1) backwards}
+main.anim-retour>*{animation:vue-retour .45s cubic-bezier(.2,.8,.2,1) backwards}
+main.anim-page>*{animation:vue-page .5s cubic-bezier(.2,.8,.2,1) backwards}
+main[class*="anim-"]>*:nth-child(2){animation-delay:.04s}main[class*="anim-"]>*:nth-child(3){animation-delay:.08s}main[class*="anim-"]>*:nth-child(4){animation-delay:.12s}
+main[class*="anim-"]>*:nth-child(5){animation-delay:.16s}main[class*="anim-"]>*:nth-child(6){animation-delay:.2s}main[class*="anim-"]>*:nth-child(n+7){animation-delay:.24s}
+main.anim-avant .profils>*,main.anim-avant .raccourcis>*{animation:carte-monte .6s cubic-bezier(.2,.9,.25,1.1) backwards}
+.profils>*:nth-child(2),.raccourcis>*:nth-child(2){animation-delay:.12s!important}.profils>*:nth-child(3),.raccourcis>*:nth-child(3){animation-delay:.18s!important}
+.profils>*:nth-child(4),.raccourcis>*:nth-child(4){animation-delay:.24s!important}.profils>*:nth-child(5){animation-delay:.3s!important}.profils>*:nth-child(6){animation-delay:.36s!important}
+@keyframes vue-avant{from{opacity:0;transform:perspective(1200px) translate3d(0,26px,0) rotateX(9deg)}to{opacity:1;transform:none}}
+@keyframes vue-retour{from{opacity:0;transform:perspective(1200px) translate3d(-30px,0,0) rotateY(10deg)}to{opacity:1;transform:none}}
+@keyframes vue-page{from{opacity:0;transform:perspective(1600px) translate3d(46px,0,0) rotateY(-28deg);transform-origin:0 50%}to{opacity:1;transform:none}}
+@keyframes carte-monte{from{opacity:0;transform:perspective(900px) translate3d(0,30px,-40px) rotateX(24deg)}to{opacity:1;transform:none}}
+/* Fenêtres : elles se déplient en 3D depuis le bas, et se replient en se fermant */
+.voile{animation:voile-entre .25s ease both}
+.voile .feuille{transform-origin:50% 100%;animation:feuille-entre .5s cubic-bezier(.2,.9,.25,1.12) both}
+.voile.sortie{animation:voile-sort .22s ease forwards}
+.voile.sortie .feuille{animation:feuille-sort .22s ease-in forwards}
+@keyframes voile-entre{from{background:rgba(1,16,11,0)}}
+@keyframes voile-sort{to{background:rgba(1,16,11,0)}}
+@keyframes feuille-entre{from{opacity:0;transform:perspective(1000px) translateY(40%) rotateX(-32deg) scale(.94)}to{opacity:1;transform:none}}
+@keyframes feuille-sort{to{opacity:0;transform:perspective(1000px) translateY(30%) rotateX(-24deg) scale(.95)}}
+.toast{animation:toast-entre .4s cubic-bezier(.2,.9,.3,1.35) both}
+@keyframes toast-entre{from{opacity:0;transform:translateX(-50%) perspective(400px) rotateX(-70deg) translateY(16px)}to{opacity:1;transform:translateX(-50%)}}
+/* Relief au toucher : la carte s'enfonce légèrement du côté touché */
+.inclinable,.tuile,.profil{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) scale(var(--s,1));transition:transform .35s cubic-bezier(.2,.9,.3,1.3)}
+.appui{--s:.975;transition:transform .08s ease}
+/* Chargement : reflet qui glisse au lieu d'un simple texte */
+.squelette{border-radius:18px;min-height:90px;margin:12px 0;background:linear-gradient(100deg,rgba(255,255,255,.05) 30%,rgba(255,255,255,.14) 50%,rgba(255,255,255,.05) 70%) 0 0/300% 100%;animation:reflet-charge 1.3s linear infinite}
+.squelette.petit{min-height:44px;width:60%}
+@keyframes reflet-charge{from{background-position:100% 0}to{background-position:0 0}}
+.installer{display:none}.installer.visible{display:inline-flex}
+.salon-couvs{display:flex;gap:10px;margin:4px 0 18px;padding:6px 2px 4px;overflow:hidden}
+.salon-couvs>span{display:block;flex:0 0 22%;max-width:84px;transform:rotate(-3deg)}
+.salon-couvs>span:nth-child(even){transform:rotate(3deg) translateY(6px)}
+.mode-lecture .barre{display:none}
+.mode-lecture .pied{padding-bottom:40px}
 @media (min-width:520px){.rayon{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (min-width:600px){h1{font-size:32px}.heros h1{font-size:36px}main{padding-top:26px}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}.livre3d{transform:rotateY(-20deg)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.livre3d{transform:rotateY(-20deg)}}
 @media (prefers-reduced-transparency:reduce){
   .verre,.btn-verre{background:#0A4B37}.flottant{background:#073F2D;-webkit-backdrop-filter:none;backdrop-filter:none}
   .decor{background:#063D2C}}
@@ -311,6 +392,7 @@ details>div{padding:0 16px 16px;color:var(--texte-2)}
       <img src="assets/logo-96.webp" width="40" height="40" alt="">
       <span><b>APEL ÉDITIONS</b><span id="sous-titre">Yaoundé · Cameroun</span></span>
     </a>
+    <button class="partage-tete" id="barre-partage" type="button" aria-label="Partager"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg></button>
     <div class="langues" role="group" aria-label="Langue / Language">
       <button type="button" data-lang="fr" aria-pressed="true">FR</button>
       <button type="button" data-lang="en" aria-pressed="false">EN</button>
@@ -331,10 +413,14 @@ details>div{padding:0 16px 16px;color:var(--texte-2)}
 
 <footer class="pied" id="pied"></footer>
 
-<nav class="barre" aria-label="Actions">
+<nav class="barre" aria-label="Navigation">
   <div class="barre-in verre flottant">
-    <a class="btn btn-primaire" id="barre-wa" href="https://wa.me/237693779364" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.5-2-1-1 .8c-1-.4-1.8-1.2-2.2-2.2l.8-1-1-2z"/></svg><span>Écrire sur WhatsApp</span></a>
-    <button class="btn btn-verre" id="barre-partage" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg><span>Partager</span></button>
+    <span class="bulle" aria-hidden="true"></span>
+    <a class="onglet" href="#/" data-onglet="accueil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg><span>Accueil</span></a>
+    <a class="onglet" href="#/offres" data-onglet="offres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Services</span></a>
+    <a class="wa-rond" id="barre-wa" href="https://wa.me/237693779364" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.5-2-1-1 .8c-1-.4-1.8-1.2-2.2-2.2l.8-1-1-2z"/></svg><span class="sr">Écrire sur WhatsApp</span></a>
+    <a class="onglet" href="#/bibliotheque" data-onglet="bibliotheque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="4.5" height="16" rx="1"/><rect x="9.5" y="4" width="4.5" height="16" rx="1"/><path d="M15.6 5.6l3.9-1.1 3.3 14.4-3.9 1.1z"/></svg><span>Livres</span></a>
+    <a class="onglet" href="#/lire" data-onglet="lire"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5.5C4.5 4 8 4 12 6c4-2 7.5-2 10-.5V19c-2.5-1.5-6-1.5-10 .5-4-2-7.5-2-10-.5z"/><path d="M12 6v13.5"/></svg><span>Lire</span></a>
   </div>
 </nav>
 
@@ -383,6 +469,13 @@ var IC = {
   retour: '<path d="M15 6l-6 6 6 6"/>',
   web: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.5 5.8 3.5 9s-1 6.2-3.5 9c-2.5-2.8-3.5-5.8-3.5-9s1-6.2 3.5-9z"/>',
   lien: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  cadenas: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  flamme: '<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 2 1.3 3 2.5 3-1-3 0-6 0-8z"/>',
+  ouvert: '<path d="M2 5.5C4.5 4 8 4 12 6c4-2 7.5-2 10-.5V19c-2.5-1.5-6-1.5-10 .5-4-2-7.5-2-10-.5z"/><path d="M12 6v13.5"/>',
+  telecharger: '<path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/>',
+  agrandir: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  reduire: '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',
+  lecture: '<path d="M7 4.5v15l12-7.5z" fill="currentColor"/>',
   biblio: '<rect x="3" y="4" width="4.5" height="16" rx="1"/><rect x="9.5" y="4" width="4.5" height="16" rx="1"/><path d="M15.6 5.6l3.9-1.1 3.3 14.4-3.9 1.1z"/>'
 };
 function svg(n, taille) { return '<svg viewBox="0 0 24 24"' + (taille ? ' width="' + taille + '" height="' + taille + '"' : '') + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (IC[n] || '') + '</svg>'; }
@@ -402,7 +495,13 @@ var T = {
     sousTitre: 'Yaoundé · Cameroun', titrePage: 'APEL Éditions · Nos offres', allerContenu: 'Aller au contenu',
     herosEtiquette: 'Nos offres en 1 minute',
     herosTitre: 'Publier, former, communiquer : <em>trouvez votre pack.</em>',
-    herosTexte: 'Livres, formation à l’intelligence artificielle, affiches et supports professionnels. Des prix clairs et un devis gratuit sur WhatsApp.',
+    herosTexte: 'Livres, lecture en ligne, formation à l’intelligence artificielle, affiches et supports professionnels. Des prix clairs et un devis gratuit sur WhatsApp.',
+    univers: 'Nos univers', o_accueil: 'Accueil', o_offres: 'Services', o_bibliotheque: 'Livres', o_lire: 'Lire',
+    u_services: 'Services et prix', u_servicesD: 'Édition, formation à l’IA, communication',
+    u_salon: 'Salon de lecture', u_salonD: 'Lire en ligne, chapitre par chapitre',
+    u_biblio: 'Bibliothèque', u_biblioD: 'Nos livres, à commander',
+    u_publier: 'Publier mon livre', u_publierD: 'Deux façons de vous accompagner',
+    maLiseuse: 'Ma liseuse', maLiseuseD: 'Mes lectures, marque-pages, mode sombre', installer: 'Installer l’appli', installee: 'Appli installée',
     trouverPack: 'Trouver mon pack', ecrireWa: 'Écrire sur WhatsApp',
     jeSuis: 'Je suis…', enVedette: 'Nos offres phares', mieuxConnaitre: 'Tout savoir avant de commander',
     toutesOffres: 'Toutes nos offres', toutesOffresD: 'Tous les packs et leurs prix',
@@ -485,7 +584,12 @@ var T = {
     p_entreprise: 'Entreprise / entrepreneur', p_entreprise_d: 'Affiches, logo, visibilité',
     p_association: 'Association / institution', p_association_d: 'Rapports, magazines, événements',
     p_particulier: 'Particulier', p_particulier_d: 'Un visuel ou un document soigné',
-    p_autre: 'Autres offres'
+    p_autre: 'Autres offres',
+    salon: 'Le Salon de lecture', salonD: 'Lisez nos romans chapitre par chapitre, ici',
+    salonAccroche: 'Nouveau : lisez en ligne', salonTitre: 'Des histoires à dévorer, <em>chapitre par chapitre.</em>',
+    salonTexte: 'Premiers chapitres offerts. Pour la suite, un code de lecture de 24 heures, d’une semaine ou d’un mois, reçu sur WhatsApp.',
+    entrerSalon: 'Entrer dans le Salon', lireEnLigne: 'Lire en ligne', premierOffert: 'premier chapitre offert', premiersOfferts: '{n} premiers chapitres offerts',
+    msgSalon: 'Je souhaite un code de lecture pour le Salon de lecture.', gerant: 'Espace gérant'
   },
   en: {
     realisationsD0: 'Our book and its launch poster',
@@ -498,7 +602,13 @@ var T = {
     sousTitre: 'Yaoundé · Cameroon', titrePage: 'APEL Éditions · Our offers', allerContenu: 'Skip to content',
     herosEtiquette: 'Our offers in 1 minute',
     herosTitre: 'Publish, train, communicate: <em>find your package.</em>',
-    herosTexte: 'Books, artificial intelligence training, posters and professional materials. Clear prices and a free quote on WhatsApp.',
+    herosTexte: 'Books, online reading, artificial intelligence training, posters and professional materials. Clear prices and a free quote on WhatsApp.',
+    univers: 'Explore', o_accueil: 'Home', o_offres: 'Services', o_bibliotheque: 'Books', o_lire: 'Read',
+    u_services: 'Services and prices', u_servicesD: 'Publishing, AI training, communication',
+    u_salon: 'Reading Lounge', u_salonD: 'Read online, chapter by chapter',
+    u_biblio: 'Library', u_biblioD: 'Our books, to order',
+    u_publier: 'Publish my book', u_publierD: 'Two ways we can support you',
+    maLiseuse: 'My reader', maLiseuseD: 'My reading, bookmarks, dark mode', installer: 'Install the app', installee: 'App installed',
     trouverPack: 'Find my package', ecrireWa: 'Chat on WhatsApp',
     jeSuis: 'I am…', enVedette: 'Featured offers', mieuxConnaitre: 'Everything to know before ordering',
     toutesOffres: 'All our offers', toutesOffresD: 'Every package and its price',
@@ -581,13 +691,18 @@ var T = {
     p_entreprise: 'Business / entrepreneur', p_entreprise_d: 'Posters, logo, visibility',
     p_association: 'Association / institution', p_association_d: 'Reports, magazines, events',
     p_particulier: 'Individual', p_particulier_d: 'A design or a polished document',
-    p_autre: 'Other offers'
+    p_autre: 'Other offers',
+    salon: 'The Reading Lounge', salonD: 'Read our novels chapter by chapter, right here',
+    salonAccroche: 'New: read online', salonTitre: 'Stories to devour, <em>chapter by chapter.</em>',
+    salonTexte: 'First chapters are free. For the rest, a reading code for 24 hours, a week or a month, sent on WhatsApp.',
+    entrerSalon: 'Enter the Lounge', lireEnLigne: 'Read online', premierOffert: 'first chapter free', premiersOfferts: 'first {n} chapters free',
+    msgSalon: 'I would like a reading code for the Reading Lounge.', gerant: 'Manager area'
   }
 };
 var PROFILS = ['auteur', 'enseignant', 'ecole', 'entreprise', 'association', 'particulier'];
 
 /* ---------- État ---------- */
-var etat = { lang: 'fr', d: { packs: [], faq: [], temoignages: [], reglages: {}, livres: [] }, pret: false, src: '', parrain: '', guide: {} };
+var etat = { lang: 'fr', d: { packs: [], faq: [], temoignages: [], reglages: {}, livres: [] }, pret: false, src: '', parrain: '', guide: {}, salon: null };
 var pile = [], positions = {}, dernierLien = '';
 var LIBRES = { accueil: 1, etapes: 1, publier: 1, contact: 1 };
 
@@ -869,6 +984,9 @@ function blocPrix(p) {
   var u = champ(p, 'unite');
   return '<p class="prix">' + (p.exact ? '' : '<small>' + esc(t('aPartirDe')) + '</small>') + '<strong>' + montant(p.prix) + ' ' + t('fcfa') + '</strong>' + (u ? '<span class="unite">' + esc(u) + '</span>' : '') + '</p>';
 }
+function tuile(href, ic, cle, teinte, classe) {
+  return '<a class="tuile verre ' + classe + '" href="' + href + '">' + orbe(ic, teinte, true) + '<b>' + esc(t(cle)) + '</b><span>' + esc(t(cle + 'D')) + '</span></a>';
+}
 function lienRapide(href, ic, titre, desc, teinte) {
   return '<li><a href="' + href + '">' + orbe(ic, teinte || 'o-jaune', true) + '<span><b>' + esc(titre) + '</b><span>' + esc(desc) + '</span></span><span class="fl">' + svg('fl', 18) + '</span></a></li>';
 }
@@ -970,16 +1088,74 @@ function blocPrixLivre(l) {
     (l.prix_num ? '<span><small>' + esc(t('numerique')) + '</small><strong>' + fcfa(l.prix_num) + '</strong></span>' : '') + '</div>';
 }
 
+/* ---------- Salon de lecture (vues dans lecture.js, chargé à la demande) ---------- */
+function salonOuvert() { return !!(etat.salon && etat.salon.livres && etat.salon.livres.length); }
+function livreSalon(id) { if (!salonOuvert()) return null; for (var i = 0; i < etat.salon.livres.length; i++) if (etat.salon.livres[i].id === id) return etat.salon.livres[i]; return null; }
+function offerts(ls) { return ls.gratuits === 1 ? t('premierOffert') : ls.gratuits > 1 ? t('premiersOfferts', { n: ls.gratuits }) : ''; }
+function boutonLire(id) {
+  var ls = livreSalon(id);
+  if (!ls) return '';
+  return '<a class="btn btn-primaire btn-plein" href="#/lire/' + encodeURIComponent(id) + '">' + svg('ouvert') + '<span>' + esc(t('lireEnLigne')) + (offerts(ls) ? ' · ' + esc(offerts(ls)) : '') + '</span></a>';
+}
+function blocSalon() {
+  if (!salonOuvert()) return '';
+  var ls = etat.salon.livres.slice(0, 6).map(function (x) { return livreParId(x.id) || { id: x.id, titre: x.titre, auteur: x.auteur }; });
+  return '<section class="heros verre salon-accueil" style="margin-top:30px"><span class="etiquette">' + esc(t('salonAccroche')) + '</span><h2 style="margin:14px 0 8px;font-size:24px">' + t('salonTitre') + '</h2><p>' + esc(t('salonTexte')) + '</p>' +
+    '<div class="salon-couvs" aria-hidden="true">' + ls.map(function (l) { return '<span><span class="couv" style="padding-top:' + (ratioLivre(l) * 100).toFixed(1) + '%">' + imgCouv(l, 132) + '</span></span>'; }).join('') + '</div>' +
+    '<a class="btn btn-primaire btn-plein" href="#/lire">' + svg('ouvert') + '<span>' + esc(t('entrerSalon')) + '</span></a></section>';
+}
+// Livres lisibles en ligne : lus une fois par visite (réponse gardée 1 minute par Cloudflare).
+function chargerSalon() {
+  if (APERCU || !window.fetch || !/^https?:/.test(location.protocol)) return;
+  var vide = { livres: [], tarifs: {}, indisponible: true };
+  if (!etat.salon) { try { var c = JSON.parse(stock('apel-salon') || 'null'); if (c && Array.isArray(c.livres)) etat.salon = c; } catch (e) {} }
+  fetch('api/lecture?action=catalogue').then(function (r) { return r.ok ? r.json() : vide; }, function () { return vide; }).then(function (d) {
+    var avant = JSON.stringify(etat.salon);
+    if (d && Array.isArray(d.livres)) { etat.salon = d; stock('apel-salon', JSON.stringify(d)); }
+    else if (!etat.salon) etat.salon = vide;
+    var r = route();
+    if (JSON.stringify(etat.salon) !== avant && (r.nom === 'accueil' || r.nom === 'livre' || r.nom === 'lire' || r.nom === 'liseuse')) afficher(true);
+    // La liseuse se charge en avance, pendant que le téléphone ne fait rien : l'ouverture du Salon est immédiate.
+    if (salonOuvert()) (window.requestIdleCallback || function (f) { setTimeout(f, 1500); })(chargerLecture);
+  }).catch(function () {});
+}
+var chargementLecture = null;
+function chargerLecture() {
+  if (window.APEL_LECTURE || chargementLecture) return;
+  chargementLecture = document.createElement('script');
+  chargementLecture.src = 'lecture.js';
+  chargementLecture.onload = function () { var n = route().nom; if (n === 'lire' || n === 'liseuse') afficher(true); };
+  chargementLecture.onerror = function () { chargementLecture = null; var m = document.getElementById('contenu'), n = route().nom; if ((n === 'lire' || n === 'liseuse') && m) m.innerHTML = retour() + '<p class="muet" style="margin:24px 4px">' + esc(etat.lang === 'en' ? 'The Reading Lounge could not load. Check your connection and try again.' : 'Le Salon de lecture n’a pas pu se charger. Vérifiez la connexion internet, puis réessayez.') + '</p>'; };
+  document.head.appendChild(chargementLecture);
+}
+
+function squelette() { return '<div aria-busy="true"><div class="squelette petit"></div><div class="squelette"></div><div class="squelette"></div></div>'; }
 var VUES = {
+  lire: function (arg, args) {
+    if (!window.APEL_LECTURE) { chargerLecture(); return squelette(); }
+    return window.APEL_LECTURE.vue(args || []);
+  },
+  liseuse: function () {
+    if (!window.APEL_LECTURE) { chargerLecture(); return squelette(); }
+    return window.APEL_LECTURE.liseuse();
+  },
   accueil: function () {
     var vedettes = etat.d.packs.filter(function (p) { return p.vedette; }).slice(0, 3);
-    return '<section class="heros verre"><span class="orbe-logo" aria-hidden="true"></span><span class="etiquette">' + esc(t('herosEtiquette')) + '</span><h1>' + t('herosTitre') + '</h1><p>' + esc(t('herosTexte')) + '</p>' +
+    return '<section class="heros verre vitrine"><div class="medaillon" id="medaillon" aria-hidden="true"><span class="anneau"></span><span class="disque"><img src="assets/logo-plume.webp" width="233" height="352" alt="" fetchpriority="high"></span><span class="reflet"></span></div>' +
+      '<span class="sr">APEL Éditions</span><span class="etiquette">' + esc(t('herosEtiquette')) + '</span><h1>' + t('herosTitre') + '</h1><p>' + esc(t('herosTexte')) + '</p>' +
       '<div class="boutons"><a class="btn btn-primaire" href="#/guide">' + svg('boussole') + esc(t('trouverPack')) + '</a>' +
       aWa([t('msgGeneral')], t('ecrireWa'), 'btn-verre') + '</div></section>' +
+      '<h2>' + esc(t('univers')) + '</h2><div class="raccourcis">' +
+      tuile('#/offres', 'grille', 'u_services', 'o-vert', 't-vert') +
+      tuile('#/lire', 'ouvert', 'u_salon', 'o-rouge', 't-rouge') +
+      tuile('#/bibliotheque', 'biblio', 'u_biblio', 'o-jaune', 't-jaune') +
+      tuile('#/publier', 'livre', 'u_publier', 'o-vert', 't-vert') + '</div>' +
       '<h2>' + esc(t('jeSuis')) + '</h2><div class="profils">' + PROFILS.map(carteProfil).join('') + '</div>' +
       (vedettes.length ? '<h2>' + esc(t('enVedette')) + '</h2><div class="pile">' + vedettes.map(function (x) { return cartePack(x); }).join('') + '</div>' : '') +
+      blocSalon() +
       (etat.d.livres.length ? '<h2>' + esc(t('bibliotheque')) + '</h2>' + etagere(etat.d.livres) : '') +
       '<h2>' + esc(t('mieuxConnaitre')) + '</h2><ul class="liens verre">' +
+      lienRapide('#/liseuse', 'ouvert', t('maLiseuse'), t('maLiseuseD'), 'o-rouge') +
       lienRapide('#/etapes', 'etapes', t('commentCaMarche'), t('commentCaMarcheD')) +
       lienRapide('#/publier', 'livre', t('publier'), t('publierD')) +
       lienRapide('#/offres', 'grille', t('toutesOffres'), t('toutesOffresD')) +
@@ -1117,6 +1293,7 @@ var VUES = {
         (resume ? '<h2 class="h3" style="margin-bottom:8px">' + esc(t('resume')) + '</h2><p style="margin:0"' + langFr(l, 'resume') + '>' + esc(resume).replace(/\n/g, '<br>') + '</p>' : '') +
         (details ? '<p class="muet" style="margin:' + (resume ? '10px' : '0') + ' 0 0;font-size:14px"' + langFr(l, 'details') + '>' + esc(details) + '</p>' : '') + '</div>' : '') +
       (note ? '<p class="info">' + svg('info') + '<span' + langFr(l, 'note') + '>' + esc(note) + '</span></p>' : '') +
+      boutonLire(l.id) +
       aWa(lignesLivre(l), t(l.vente ? 'commanderWa' : 'livreInteresse'), 'btn-primaire btn-plein') +
       (num ? '<a class="btn btn-verre btn-plein" href="' + esc(num) + '" target="_blank" rel="noopener">' + svg('web') + esc(t(l.prix_num ? 'obtenirNum' : 'versionNum')) + '</a>' : '') +
       (pk ? '<a class="btn btn-verre btn-plein" href="#/pack/' + encodeURIComponent(pk.id) + '">' + esc(t('offreEtab')) + '</a>' : '') +
@@ -1147,25 +1324,57 @@ var VUES = {
 /* ---------- Rendu ---------- */
 function route() {
   var h = (location.hash || '').replace(/^#\/?/, '').split('/');
-  return { nom: Object.prototype.hasOwnProperty.call(VUES, h[0]) ? h[0] : 'accueil', arg: h[1] || '' };
+  return { nom: Object.prototype.hasOwnProperty.call(VUES, h[0]) ? h[0] : 'accueil', arg: h[1] || '', args: h.slice(1).map(decoder) };
 }
 function messageBarre(r) {
   if (r.nom === 'pack') { var pk = packParId(decoder(r.arg)); if (pk) return lignesPack(pk); }
   if (r.nom === 'livre') { var lv = livreParId(decoder(r.arg)); if (lv) return lignesLivre(lv); }
   if (r.nom === 'profil' && PROFILS.indexOf(r.arg) !== -1) return [t('msgProfil') + t('p_' + r.arg), t('msgProjet')];
+  if (r.nom === 'lire') return [t('msgSalon')];
   return [t('msgGeneral')];
+}
+// Onglet de la barre du bas qui correspond à la page
+var ONGLETS = { accueil: 'accueil', offres: 'offres', profil: 'offres', pack: 'offres', guide: 'offres', etapes: 'offres', bibliotheque: 'bibliotheque', livre: 'bibliotheque', realisations: 'bibliotheque', lire: 'lire', liseuse: 'lire' };
+var sensTransition = 'avant';
+function placerBulle() {
+  var b = document.querySelector('.bulle'), a = document.querySelector('.onglet[aria-current="page"]');
+  if (!b) return;
+  if (!a) { b.style.opacity = '0'; return; }
+  b.style.opacity = '1'; b.style.width = a.offsetWidth + 'px'; b.style.transform = 'translateX(' + a.offsetLeft + 'px)';
+}
+function majOnglets(r) {
+  var actif = ONGLETS[r.nom] || '';
+  [].forEach.call(document.querySelectorAll('.onglet'), function (a) {
+    var k = a.getAttribute('data-onglet');
+    a.querySelector('span').textContent = t('o_' + k);
+    if (k === actif) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  });
+  placerBulle();
+}
+function animer(main, sens) {
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  main.classList.remove('anim-avant', 'anim-retour', 'anim-page');
+  void main.offsetWidth;
+  main.classList.add('anim-' + sens);
+  clearTimeout(animer.minuteur);
+  animer.minuteur = setTimeout(function () { main.classList.remove('anim-' + sens); }, 900);
 }
 function afficher(silencieux, y) {
   var r = route(), main = document.getElementById('contenu');
   var garde = window.scrollY, html;
   var libre = LIBRES[r.nom] || (r.nom === 'guide' && etapeGuide(r.arg) === 1);
   if (!etat.pret && !libre) html = '<p class="muet" aria-busy="true" style="margin:24px 4px">' + esc(t('chargement')) + '</p>';
-  else { try { html = VUES[r.nom](r.arg); } catch (e) { html = VUES.accueil(); } }
+  else { try { html = VUES[r.nom](r.arg, r.args); } catch (e) { html = VUES.accueil(); } }
+  // Lecture d'un chapitre : la barre du bas s'efface pour laisser toute la place au texte.
+  document.body.classList.toggle('mode-lecture', r.nom === 'lire' && r.args.length > 1);
   main.innerHTML = html;
-  document.getElementById('pied').innerHTML = '<p>' + esc(t(r.nom === 'livre' || r.nom === 'bibliotheque' ? 'pied1Livres' : 'pied1')) + '</p><p>' + esc(t('pied2')) + '</p>';
+  document.getElementById('pied').innerHTML = '<p>' + esc(t(r.nom === 'livre' || r.nom === 'bibliotheque' ? 'pied1Livres' : 'pied1')) + '</p><p>' + esc(t('pied2')) + '</p>' +
+    '<p>' + boutonInstaller('btn-verre') + '</p><p><a href="gerant.html" style="color:var(--texte-3)">' + esc(t('gerant')) + '</a></p>';
   var wa = document.getElementById('barre-wa');
-  wa.href = lienWa(messageBarre(r)); wa.innerHTML = svg('wa') + '<span>' + esc(t('ecrireWa')) + '</span>';
-  document.getElementById('barre-partage').innerHTML = svg('partage') + '<span>' + esc(t('partager')) + '</span>';
+  wa.href = lienWa(messageBarre(r)); wa.setAttribute('aria-label', t('ecrireWa')); wa.querySelector('.sr').textContent = t('ecrireWa');
+  document.getElementById('barre-partage').setAttribute('aria-label', t('partager'));
+  majOnglets(r);
+  if (r.nom === 'accueil') activerMedaillon();
   var b = reglage('bandeau'), bd = document.getElementById('bandeau');
   bd.hidden = !b; bd.textContent = b || '';
   var h1 = main.querySelector('h1');
@@ -1177,6 +1386,7 @@ function afficher(silencieux, y) {
     return;
   }
   window.scrollTo(0, y || 0);
+  animer(main, sensTransition); sensTransition = 'avant';
   if (r.nom !== 'accueil' && h1) { h1.setAttribute('tabindex', '-1'); h1.focus({ preventScroll: true }); }
 }
 function changerLangue(l, sansRendu, memoriser) {
@@ -1206,10 +1416,19 @@ function message(txt) {
   document.body.appendChild(el); setTimeout(function () { el.remove(); }, 2200);
 }
 function partager(cible) {
+  if (cible && cible.indexOf('lire:') === 0) {
+    var morceaux = cible.slice(5).split('/'), ls = livreSalon(morceaux[0]);
+    var adresse = (/^https?:/.test(location.protocol) ? location.origin + location.pathname : CONFIG.adresse) + '?src=partage' + (etat.lang === 'en' ? '&lang=en' : '') + '#/lire/' + morceaux.map(encodeURIComponent).join('/');
+    var invite = etat.lang === 'en' ? 'I’m reading “{t}” in the APEL Éditions Reading Lounge. First chapter free: ' : 'Je lis « {t} » dans le Salon de lecture d’APEL Éditions. Premier chapitre offert : ';
+    return partagerAdresse(adresse, ls ? invite.replace('{t}', ls.titre) : t('salonD'));
+  }
   var p = cible && cible.indexOf('pack:') === 0 ? packParId(cible.slice(5)) : null;
   var lv = !p && cible && cible.indexOf('livre:') === 0 ? livreParId(cible.slice(6)) : null;
   var url = adressePartage(p ? p.id : '', lv ? lv.id : '');
   var texte = p ? t('partagePackTexte') + champ(p, 'titre') : lv ? t(deApel(lv) ? 'partageLivreTexte' : 'partageLivreTexteAutre') + champ(lv, 'titre') : t('partageTexte');
+  partagerAdresse(url, texte);
+}
+function partagerAdresse(url, texte) {
   // Feuille du téléphone sur écran tactile ; sur ordinateur, la feuille de l'appli propose WhatsApp et Facebook.
   var ua = navigator.userAgent || '';
   var mobile = (window.matchMedia && matchMedia('(pointer: coarse)').matches) || /Android|iPhone|iPad|iPod/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
@@ -1222,8 +1441,15 @@ function partager(cible) {
   }
   feuillePartage(url, texte);
 }
+// Fermeture animée d'une fenêtre (la feuille se replie en 3D), puis retrait.
+function replier(voile) {
+  if (!voile || voile.classList.contains('sortie')) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { voile.remove(); return; }
+  voile.classList.add('sortie');
+  setTimeout(function () { voile.remove(); }, 230);
+}
 function feuillePartage(url, texte) {
-  if (document.querySelector('.voile')) return;
+  if (document.querySelector('.voile:not(.sortie)')) return;
   var avant = document.activeElement, ouverte = Date.now();
   var voile = document.createElement('div'); voile.className = 'voile';
   voile.innerHTML = '<div class="feuille verre flottant" role="dialog" aria-modal="true" aria-labelledby="titre-partage"><h2 id="titre-partage">' + esc(t('partagerTitre')) + '</h2><div class="pile">' +
@@ -1231,7 +1457,7 @@ function feuillePartage(url, texte) {
     '<a class="btn btn-verre" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url) + '">Facebook</a>' +
     '<button type="button" class="btn btn-verre" data-copier>' + svg('lien') + esc(t('copierLien')) + '</button>' +
     '<button type="button" class="btn btn-verre" data-fermer>' + esc(t('fermer')) + '</button></div></div>';
-  function fermer() { voile.remove(); document.removeEventListener('keydown', echap); if (avant && avant.focus) avant.focus(); }
+  function fermer() { replier(voile); document.removeEventListener('keydown', echap); if (avant && avant.focus) avant.focus(); }
   function echap(e) {
     if (e.key === 'Escape') { fermer(); return; }
     if (e.key !== 'Tab') return;
@@ -1256,12 +1482,51 @@ function feuillePartage(url, texte) {
   voile.querySelector('a,button').focus();
 }
 
-/* ---------- Inclinaison 3D (souris uniquement) ---------- */
+/* ---------- Relief 3D ---------- */
+var CALME = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+// Le médaillon du logo suit la souris, ou l'inclinaison du téléphone (Android).
+var medaillonActif = false;
+function activerMedaillon() {
+  if (CALME || medaillonActif) return;
+  medaillonActif = true;
+  var cible = { x: 0, y: 0 }, prevu = false;
+  function poser() {
+    prevu = false;
+    var m = document.getElementById('medaillon');
+    if (m) { m.style.setProperty('--mx', cible.x.toFixed(2) + 'deg'); m.style.setProperty('--my', cible.y.toFixed(2) + 'deg'); }
+  }
+  function viser(x, y) { cible.x = Math.max(-18, Math.min(18, x)); cible.y = Math.max(-18, Math.min(18, y)); if (!prevu) { prevu = true; requestAnimationFrame(poser); } }
+  document.addEventListener('pointermove', function (e) {
+    if (e.pointerType !== 'mouse') return;
+    var m = document.getElementById('medaillon'); if (!m) return;
+    var r = m.getBoundingClientRect();
+    viser(-(e.clientY - (r.top + r.height / 2)) / 30, (e.clientX - (r.left + r.width / 2)) / 30);
+  }, { passive: true });
+  window.addEventListener('deviceorientation', function (e) {
+    if (e.beta == null || !document.getElementById('medaillon')) return;
+    viser((e.beta - 45) / 2.5, e.gamma / 2.5);
+  }, { passive: true });
+}
 function activerInclinaison() {
-  if (!window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (CALME || !window.matchMedia) return;
+  // Toucher : la carte s'enfonce du côté du doigt, puis rebondit.
+  var appuye = null;
+  function relacher() { if (!appuye) return; appuye.classList.remove('appui'); appuye.style.removeProperty('--rx'); appuye.style.removeProperty('--ry'); appuye = null; }
+  document.addEventListener('pointerdown', function (e) {
+    var el = e.target.closest && e.target.closest('.inclinable,.tuile,.profil');
+    if (!el) return;
+    appuye = el;
+    var r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    el.style.setProperty('--ry', (x * 8).toFixed(2) + 'deg'); el.style.setProperty('--rx', (-y * 8).toFixed(2) + 'deg');
+    el.classList.add('appui');
+  }, { passive: true });
+  ['pointerup', 'pointercancel', 'dragstart'].forEach(function (ev) { document.addEventListener(ev, relacher, { passive: true }); });
+  window.addEventListener('scroll', relacher, { passive: true });
+  if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   var actif = null;
   document.addEventListener('pointermove', function (e) {
-    var el = e.target.closest && e.target.closest('.inclinable');
+    if (appuye) return;
+    var el = e.target.closest && e.target.closest('.inclinable,.tuile');
     if (actif && actif !== el) { actif.style.removeProperty('--rx'); actif.style.removeProperty('--ry'); }
     actif = el;
     if (!el) return;
@@ -1279,6 +1544,17 @@ function quandDonnees(suite) {
   s.addEventListener('load', function () { suite(window.APEL_DEFAUT || null); });
   s.addEventListener('error', function () { suite(null); });
 }
+var invitationInstall = null;
+window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); invitationInstall = e; [].forEach.call(document.querySelectorAll('.installer'), function (b) { b.classList.add('visible'); }); });
+window.addEventListener('appinstalled', function () { invitationInstall = null; message(t('installee')); [].forEach.call(document.querySelectorAll('.installer'), function (b) { b.classList.remove('visible'); }); });
+function installer() { if (!invitationInstall) return; invitationInstall.prompt(); invitationInstall.userChoice.then(function () { invitationInstall = null; }, function () {}); }
+function boutonInstaller(classe) { return '<button type="button" class="btn ' + (classe || 'btn-verre') + ' installer' + (invitationInstall ? ' visible' : '') + '" data-installer>' + svg('telecharger') + '<span>' + esc(t('installer')) + '</span></button>'; }
+window.APEL_OUTILS = {
+  etat: etat, t: t, esc: esc, svg: svg, orbe: orbe, retour: retour, titrePage: titrePage, montant: montant,
+  livreParId: livreParId, imgCouv: imgCouv, ratioLivre: ratioLivre, lienWa: lienWa, aWa: aWa, numeroWa: numeroWa,
+  message: message, afficher: afficher, route: route, partager: partager, stock: stock, chargerSalon: chargerSalon,
+  livreSalon: livreSalon, offerts: offerts, replier: replier, boutonInstaller: boutonInstaller, sens: function (s) { sensTransition = s; }
+};
 function demarrer() {
   var params = new URLSearchParams(location.search);
   var src = nettoyer(params.get('src') || params.get('ref'), 30), parrain = nettoyer(params.get('parrain'), 40);
@@ -1293,6 +1569,8 @@ function demarrer() {
   if (window.APEL_DEFAUT || (sh && sh.packs && sh.packs.length)) prendre(fusion(window.APEL_DEFAUT, sh));
 
   etat.lang = langue(params.get('lang')) || langue(stock('apel-langue')) || ((navigator.language || 'fr').slice(0, 2) === 'en' ? 'en' : 'fr');
+  var codeLien = String(params.get('code') || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 30);
+  if (codeLien) { try { sessionStorage.setItem('apel-code', codeLien); } catch (e) {} etat.codeLien = codeLien; if (!location.hash) { try { history.replaceState(null, '', location.pathname + location.search + '#/lire'); } catch (e) {} } }
   var pk = params.get('pack'), lp = params.get('livre');
   if ((pk || lp) && !location.hash) { try { history.replaceState(null, '', location.pathname + location.search + (pk ? '#/pack/' + encodeURIComponent(pk) : '#/livre/' + encodeURIComponent(lp))); } catch (e) {} }
   pile = [location.hash || '#/'];
@@ -1316,9 +1594,10 @@ function demarrer() {
       location.hash = '#/guide/' + (k === 'profil' ? 2 : k === 'besoin' ? 3 : 4);
       return;
     }
+    if (e.target.closest('[data-installer]')) { installer(); return; }
     var s = e.target.closest('[data-partage]');
     if (s) { partager(s.getAttribute('data-partage')); return; }
-    if (e.target.closest('#barre-partage')) { var rr = route(); partager(rr.nom === 'pack' ? 'pack:' + decoder(rr.arg) : rr.nom === 'livre' ? 'livre:' + decoder(rr.arg) : ''); }
+    if (e.target.closest('#barre-partage')) { var rr = route(); partager(rr.nom === 'pack' ? 'pack:' + decoder(rr.arg) : rr.nom === 'livre' ? 'livre:' + decoder(rr.arg) : rr.nom === 'lire' && rr.args[0] ? 'lire:' + rr.args.join('/') : ''); }
   });
   window.addEventListener('hashchange', function () {
     var depart = pile[pile.length - 1];
@@ -1327,6 +1606,9 @@ function demarrer() {
     positions[depart + '|lien'] = dernierLien;
     var h = location.hash || '#/';
     var arriere = pile.length > 1 && pile[pile.length - 2] === h;
+    // Passage d'un chapitre au suivant : la page se tourne ; retour : la page revient de la gauche.
+    var avantR = String(depart || '').match(/^#\/lire\/([^\/]+)\/(\d+)/), apresR = h.match(/^#\/lire\/([^\/]+)\/(\d+)/);
+    sensTransition = avantR && apresR && avantR[1] === apresR[1] ? (+apresR[2] > +avantR[2] ? 'page' : 'retour') : arriere ? 'retour' : 'avant';
     if (arriere) pile.pop(); else pile.push(h);
     afficher(false, arriere ? positions[h] : 0);
     if (arriere) {
@@ -1339,8 +1621,10 @@ function demarrer() {
     }
   });
   changerLangue(etat.lang, true);
+  window.addEventListener('resize', placerBulle);
   afficher();
   activerInclinaison();
+  chargerSalon();
   quandDonnees(function (d) {
     etat.donneesVues = true;
     var avant = etat.pret ? JSON.stringify(etat.d) : '';

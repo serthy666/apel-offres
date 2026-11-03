@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>APEL Éditions · Espace gérant</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#063D2C">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<style>
+@font-face{font-family:"Inter APEL";src:url("polices/inter-Regular.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Inter APEL";src:url("polices/inter-SemiBold.woff2") format("woff2");font-weight:600 700;font-display:swap}
+@font-face{font-family:"Inter APEL";src:url("polices/inter-ExtraBold.woff2") format("woff2");font-weight:800 900;font-display:swap}
+:root{--vert:#0B6E4F;--vert-vif:#1FB384;--vert-fonce:#063D2C;--vert-nuit:#03251B;--jaune:#F2B705;--jaune-clair:#FFD34D;--jaune-fonce:#D69A00;--rouge:#C0392B;--rouge-clair:#E2574A;--encre:#1F2A37;
+  --texte:#fff;--texte-2:rgba(255,255,255,.88);--filet:rgba(255,255,255,.14);--police:"Inter APEL",Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+*{box-sizing:border-box}
+html{background:var(--vert-nuit);-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--texte);font-family:var(--police);font-size:16px;line-height:1.5;min-height:100vh;
+  background:radial-gradient(55vmax 55vmax at 92% -8%,rgba(242,183,5,.16),rgba(242,183,5,0) 62%),radial-gradient(70vmax 70vmax at 108% 88%,rgba(31,179,132,.32),rgba(31,179,132,0) 62%),linear-gradient(168deg,#0A6447 0%,#063D2C 60%,#03251B 100%) fixed}
+a{color:var(--jaune-clair)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--jaune);outline-offset:2px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+main{max-width:760px;margin:0 auto;padding:16px 16px 80px}
+h1{font-size:24px;margin:0 0 4px;font-weight:800}
+h2{font-size:19px;margin:0 0 12px;font-weight:800}
+h3{font-size:16px;margin:0 0 8px}
+p{margin:0 0 10px}
+.muet{color:var(--texte-2);font-size:14px}
+.entete{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.entete img{width:44px;height:44px;border-radius:50%}
+.entete div{flex:1;min-width:0}
+.entete small{display:block;color:var(--texte-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.carte{background:linear-gradient(150deg,rgba(255,255,255,.10),rgba(255,255,255,.03)),rgba(2,32,23,.45);border-radius:20px;padding:16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 18px 36px -22px rgba(0,0,0,.8);margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px 18px;border-radius:999px;border:0;cursor:pointer;font-weight:800;text-decoration:none;line-height:1.2;text-align:center}
+.btn-primaire{color:var(--encre);background:linear-gradient(180deg,var(--jaune-clair),var(--jaune) 55%,var(--jaune-fonce));box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 8px 18px -10px rgba(242,183,5,.9)}
+.btn-verre{color:var(--texte);background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.btn-danger{color:#fff;background:rgba(192,57,43,.55);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.btn-petit{min-height:38px;padding:6px 14px;font-size:14px}
+.btn:disabled{opacity:.6;cursor:wait}
+.plein{width:100%}
+.onglets{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 14px;padding:0 16px 4px}
+.onglets button{flex:none;border:0;border-radius:999px;padding:10px 16px;min-height:44px;font-weight:800;cursor:pointer;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.onglets button[aria-selected="true"]{color:var(--encre);background:linear-gradient(180deg,var(--jaune-clair),var(--jaune))}
+label{display:block;font-weight:700;font-size:14px;margin:10px 0 4px}
+input[type=text],input[type=number],input[type=date],input[type=email],select,textarea{width:100%;min-height:46px;border-radius:14px;border:0;padding:10px 14px;background:#fff;color:var(--encre)}
+textarea{min-height:90px;resize:vertical}
+.ligne2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ligne3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.choix-type{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:6px 0 4px}
+.choix-type button{border:0;border-radius:16px;padding:12px 6px;cursor:pointer;font-weight:800;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+.choix-type button[aria-pressed="true"]{background:rgba(242,183,5,.25);box-shadow:inset 0 0 0 2px var(--jaune)}
+.choix-type small{display:block;font-weight:400;color:var(--texte-2);font-size:12px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.code-cree{border-radius:16px;padding:12px;margin-top:10px;background:rgba(242,183,5,.12);box-shadow:inset 0 0 0 1px rgba(242,183,5,.5)}
+.code-cree b{display:block;font-size:26px;letter-spacing:.12em;font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--jaune-clair)}
+.filtres{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+.filtres button{border:0;border-radius:999px;padding:6px 12px;min-height:36px;font-size:14px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.08)}
+.filtres button[aria-pressed="true"]{background:rgba(242,183,5,.3);box-shadow:inset 0 0 0 1px var(--jaune)}
+.liste{list-style:none;margin:0;padding:0}
+.liste>li{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--filet)}
+.liste>li:first-child{border-top:0}
+.liste .code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800;letter-spacing:.06em}
+.liste .infos{min-width:0;flex:1 1 220px}
+.liste .infos small{display:block;color:var(--texte-2);font-size:13px}
+.etat{display:inline-block;font-size:12px;font-weight:800;border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:2px}
+.etat-neuf{background:rgba(255,255,255,.15)}.etat-actif{background:rgba(31,179,132,.35)}.etat-fini{background:rgba(0,0,0,.3);color:var(--texte-2)}.etat-revoque{background:rgba(192,57,43,.5)}
+.chiffres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.chiffres div{border-radius:16px;padding:12px;text-align:center;background:rgba(0,0,0,.2)}
+.chiffres b{display:block;font-size:24px;color:var(--jaune-clair)}
+.chiffres span{font-size:12.5px;color:var(--texte-2)}
+.chap{border-top:1px solid var(--filet);padding:10px 0}
+.chap:first-child{border-top:0}
+.chap-tete{display:flex;gap:8px;align-items:center}
+.chap-tete input[type=text]{min-height:40px;flex:1}
+.chap-tete input[type=checkbox]{width:22px;height:22px;flex:none}
+.chap small{display:block;color:var(--texte-2);font-size:13px;margin:4px 0 0 30px}
+.apercu{margin:8px 0 0 30px;padding:12px;border-radius:12px;background:#F4ECD8;color:#3B2F20;font-family:Georgia,serif;font-size:15px;max-height:260px;overflow:auto}
+.apercu p{margin:0 0 .6em}.apercu .c{text-align:center}.apercu .q{font-style:italic;margin-left:1em}
+.case{display:flex;gap:8px;align-items:center;font-weight:700;margin:10px 0}
+.case input{width:22px;height:22px}
+.message{border-radius:14px;padding:10px 14px;margin:10px 0;font-size:14px}
+.message.ok{background:rgba(31,179,132,.25)}.message.ko{background:rgba(192,57,43,.4)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:50;padding:11px 18px;border-radius:999px;font-weight:700;font-size:14px;background:#073F2D;box-shadow:0 10px 30px -10px #000,inset 0 0 0 1px rgba(255,255,255,.2);max-width:calc(100% - 32px);text-align:center}
+.connexion{text-align:center;padding:28px 18px}
+#btn-google{display:flex;justify-content:center;margin:16px 0 6px;min-height:44px}
+.progres-envoi{height:10px;border-radius:9px;overflow:hidden;margin-top:12px;background:rgba(0,0,0,.3)}
+.progres-envoi i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,var(--vert-vif),var(--jaune),var(--rouge-clair));transition:width .3s ease}
+.vignette-video{width:54px;height:72px;flex:none;border-radius:10px;overflow:hidden;display:grid;place-items:center;font-size:20px;background:linear-gradient(160deg,#0A6447,#03251B);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.vignette-video img{width:100%;height:100%;object-fit:cover}
+.encadre{border-radius:16px;padding:14px;margin:10px 0;background:rgba(242,183,5,.12);box-shadow:inset 0 0 0 1px rgba(242,183,5,.5)}
+.encadre p{margin:8px 0 0;font-size:14px}.liens-drive{margin:6px 0 0;padding-left:20px;font-size:14px}.liens-drive li{margin:4px 0}
+.carte-prete{box-shadow:inset 0 0 0 1px rgba(242,183,5,.55),0 18px 36px -22px rgba(0,0,0,.8)}
+.choix-role{width:auto;min-height:38px;padding:6px 10px;font-size:14px;border-radius:999px}
+.filtres button:disabled{opacity:.45;cursor:not-allowed}
+/* Fenêtres en 3D : chaque onglet arrive en pivotant légèrement */
+#panneau.entree>*{animation:carte-3d .5s cubic-bezier(.2,.8,.2,1) backwards}
+#panneau.entree>*:nth-child(2){animation-delay:.06s}#panneau.entree>*:nth-child(3){animation-delay:.12s}#panneau.entree>*:nth-child(4){animation-delay:.18s}
+@keyframes carte-3d{from{opacity:0;transform:perspective(1100px) translateY(26px) rotateX(10deg) scale(.98)}to{opacity:1;transform:none}}
+.entete img{animation:logo-3d 1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes logo-3d{from{transform:perspective(500px) rotateY(-120deg);opacity:0}to{transform:none;opacity:1}}
+.toast{animation:toast-3d .35s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes toast-3d{from{opacity:0;transform:translateX(-50%) perspective(400px) rotateX(-60deg) translateY(20px)}to{opacity:1;transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){#panneau.entree>*,.entete img,.toast{animation:none}}
+@media (max-width:420px){.ligne2,.ligne3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+  <div class="entete">
+    <img src="assets/logo-96.webp" width="44" height="44" alt="">
+    <div><h1>Espace gérant</h1><small id="qui">APEL Éditions · Salon de lecture</small></div>
+    <a class="btn btn-verre btn-petit" href="./">Voir le site</a>
+  </div>
+
+  <section id="vue-connexion" class="carte connexion">
+    <h2>Connexion</h2>
+    <p class="muet">Connectez-vous avec le compte Google d'APEL Éditions (apeledition@gmail.com) ou avec une adresse ajoutée à l’équipe par un administrateur.</p>
+    <div id="btn-google"></div>
+    <p class="muet" id="google-attente">Chargement de la connexion Google…</p>
+    <p class="message ko" id="refus" role="alert" hidden></p>
+  </section>
+
+  <section id="vue-admin" hidden>
+    <div class="onglets" role="tablist">
+      <button type="button" role="tab" data-onglet="codes" aria-selected="true">Codes de lecture</button>
+      <button type="button" role="tab" data-onglet="livres" aria-selected="false">Livres à lire</button>
+      <button type="button" role="tab" data-onglet="videos" aria-selected="false">Vidéos</button>
+      <button type="button" role="tab" data-onglet="reglages" aria-selected="false">Tarifs</button>
+      <button type="button" role="tab" data-onglet="gerants" aria-selected="false">Équipe</button>
+    </div>
+    <div id="panneau" role="tabpanel"></div>
+    <div class="actions" style="margin-top:22px">
+      <button type="button" class="btn btn-verre btn-petit" id="pass">Lire comme un abonné sur cet appareil</button>
+      <button type="button" class="btn btn-verre btn-petit" id="deconnexion">Se déconnecter</button>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="donnees.js" async></script>
+<script src="textes.js"></script>
+<script src="gerant.js"></script>
+</body>
+</html>
