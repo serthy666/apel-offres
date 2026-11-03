@@ -11,6 +11,27 @@
   },
   "produits": [
     {
+      "id": "pmw14x5fudlij",
+      "nom": "Vanilla voyage et Way milk",
+      "rayon": "parfums",
+      "categorie": "Parfums",
+      "marque": "",
+      "details": "Parfums frais et gourmands",
+      "options": "100ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 10000,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw14x5fudlij-mw14xmnv8z2l.jpg",
+        "photos/pmw14x5fudlij-mw14xmp9c6vu.jpg"
+      ]
+    },
+    {
       "id": "pmw14v15vnwu9",
       "nom": "Marshmalow",
       "rayon": "parfums",
