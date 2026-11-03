@@ -202,7 +202,8 @@ function ouvrirEditeur(id) {
   editeur = x ? { existant: true, livre: { id: x.id, titre: x.titre, auteur: x.auteur || '', resume: x.resume || '', genre: x.genre || '', gratuits: x.gratuits, visible: !!x.visible, ordre: x.ordre || 0 }, nbChapitres: x.chapitres, import: null, mode: 'remplacer', anciens: null }
     : { existant: false, livre: { id: '', titre: '', auteur: '', resume: '', genre: 'roman', gratuits: 1, visible: true, ordre: 0 }, nbChapitres: 0, import: null, mode: 'remplacer', anciens: null };
   rendre();
-  if (x) appel('GET', null, 'action=chapitres&livre=' + encodeURIComponent(x.id)).then(function (d) { if (editeur && editeur.livre.id === x.id) editeur.anciens = d.chapitres; }).catch(function () {});
+  if (x) appel('GET', null, 'action=chapitres&livre=' + encodeURIComponent(x.id)).then(function (d) { if (editeur && editeur.livre.id === x.id) { editeur.anciens = d.chapitres; if (!editeur.import) rendre(); } }).catch(function () {});
+  if (x && donnees.tts && !voixDispo) chargerVoix();
 }
 function vueEditeur() {
   var e = editeur, l = e.livre, cat = catalogue();
@@ -240,6 +241,7 @@ function vueEditeur() {
           '<small>' + mille(c.mots) + ' mots · ' + esc(debut) + (debut.length >= 110 ? '…' : '') + ' · <button type="button" class="btn-lien" data-apercu="' + i + '" style="background:none;border:0;color:var(--jaune-clair);text-decoration:underline;cursor:pointer;padding:0">' + (c.ouvert ? 'Masquer' : 'Aperçu') + '</button></small>' +
           (c.ouvert ? '<div class="apercu">' + apercu(c.blocs) + '</div>' : '') + '</div>';
       }).join('') + '</div></div>' : '') + '</section>' +
+    (e.existant && !imp ? vueAudio() : '') +
     '<div class="actions"><button type="button" class="btn btn-primaire" id="ed-publier">' + (imp ? 'Publier dans le Salon' : 'Enregistrer') + '</button>' +
     (e.existant ? '<button type="button" class="btn btn-danger" id="ed-supprimer">Retirer du Salon</button>' : '') + '</div><p class="message" id="ed-message" hidden></p>';
 }
@@ -260,7 +262,163 @@ function lireChamps() {
   l.visible = $('ed-visible').checked;
 }
 function codeDepuis(titre) { return String(titre || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60); }
+/* ---------- Écoute : voix IA Google pour chaque chapitre ---------- */
+var voixDispo = null, generation = null;
+var voixChoisie = (function () { try { return localStorage.getItem('apel-tts-voix') || ''; } catch (e) { return ''; } })();
+var vitesseVoix = 1;
+function chargerVoix() {
+  voixDispo = 'attente';
+  appel('GET', null, 'action=voix').then(function (d) {
+    voixDispo = d.voix || [];
+    if (!voixChoisie || !voixDispo.some(function (v) { return v.nom === voixChoisie; })) {
+      var pref = ['fr-FR-Neural2-A', 'fr-FR-Neural2-B', 'fr-FR-Wavenet-A'];
+      voixChoisie = (pref.filter(function (p) { return voixDispo.some(function (v) { return v.nom === p; }); })[0]) || (voixDispo[0] && voixDispo[0].nom) || '';
+    }
+    if (onglet === 'livres' && editeur) rendre();
+  }).catch(function (e) { voixDispo = { erreur: e.message }; if (onglet === 'livres' && editeur) rendre(); });
+}
+function nomVoix(v) {
+  var type = /Chirp|Journey/i.test(v.nom) ? 'très naturelle' : /Studio/i.test(v.nom) ? 'studio' : /Neural2|Wavenet|Polyglot/i.test(v.nom) ? 'naturelle' : 'standard';
+  return v.nom.replace(/^fr-(FR|CA)-/, '') + ' · ' + (v.genre === 'FEMALE' ? 'femme' : v.genre === 'MALE' ? 'homme' : 'voix') + ' · ' + type + (v.langue === 'fr-CA' ? ' · Canada' : '');
+}
+function ssmlPossible(v) { return !/Chirp|Journey/i.test(v || ''); }
+function audioDe(n) { return ((donnees && donnees.audios) || []).filter(function (a) { return a.livre === editeur.livre.id && a.n === n; })[0] || null; }
+function minSec(s) { s = Math.round(s || 0); return Math.floor(s / 60) + ' min ' + ('0' + s % 60).slice(-2); }
+function vueAudio() {
+  var e = editeur, ch = e.anciens;
+  var tete = '<section class="carte"><h2>Écoute : voix IA</h2>';
+  if (!donnees.tts) return tete + '<p class="muet">Les lecteurs peuvent déjà écouter chaque chapitre avec la voix de leur téléphone. Pour une voix IA plus naturelle, ajoutez <code>GOOGLE_TTS_KEY</code> et le stockage R2 <code>MEDIAS</code> dans Cloudflare (voir SALON-LECTURE.md).</p></section>';
+  if (!ch) return tete + '<p class="muet">Chargement des chapitres…</p></section>';
+  if (voixDispo && voixDispo.erreur) return tete + '<p class="message ko">' + esc(voixDispo.erreur) + '</p></section>';
+  if (!Array.isArray(voixDispo)) return tete + '<p class="muet">Chargement des voix Google…</p></section>';
+  var lettres = ch.reduce(function (t, c) { return t + c.blocs.reduce(function (u, b) { return u + (b.r ? b.r.reduce(function (w, x) { return w + x[0].length; }, 0) : 0); }, 0); }, 0);
+  var sans = ch.filter(function (c) { return !audioDe(c.n); }).length;
+  return tete + '<p class="muet">Une voix de synthèse lit chaque chapitre ; le lecteur l’écoute dans la liseuse (écran éteint possible), avec le paragraphe lu surligné. Ce livre compte environ ' + mille(lettres) + ' caractères : Google en offre 1 million par mois avec les voix « naturelles ».</p>' +
+    '<div class="ligne2"><div><label for="au-voix">Voix</label><select id="au-voix">' + voixDispo.map(function (v) { return '<option value="' + esc(v.nom) + '"' + (v.nom === voixChoisie ? ' selected' : '') + '>' + esc(nomVoix(v)) + '</option>'; }).join('') + '</select></div>' +
+    '<div><label for="au-vitesse">Débit</label><select id="au-vitesse">' + [[0.9, 'Posé'], [1, 'Normal'], [1.1, 'Vif']].map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === vitesseVoix ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></div></div>' +
+    '<div class="actions"><button type="button" class="btn btn-verre btn-petit" id="au-essai">Écouter un essai</button>' +
+    (sans ? '<button type="button" class="btn btn-primaire btn-petit" id="au-tout">' + (sans > 1 ? 'Générer les ' + sans + ' chapitres sans audio' : 'Générer le chapitre sans audio') + '</button>' : '') + '</div>' +
+    '<div class="progres-envoi" id="au-progres" hidden><i></i></div><p class="muet" id="au-etat" role="status"></p><p class="message ko" id="au-erreur" role="alert" hidden></p>' +
+    '<ul class="liste">' + ch.map(function (c) {
+      var a = audioDe(c.n);
+      return '<li><div class="infos"><b>' + esc(c.titre) + '</b><small>' + (a ? '🎧 ' + esc(minSec(a.duree)) + ' · ' + esc(String(a.voix || '').replace(/^fr-(FR|CA)-/, '')) : 'Pas encore d’audio') + '</small></div>' +
+        '<div class="actions" style="margin:0">' + (a ? '<button type="button" class="btn btn-verre btn-petit" data-au-ecouter="' + c.n + '">Écouter</button><button type="button" class="btn btn-verre btn-petit" data-au-generer="' + c.n + '">Refaire</button><button type="button" class="btn btn-danger btn-petit" data-au-suppr="' + c.n + '">Supprimer</button>'
+          : '<button type="button" class="btn btn-primaire btn-petit" data-au-generer="' + c.n + '">Générer</button>') + '</div></li>';
+    }).join('') + '</ul></section>';
+}
+// Texte du chapitre en morceaux de moins de 5 000 octets pour Google. En SSML, un repère <mark> avant chaque
+// paragraphe donne l'instant où il commence (paragraphe surligné pendant l'écoute).
+function echSsml(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;'); }
+function octets(t) { return new TextEncoder().encode(t).length; }
+function phrases(t, max) {
+  var l = [], cour = '';
+  (t.match(/[^.!?…»]+[.!?…»]*\s*/g) || [t]).forEach(function (p) {
+    if (octets(cour + p) > max && cour) { l.push(cour); cour = ''; }
+    while (octets(p) > max) { var coupe = Math.floor(p.length * max / octets(p)) - 1; l.push(p.slice(0, coupe)); p = p.slice(coupe); }
+    cour += p;
+  });
+  if (cour.trim()) l.push(cour);
+  return l;
+}
+function morceauxChapitre(c, ssml) {
+  var segs = [{ texte: c.titre.replace(/\s+-\s+/, '. ') + '.', para: null, pause: 700 }], i = 0;
+  c.blocs.forEach(function (b) {
+    if (b.s === 'sep') { segs.push({ pause: 1100 }); return; }
+    var t = b.r.map(function (x) { return x[0]; }).join('').replace(/\s+/g, ' ').trim();
+    if (!t) return;
+    if (b.s === 'h') { segs.push({ texte: t + '.', para: null, pause: 500 }); return; }
+    segs.push({ texte: t, para: i++ });
+  });
+  var max = 4300, morceaux = [], cour = '', premier = true;
+  function fermer() { if (cour) morceaux.push(ssml ? '<speak>' + cour + '</speak>' : cour); cour = ''; }
+  segs.forEach(function (sg) {
+    var parts;
+    if (sg.pause && !sg.texte) parts = [ssml ? '<break time="' + sg.pause + 'ms"/>' : '\n\n'];
+    else parts = phrases(sg.texte, max - 200).map(function (t, k) {
+      if (!ssml) return t + (k ? '' : '');
+      return (k === 0 && sg.para != null ? '<mark name="p' + sg.para + '"/>' : '') + echSsml(t) + (sg.pause ? '<break time="' + sg.pause + 'ms"/>' : '');
+    });
+    parts.forEach(function (p, k) {
+      var bloc = ssml ? (k === 0 ? '<p>' : '') + p + (k === parts.length - 1 ? '</p>' : '') : (k === 0 && !premier ? '\n\n' : '') + p;
+      if (octets(cour + bloc) + 20 > max) fermer();
+      cour += bloc; premier = false;
+    });
+  });
+  fermer();
+  return morceaux;
+}
+function base64Octets(b64) { var s = atob(b64), o = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) o[i] = s.charCodeAt(i); return o; }
+var contexteAudio = null;
+function dureeMp3(o) {
+  try {
+    contexteAudio = contexteAudio || new (window.AudioContext || window.webkitAudioContext)();
+    return contexteAudio.decodeAudioData(o.buffer.slice(0)).then(function (b) { return b.duration; }, function () { return o.length * 8 / 32000; });
+  } catch (e) { return Promise.resolve(o.length * 8 / 32000); }
+}
+function genererChapitre(c, suivi) {
+  var voix = voixChoisie, ssml = ssmlPossible(voix), parts = morceauxChapitre(c, ssml), sons = [], reperes = [], cumul = 0;
+  var chaine = Promise.resolve();
+  parts.forEach(function (m, k) {
+    chaine = chaine.then(function () {
+      suivi(k, parts.length);
+      return appel('POST', ssml ? { action: 'tts', ssml: m, voix: voix, vitesse: vitesseVoix } : { action: 'tts', texte: m, voix: voix, vitesse: vitesseVoix });
+    }).then(function (r) {
+      if (!r.audioContent) throw new Error('Google n’a pas renvoyé de son.');
+      var o = base64Octets(r.audioContent);
+      sons.push(o);
+      return dureeMp3(o).then(function (d) {
+        (r.timepoints || []).forEach(function (tp) { var p = /^p(\d+)$/.exec(tp.markName || ''); if (p) reperes[+p[1]] = Math.round((cumul + (tp.timeSeconds || 0)) * 100) / 100; });
+        cumul += d;
+      });
+    });
+  });
+  return chaine.then(function () {
+    for (var i = 0; i < reperes.length; i++) if (reperes[i] == null) reperes[i] = i ? reperes[i - 1] : 0;
+    suivi(parts.length, parts.length, 'envoi');
+    return envoyer(new Blob(sons, { type: 'audio/mpeg' }), 'audio', 'audio/mpeg');
+  }).then(function (r) {
+    return appel('POST', { action: 'audio', livre: editeur.livre.id, n: c.n, cle: r.cle, duree: Math.round(cumul * 10) / 10, voix: voix, reperes: reperes });
+  });
+}
+function lancerGeneration(liste) {
+  if (generation) return;
+  var err = $('au-erreur'), etat = $('au-etat'), barre = $('au-progres');
+  err.hidden = true; barre.hidden = false; generation = true;
+  [].forEach.call(document.querySelectorAll('[data-au-generer],#au-tout'), function (b) { b.disabled = true; });
+  var chaine = Promise.resolve(), faits = 0;
+  liste.forEach(function (c, i) {
+    chaine = chaine.then(function () {
+      return genererChapitre(c, function (k, total, envoi) {
+        etat.textContent = 'Chapitre ' + (i + 1) + ' sur ' + liste.length + ' (« ' + c.titre + ' ») : ' + (envoi ? 'enregistrement…' : 'passage ' + (k + 1) + ' sur ' + total + '…');
+        barre.firstChild.style.width = Math.round(((i + (envoi ? 1 : k / total)) / liste.length) * 100) + '%';
+      }).then(function () { faits++; });
+    });
+  });
+  chaine.then(function () {
+    generation = null; toast(faits > 1 ? faits + ' chapitres à écouter' : 'Audio prêt');
+    return charger().then(function () { if (editeur) rendre(); });
+  }).catch(function (e) {
+    generation = null; barre.hidden = true; err.hidden = false; err.textContent = e.message + (faits ? ' (' + faits + ' chapitre' + (faits > 1 ? 's' : '') + ' déjà prêt' + (faits > 1 ? 's' : '') + ')' : '');
+    [].forEach.call(document.querySelectorAll('[data-au-generer],#au-tout'), function (b) { b.disabled = false; });
+    if (faits) charger().then(function () { if (editeur) rendre(); });
+  });
+}
+function brancherAudio() {
+  var sv = $('au-voix'); if (!sv) return;
+  sv.addEventListener('change', function () { voixChoisie = sv.value; try { localStorage.setItem('apel-tts-voix', voixChoisie); } catch (e) {} });
+  $('au-vitesse').addEventListener('change', function () { vitesseVoix = +this.value; });
+  $('au-essai').addEventListener('click', function () {
+    var b = this, fin = occupe(b, 'Essai…');
+    appel('POST', { action: 'tts', texte: 'Bonjour ! Je suis la voix du Salon de lecture d’APEL Éditions. Installez-vous, l’histoire commence.', voix: voixChoisie, vitesse: vitesseVoix })
+      .then(function (r) { fin(); new Audio('data:audio/mpeg;base64,' + r.audioContent).play().catch(function () {}); })
+      .catch(function (e) { fin(); toast(e.message); });
+  });
+  var tout = $('au-tout');
+  if (tout) tout.addEventListener('click', function () { lancerGeneration(editeur.anciens.filter(function (c) { return !audioDe(c.n); })); });
+}
+
 function brancherEditeur() {
+  brancherAudio();
   var cat = $('ed-cat');
   if (cat) cat.addEventListener('change', function () {
     lireChamps();
@@ -358,7 +516,8 @@ function autoriserDrive() {
 function choisirDansDrive(ids) {
   var jeton;
   // Session reprise après un rechargement : la bibliothèque de connexion Google n'est peut-être pas encore là.
-  return Promise.all([script('https://accounts.google.com/gsi/client'), script('https://apis.google.com/js/api.js')]).then(function () {
+  // L'une après l'autre : chacune complète l'objet « google » de la page, sans que l'ordre d'arrivée compte.
+  return script('https://accounts.google.com/gsi/client').then(function () { return script('https://apis.google.com/js/api.js'); }).then(function () {
     return new Promise(function (ok) { gapi.load('picker', ok); });
   }).then(autoriserDrive).then(function (t) {
     jeton = t;
@@ -563,6 +722,17 @@ document.addEventListener('click', function (e) {
   if (b.hasAttribute('data-fermer-editeur')) { editeur = null; rendre(); return; }
   if ((v = b.getAttribute('data-mode'))) { lireChamps(); editeur.mode = v; rendre(); return; }
   if ((v = b.getAttribute('data-apercu'))) { lireChamps(); var ch = editeur.import.chapitres[+v]; ch.ouvert = !ch.ouvert; rendre(); return; }
+  if ((v = b.getAttribute('data-au-generer'))) { var cg = (editeur.anciens || []).filter(function (c) { return c.n === +v; })[0]; if (cg) lancerGeneration([cg]); return; }
+  if ((v = b.getAttribute('data-au-ecouter'))) {
+    var ap = audioDe(+v);
+    if (ap) new Audio('api/lecture?action=media&cle=' + encodeURIComponent(ap.cle)).play().catch(function () {});
+    return;
+  }
+  if ((v = b.getAttribute('data-au-suppr'))) {
+    if (!b.dataset.confirmer) { b.dataset.confirmer = '1'; b.textContent = 'Confirmer'; return; }
+    appel('POST', { action: 'audio_supprimer', livre: editeur.livre.id, n: +v }).then(function () { toast('Audio supprimé'); return charger().then(function () { if (editeur) rendre(); }); }).catch(function (er) { toast(er.message); });
+    return;
+  }
   if ((v = b.getAttribute('data-source'))) { sourceVideo = v; rendre(); return; }
   if ((v = b.getAttribute('data-video-visible'))) {
     var vi = (donnees.videos || []).filter(function (x) { return x.id === v; })[0];

@@ -11,6 +11,7 @@
 //   ADMINISTRATEURS   facultatif, adresses de secours toujours administratrices, séparées par des virgules
 //   GOOGLE_API_KEY    facultatif, clé d'API Google (bouton « Google Drive » de l'Espace gérant)
 //   GOOGLE_PROJET     facultatif, numéro du projet Google Cloud (même bouton)
+//   GOOGLE_TTS_KEY    facultatif, clé d'API Google limitée à « Cloud Text-to-Speech » (voix IA des chapitres, secret)
 // Liaisons (Settings > Bindings) : base D1 nommée « DB » ; facultatif, stockage R2 nommé « MEDIAS »
 // pour téléverser des vidéos depuis le téléphone (sans lui, les vidéos se mettent par lien YouTube, TikTok…).
 
@@ -24,7 +25,7 @@ export const EMOJIS = ["coeur", "rire", "choc", "larme", "feu"];
 export const APPAREIL = /^[a-z0-9]{16,40}$/;
 export const ID_LIVRE = /^[a-z0-9][a-z0-9-]{0,79}$/;
 export const GENRES = ["roman", "nouvelles", "poesie", "conte", "theatre", "essai", "temoignage", "jeunesse", "feuilleton", "autre"];
-export const CLE_MEDIA = /^(videos|affiches)\/[a-z0-9]{8,40}\.(mp4|webm|mov|m4v|3gp|jpg|webp|png)$/;
+export const CLE_MEDIA = /^(videos|affiches|audios)\/[a-z0-9]{8,40}\.(mp4|webm|mov|m4v|3gp|jpg|webp|png|mp3)$/;
 
 const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS livres (id TEXT PRIMARY KEY, titre TEXT NOT NULL, auteur TEXT, resume TEXT, genre TEXT, gratuits INTEGER NOT NULL DEFAULT 1, visible INTEGER NOT NULL DEFAULT 1, ordre INTEGER NOT NULL DEFAULT 0, maj INTEGER)",
@@ -34,7 +35,10 @@ const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS activations (code TEXT NOT NULL, appareil TEXT NOT NULL, debut INTEGER NOT NULL, fin INTEGER NOT NULL, PRIMARY KEY (code, appareil))",
   "CREATE TABLE IF NOT EXISTS gerants (email TEXT PRIMARY KEY, statut TEXT NOT NULL, depuis TEXT, role TEXT NOT NULL DEFAULT 'gerant')",
   "CREATE TABLE IF NOT EXISTS reactions (livre TEXT NOT NULL, n INTEGER NOT NULL, appareil TEXT NOT NULL, emoji TEXT NOT NULL, t INTEGER, PRIMARY KEY (livre, n, appareil))",
-  "CREATE TABLE IF NOT EXISTS reglages (cle TEXT PRIMARY KEY, valeur TEXT)"
+  "CREATE TABLE IF NOT EXISTS reglages (cle TEXT PRIMARY KEY, valeur TEXT)",
+  // Lecture audio d'un chapitre (voix IA Google) : fichier MP3 du stockage R2, durée, et instant (en secondes)
+  // où commence chaque paragraphe, pour surligner le paragraphe lu.
+  "CREATE TABLE IF NOT EXISTS audios (livre TEXT NOT NULL, n INTEGER NOT NULL, cle TEXT NOT NULL, voix TEXT, duree REAL, reperes TEXT, maj INTEGER, PRIMARY KEY (livre, n))"
 ];
 const schemaPret = new WeakSet();
 

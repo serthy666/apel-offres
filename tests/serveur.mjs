@@ -7,6 +7,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
+import os from "node:os";
 
 const RACINE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const CLIENT_ID = "test-client.apps.googleusercontent.com";
@@ -50,6 +52,36 @@ export function fauxR2() {
   };
 }
 
+// Faux Google Text-to-Speech : un vrai petit MP3 (1 seconde, fabriqué par ffmpeg) par passage demandé,
+// et un repère par <mark> du SSML, à 0,2 s d'écart. Sans ffmpeg, quelques octets suffisent aux tests du serveur.
+let MP3 = null;
+function petitMp3() {
+  if (MP3) return MP3;
+  try {
+    const f = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "mp3-")), "son.mp3");
+    execFileSync("ffmpeg", ["-loglevel", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=1", "-ac", "1", "-ar", "24000", "-b:a", "32k", f]);
+    MP3 = fs.readFileSync(f);
+  } catch (e) { MP3 = Buffer.from([0xff, 0xf3, 0x44, 0xc4, 0, 0, 0, 0]); }
+  return MP3;
+}
+export const SYNTHESES = [];
+async function fauxTts(url, init) {
+  const u = new URL(url);
+  if (u.searchParams.get("key") !== "cle-tts-test") return reponse(403, { error: { message: "API key not valid" } });
+  if (u.pathname === "/v1/voices") return reponse(200, { voices: [
+    { languageCodes: ["fr-FR"], name: "fr-FR-Neural2-A", ssmlGender: "FEMALE" },
+    { languageCodes: ["fr-FR"], name: "fr-FR-Neural2-B", ssmlGender: "MALE" },
+    { languageCodes: ["fr-FR"], name: "fr-FR-Chirp3-HD-Aoede", ssmlGender: "FEMALE" },
+    { languageCodes: ["en-US"], name: "en-US-Neural2-A", ssmlGender: "FEMALE" }] });
+  if (u.pathname === "/v1beta1/text:synthesize") {
+    const corps = JSON.parse(init.body);
+    SYNTHESES.push(corps);
+    const marques = [...String((corps.input || {}).ssml || "").matchAll(/<mark name="([^"]+)"\/>/g)].map((m, i) => ({ markName: m[1], timeSeconds: Math.min(0.9, i * 0.2) }));
+    return reponse(200, { audioContent: petitMp3().toString("base64"), timepoints: marques, audioConfig: corps.audioConfig });
+  }
+  return reponse(404, { error: { message: "inconnu" } });
+}
+
 function reponse(statut, corps) { return new Response(JSON.stringify(corps), { status: statut, headers: { "content-type": "application/json" } }); }
 function fauxGoogle(url) {
   const jeton = new URL(url).searchParams.get("id_token") || "";
@@ -58,13 +90,14 @@ function fauxGoogle(url) {
   return reponse(200, { iss: "https://accounts.google.com", aud: CLIENT_ID, email: m[1], email_verified: "true", exp: String(Math.floor(Date.now() / 1000) + 3600) });
 }
 
-const TYPES = { ".svg": "image/svg+xml", ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json", ".webp": "image/webp", ".jpg": "image/jpeg", ".png": "image/png", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json", ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document" };
+const TYPES = { ".mp3": "audio/mpeg", ".svg": "image/svg+xml", ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json", ".webp": "image/webp", ".jpg": "image/jpeg", ".png": "image/png", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json", ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document" };
 
 export async function demarrer({ port = 0, env = {} } = {}) {
   const vraiFetch = globalThis.fetch;
   globalThis.fetch = async (url, init) => {
     const u = String(url && url.url || url);
     if (u.startsWith("https://oauth2.googleapis.com/tokeninfo")) return fauxGoogle(u);
+    if (u.startsWith("https://texttospeech.googleapis.com/")) return fauxTts(u, init || {});
     return vraiFetch(url, init);
   };
   const lecture = await import(path.join(RACINE, "functions/api/lecture.js"));

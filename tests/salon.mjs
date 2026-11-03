@@ -9,15 +9,15 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { demarrer, PROPRIO } from "./serveur.mjs";
+import { demarrer, PROPRIO, SYNTHESES } from "./serveur.mjs";
 import { fabriquerDocx } from "./docx.mjs";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 const TMP = fs.mkdtempSync(path.join(process.env.TMPDIR || "/tmp", "salon-"));
-const FAUX_GIS = `window.google={accounts:{oauth2:{initTokenClient:function(o){return {requestAccessToken:function(){setTimeout(function(){o.callback({access_token:"jeton-drive",expires_in:3600})},10)}}}},id:{initialize:function(o){window.__cb=o.callback},
+const FAUX_GIS = `window.google=window.google||{};window.google.accounts={oauth2:{initTokenClient:function(o){return {requestAccessToken:function(){setTimeout(function(){o.callback({access_token:"jeton-drive",expires_in:3600})},10)}}}},id:{initialize:function(o){window.__cb=o.callback},
   renderButton:function(el){el.innerHTML='<button id="faux-google">Se connecter avec Google</button>'},
-  disableAutoSelect:function(){}}}};window.__google=function(m){window.__cb({credential:"test:"+m})};`;
+  disableAutoSelect:function(){}}};window.__google=function(m){window.__cb({credential:"test:"+m})};`;
 
 const LIVRE = [
   { style: "Title", runs: [["Souhaits maudits", ""]] },
@@ -45,7 +45,11 @@ google.picker={ViewId:{DOCS:"docs"},Feature:{MULTISELECT_ENABLED:"multi"},Action
     b.setCallback=function(f){cb=f;return b};b.build=function(){return {setVisible:function(){setTimeout(function(){cb({action:"picked",docs:[
       {id:"doc2",name:"Chapitre 2 - Le Seuil",mimeType:"application/vnd.google-apps.document"},
       {id:"txt1",name:"Chapitre 1 - L'Empire.txt",mimeType:"text/plain"}]})},20)}}}}};`;
-const s = await demarrer({ env: { GOOGLE_API_KEY: "cle-test", GOOGLE_PROJET: "123456" } });
+// Fausse voix du téléphone : chaque phrase « dite » est notée, puis se termine aussitôt.
+const FAUSSE_VOIX = `window.__dit=[];window.SpeechSynthesisUtterance=function(t){this.text=t};
+Object.defineProperty(window,"speechSynthesis",{configurable:true,value:{speak:function(u){window.__dit.push(u.text);setTimeout(function(){if(u.onend)u.onend()},15)},cancel:function(){},
+getVoices:function(){return [{name:"Google français",lang:"fr-FR"}]},addEventListener:function(){}}});`;
+const s = await demarrer({ env: { GOOGLE_API_KEY: "cle-test", GOOGLE_PROJET: "123456", GOOGLE_TTS_KEY: "cle-tts-test" } });
 const navigateur = await chromium.launch();
 const erreurs = [];
 let etape = "";
@@ -56,6 +60,7 @@ async function contexte(opts = {}) {
   await ctx.route(/docs\.google\.com/, r => r.abort());
   await ctx.route(/googleusercontent|drive\.google/, r => r.abort());
   await ctx.route("https://accounts.google.com/gsi/client", r => r.fulfill({ contentType: "text/javascript", body: FAUX_GIS }));
+  await ctx.addInitScript(FAUSSE_VOIX);
   await ctx.route("https://apis.google.com/js/api.js", r => r.fulfill({ contentType: "text/javascript", body: FAUX_PICKER }));
   await ctx.route(/googleapis\.com\/drive\/v3\/files\//, r => {
     const u = r.request().url();
@@ -180,6 +185,27 @@ try {
   assert.equal(morceau.headers.get("content-range"), "bytes 100-199/200000");
   assert.equal((await morceau.arrayBuffer()).byteLength, 100);
 
+  log("Voix IA : choix de la voix et génération des chapitres");
+  await g.click("[data-onglet=livres]");
+  await g.click("[data-livre='souhaits-maudits']");
+  await g.waitForSelector("#au-voix option[value='fr-FR-Neural2-B']", { state: "attached" });
+  assert.equal(await g.locator("#au-voix option").count(), 3, "voix françaises seulement");
+  await g.selectOption("#au-voix", "fr-FR-Neural2-B");
+  await g.click("#au-tout");
+  await g.waitForSelector("text=3 chapitres à écouter", { timeout: 30000 });
+  assert.equal(await g.locator(".liste li >> text=🎧").count(), 3);
+  assert.ok(SYNTHESES.every(x => x.voice.name === "fr-FR-Neural2-B" && x.input.ssml && x.input.ssml.startsWith("<speak>") && x.enableTimePointing), "SSML avec repères");
+  assert.ok(SYNTHESES.every(x => new TextEncoder().encode(x.input.ssml).length <= 5000), "morceaux de moins de 5 000 octets");
+  const avecAudio = (await api("lecture?action=chapitre&livre=souhaits-maudits&n=1")).d;
+  const nbPara = avecAudio.blocs.filter(b => b.s !== "sep" && b.s !== "h").length;
+  assert.ok(avecAudio.audio && avecAudio.audio.src.includes("action=media"), "audio donné avec le chapitre");
+  assert.equal(avecAudio.audio.reperes.length, nbPara, "un repère par paragraphe");
+  assert.ok(avecAudio.audio.duree > 0.5);
+  assert.equal((await api("lecture?action=chapitre&livre=souhaits-maudits&n=2")).d.audio, undefined, "pas d'audio pour un chapitre verrouillé");
+  const catAudio = (await api("lecture?action=catalogue")).d.livres.find(l => l.id === "souhaits-maudits");
+  assert.ok(catAudio.chapitres.every(c => c.audio > 0), "chapitres marqués 🎧 dans le catalogue");
+  await g.click("[data-fermer-editeur]");
+
   log("Tarifs");
   await g.click("[data-onglet=reglages]");
   await g.fill("#prix-semaine", "1 000 FCFA");
@@ -238,6 +264,24 @@ try {
   await pasDeDefilement(lecteur, "liseuse");
   await lecteur.locator("#sl-fin").scrollIntoViewIfNeeded();
   await lecteur.waitForSelector("text=Nouveau badge : 📖 Premier chapitre");
+
+  log("Écoute en voix IA : lecture, paragraphe surligné, Lire d'ici, pause");
+  await lecteur.click(".sl-outils [data-sl=ecouter]");
+  await lecteur.waitForSelector("#sl-lecteur >> text=Voix IA");
+  await lecteur.waitForFunction(() => document.querySelector(".sl-texte p.sl-dit"), null, { timeout: 15000 });
+  await lecteur.click(".sl-texte p[data-para='3']");
+  await lecteur.click("#sl-lire-ici");
+  await lecteur.waitForFunction(() => { const p = document.querySelector(".sl-texte p.sl-dit"); return p && +p.getAttribute("data-para") >= 3; }, null, { timeout: 15000 });
+  await lecteur.click("#sl-l-jouer");
+  await lecteur.waitForSelector("#sl-l-jouer[aria-label='Écouter']");
+  await lecteur.click("#sl-l-vitesse");
+  assert.equal((await lecteur.textContent("#sl-l-vitesse")).trim(), "1,25×");
+  await lecteur.click("#sl-l-minuterie");
+  await lecteur.waitForSelector("text=Arrêt dans 15 min");
+  await lecteur.click("#sl-l-fermer");
+  assert.ok(await lecteur.locator("#sl-lecteur").isHidden());
+  await lecteur.click("#sl-l-vitesse").catch(() => {});
+  await lecteur.evaluate(() => { const p = JSON.parse(localStorage.getItem("apel-liseuse")); p.vitesseVoix = 1; localStorage.setItem("apel-liseuse", JSON.stringify(p)); });
 
   log("Réaction");
   await lecteur.waitForSelector("#sl-emojis button");
@@ -475,7 +519,29 @@ try {
   await pg.waitForSelector(".sl-texte >> text=Elle revint au village");
   assert.ok(pg.url().endsWith("#/lire/souhaits-maudits/4"));
 
+  log("Voix du téléphone : un chapitre sans voix IA, enchaînement au suivant, fin du livre");
+  await pg.goto(s.url + "/#/lire/le-masque-d-ebene/1");
+  await pg.waitForSelector(".sl-texte");
+  await pg.click(".sl-outils [data-sl=ecouter]");
+  await pg.waitForSelector("#sl-lecteur >> text=Voix du téléphone");
+  await pg.waitForFunction(() => location.hash.endsWith("/le-masque-d-ebene/2"), null, { timeout: 15000 });
+  await pg.waitForSelector("text=Fin du livre… pour l’instant !", { timeout: 15000 });
+  const dit = await pg.evaluate(() => window.__dit);
+  assert.ok(dit.some(t => t.includes("Les gyrophares")) && dit.some(t => t.includes("Gaétan franchit")), "les deux chapitres sont lus : " + dit.join(" | ").slice(0, 200));
+
+  log("Texte remplacé : voix IA gardée pour un chapitre inchangé, retirée pour un chapitre modifié");
+  const proprio = (await api("gerant", { action: "connexion", credential: "test:" + PROPRIO })).d.jeton;
+  const chs = (await api("gerant?action=chapitres&livre=souhaits-maudits", null, proprio)).d.chapitres;
+  const cleAvant = (await api("gerant?action=tableau", null, proprio)).d.audios.filter(a => a.livre === "souhaits-maudits").map(a => a.n + ":" + a.cle);
+  chs[1].blocs = chs[1].blocs.concat([{ s: "p", r: [["Une phrase ajoutée au chapitre 2."]] }]);
+  assert.equal((await api("gerant", { action: "livre", livre: { id: "souhaits-maudits", titre: "Souhaits maudits", gratuits: 2 }, chapitres: chs.map(c => ({ titre: c.titre, blocs: c.blocs })), mode: "remplacer" }, proprio)).statut, 200);
+  const apres = (await api("gerant?action=tableau", null, proprio)).d.audios.filter(a => a.livre === "souhaits-maudits").map(a => a.n + ":" + a.cle);
+  assert.ok(apres.includes(cleAvant.find(x => x.startsWith("1:"))), "chapitre 1 inchangé : voix gardée");
+  assert.ok(!apres.some(x => x.startsWith("2:")), "chapitre 2 modifié : voix retirée");
+  assert.ok(!s.env.MEDIAS.objets.has(cleAvant.find(x => x.startsWith("2:")).split(":")[1]), "fichier MP3 du chapitre 2 supprimé");
+
   log("Sécurité de l'API");
+  assert.equal((await api("gerant", { action: "tts", texte: "Bonjour", voix: "fr-FR-Neural2-A" })).statut, 401, "voix IA réservée à l'équipe");
   assert.equal((await api("gerant?action=tableau")).statut, 401);
   assert.equal((await api("lecture", { action: "activer", code: codeSemaine, appareil: "court" })).statut, 400);
   assert.equal((await api("lecture?action=chapitre&livre=souhaits-maudits&n=3", null, "faux.jeton")).statut, 402);
