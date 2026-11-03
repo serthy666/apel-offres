@@ -10,7 +10,9 @@ const echapper = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").rep
 // Paragraphe : { style: "Heading1" | "Title" | "Quote" | "", centre: bool, runs: [[texte, "b" | "i" | "bi" | ""]] } ou une simple chaîne.
 function paragraphe(p) {
   if (typeof p === "string") p = { runs: [[p, ""]] };
-  const ppr = (p.style ? `<w:pStyle w:val="${p.style}"/>` : "") + (p.centre ? `<w:jc w:val="center"/>` : "");
+  // saut : nouvelle page avant le paragraphe ; aligne : "center", "right" ou "both" (justifié)
+  const jc = p.centre ? "center" : p.aligne || "";
+  const ppr = (p.style ? `<w:pStyle w:val="${p.style}"/>` : "") + (p.saut ? "<w:pageBreakBefore/>" : "") + (jc ? `<w:jc w:val="${jc}"/>` : "");
   const runs = (p.runs || []).map(([t, f]) => {
     const rpr = (f && f.includes("b") ? "<w:b/>" : "") + (f && f.includes("i") ? "<w:i/>" : "");
     return `<w:r>${rpr ? `<w:rPr>${rpr}</w:rPr>` : ""}<w:t xml:space="preserve">${echapper(t)}</w:t></w:r>`;

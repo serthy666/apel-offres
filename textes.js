@@ -467,21 +467,31 @@ function lirePdf(octets) {
     var ecart = mediane(ecarts.filter(function (e) { return e > 0; })) || hMed * 1.4;
     var gauche = mediane(toutes.map(function (l) { return l.x; })), droite = mediane(toutes.map(function (l) { return l.fin; }));
     var avecMot = toutes.some(function (l) { return MOT_CHAPITRE.test(l.texte) && l.texte.length < 100; });
-    var res = [], cour = null;
+    var res = [], cour = null, largeur = droite - gauche;
     toutes.forEach(function (l, i) {
       var prec = toutes[i - 1], t = l.texte.replace(/\s+/g, ' ').trim();
       var grand = l.h >= hMed * 1.35 && t.length < 80;
-      var nouveau = !prec || !cour || grand || cour.grand ||
+      // Une ligne « Chapitre I », « Prologue »… est toujours un paragraphe à elle seule.
+      var titre = MOT_CHAPITRE.test(t) && t.length < 60;
+      var courte = prec && prec.fin < droite - largeur * 0.15;
+      var nouveau = !prec || !cour || grand || cour.grand || titre || cour.titre ||
         (prec.page === l.page && prec.y - l.y > ecart * 1.45) ||
-        (l.x - gauche > hMed * 0.9 && l.x - gauche < (droite - gauche) * 0.3) ||
-        (prec.fin < droite - (droite - gauche) * 0.15 && /[.!?»”:…]$/.test(prec.texte.trim()));
+        // Nouvelle page après une ligne courte (dédicace, fin de chapitre) : nouveau paragraphe.
+        (prec.page !== l.page && (courte || /[.!?»”…]$/.test(prec.texte.trim()))) ||
+        (l.x - gauche > hMed * 0.9 && l.x - gauche < largeur * 0.3) ||
+        (courte && /[.!?»”:…]$/.test(prec.texte.trim()));
       if (nouveau) {
-        var milieu = (l.x + l.fin) / 2, centre = Math.abs(milieu - (gauche + droite) / 2) < hMed * 2 && l.x - gauche > (droite - gauche) * 0.12;
-        cour = { texte: t, centre: centre, grand: grand };
+        var milieu = (l.x + l.fin) / 2, centre = Math.abs(milieu - (gauche + droite) / 2) < hMed * 2 && l.x - gauche > largeur * 0.12;
+        cour = { texte: t, centre: centre, grand: grand, titre: titre, lignes: 1 };
         res.push(cour);
-      } else if (/[A-Za-zÀ-ÿ]-$/.test(cour.texte) && /^[a-zà-ÿ]/.test(t)) cour.texte = cour.texte.slice(0, -1) + t;
-      else cour.texte += ' ' + t;
+      } else {
+        cour.lignes++;
+        if (/[A-Za-zÀ-ÿ]-$/.test(cour.texte) && /^[a-zà-ÿ]/.test(t)) cour.texte = cour.texte.slice(0, -1) + t;
+        else cour.texte += ' ' + t;
+      }
     });
+    // Un paragraphe de plusieurs lignes est du texte courant, jamais un titre centré.
+    res.forEach(function (p) { if (p.lignes > 1) p.centre = false; });
     return res.map(function (p) { return para([[p.texte, 0]], { centre: p.centre, niveau: p.grand && !avecMot && p.texte.length < 80 ? 1 : null }); }).filter(Boolean);
   });
 }
