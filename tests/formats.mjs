@@ -75,6 +75,35 @@ try {
   const colle = await p.evaluate(() => APEL_TEXTES.lireColle("Chapitre 1\n\nBonjour **Douala**.\n\nChapitre 2\n\nAu revoir."));
   assert.deepEqual(colle.chapitres.map(c => c.titre), ["Chapitre 1", "Chapitre 2"]);
   console.log("• texte collé");
+
+  // Livre mis en page comme un PDF imprimé : page de titre, épigraphe, dédicace seule sur sa page,
+  // puis « Chapitre I » en haut de page, texte justifié (cas du Sort des Hiboux Boiteux).
+  if (soffice) {
+    const long = "La voix de mon père faisait trembler les vieilles poutres de la case familiale. J'étais comme secoué par elle, elle me faisait peur. J'accourus, comme aspiré par ses mots, et me plantai devant lui, tremblant, sans oser lever les yeux vers son visage.";
+    const imprime = path.join(TMP, "imprime.docx");
+    fs.writeFileSync(imprime, fabriquerDocx([
+      { centre: true, runs: [["SERTHY AYISSI", "b"]] }, { centre: true, runs: [["LE SORT DES HIBOUX BOITEUX", "b"]] },
+      { saut: true, centre: true, runs: [["« Rien n'arrive jamais par hasard. »", "i"]] },
+      { saut: true, aligne: "right", runs: [["À ma famille", "i"]] },
+      { saut: true, centre: true, runs: [["Chapitre I", "b"]] },
+      "« Abe, viens ici ! »",
+      { aligne: "both", runs: [[long, ""]] }, { aligne: "both", runs: [[long + " " + long, ""]] },
+      { saut: true, centre: true, runs: [["Chapitre II", "b"]] },
+      { aligne: "both", runs: [["Mon père me donna le nom d'Abenem, mauvais cœur, le jour de ma naissance. " + long, ""]] }
+    ]));
+    execFileSync("soffice", ["--headless", "--convert-to", "pdf", "--outdir", TMP, imprime], { stdio: "ignore", timeout: 120000 });
+    await p.evaluate(() => { const i = document.createElement("input"); i.type = "file"; i.id = "essai"; document.body.appendChild(i); });
+    await p.setInputFiles("#essai", path.join(TMP, "imprime.pdf"));
+    const r = await p.evaluate(() => APEL_TEXTES.lire(document.getElementById("essai").files[0]).then(x => x.chapitres.map(c => ({ titre: c.titre, avant: !!c.avant, blocs: c.blocs }))));
+    assert.deepEqual(r.filter(c => !c.avant).map(c => c.titre), ["Chapitre I", "Chapitre II"], "pdf imprimé : chapitres " + JSON.stringify(r.map(c => c.titre)));
+    const avant = JSON.stringify(r.find(c => c.avant) || {});
+    assert.ok(avant.includes("À ma famille") && !avant.includes("Chapitre I"), "la dédicace reste à part : " + avant);
+    const ch1 = r.find(c => c.titre === "Chapitre I").blocs;
+    assert.equal(ch1[0].r[0][0], "« Abe, viens ici ! »");
+    assert.ok(ch1.slice(1).every(b => b.s === "p"), "texte justifié jamais centré : " + JSON.stringify(ch1.map(b => b.s)));
+    await p.evaluate(() => document.getElementById("essai").remove());
+    console.log("• pdf imprimé (dédicace, Chapitre I en haut de page)");
+  }
   const refus = await p.evaluate(() => APEL_TEXTES.lire(new File(["x"], "vieux.doc")).catch(e => e.message));
   assert.match(refus, /Enregistrer sous/);
   assert.deepEqual(erreurs, []);
