@@ -11,6 +11,27 @@
   },
   "produits": [
     {
+      "id": "pmw156eiata1k",
+      "nom": "Masque de visage",
+      "rayon": "soins",
+      "categorie": "Laits de toilette",
+      "marque": "",
+      "details": "Ouvrir les pors et donner de l'éclat au visage.",
+      "options": "",
+      "auteur": "",
+      "lien": "",
+      "prix": 100,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw156eiata1k-mw158ivrl5le.jpg",
+        "photos/pmw156eiata1k-mw158ix48qx0.jpg"
+      ]
+    },
+    {
       "id": "pmw14ziyu4jck",
       "nom": "Brume Crush",
       "rayon": "parfums",
