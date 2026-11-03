@@ -11,6 +11,26 @@
   },
   "produits": [
     {
+      "id": "pmw14njxv3gw1",
+      "nom": "Choco musk",
+      "rayon": "parfums",
+      "categorie": "Parfums",
+      "marque": "",
+      "details": "Parfum gourmand choco  marshmalow et pistachio",
+      "options": "50ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 1500,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw14njxv3gw1-mw14o7osow3w.jpg"
+      ]
+    },
+    {
       "id": "pmvy2fxmkloo6",
       "nom": "Liquid Brun",
       "rayon": "parfums",
