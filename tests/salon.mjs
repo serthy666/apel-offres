@@ -92,7 +92,7 @@ try {
   const ctxL = await contexte();
   const lecteur = await page(ctxL);
   await lecteur.goto(s.url + "/");
-  await lecteur.waitForSelector(".heros");
+  await lecteur.waitForSelector(".vitrine");
   await lecteur.waitForTimeout(300);
   assert.equal(await lecteur.locator(".salon-accueil").count(), 0, "pas de bloc Salon sans livre");
   await lecteur.goto(s.url + "/#/lire");

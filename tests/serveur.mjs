@@ -52,14 +52,14 @@ export function fauxR2() {
   };
 }
 
-// Faux Google Text-to-Speech : un vrai petit MP3 (1 seconde, fabriqué par ffmpeg) par passage demandé,
-// et un repère par <mark> du SSML, à 0,2 s d'écart. Sans ffmpeg, quelques octets suffisent aux tests du serveur.
+// Faux Google Text-to-Speech : un vrai petit MP3 (4 secondes, fabriqué par ffmpeg : assez long pour que le test touche un paragraphe avant la fin du chapitre) par passage demandé,
+// et un repère par <mark> du SSML, à 0,4 s d’écart. Sans ffmpeg, quelques octets suffisent aux tests du serveur.
 let MP3 = null;
 function petitMp3() {
   if (MP3) return MP3;
   try {
     const f = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "mp3-")), "son.mp3");
-    execFileSync("ffmpeg", ["-loglevel", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=1", "-ac", "1", "-ar", "24000", "-b:a", "32k", f]);
+    execFileSync("ffmpeg", ["-loglevel", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=4", "-ac", "1", "-ar", "24000", "-b:a", "32k", f]);
     MP3 = fs.readFileSync(f);
   } catch (e) { MP3 = Buffer.from([0xff, 0xf3, 0x44, 0xc4, 0, 0, 0, 0]); }
   return MP3;
@@ -76,7 +76,7 @@ async function fauxTts(url, init) {
   if (u.pathname === "/v1beta1/text:synthesize") {
     const corps = JSON.parse(init.body);
     SYNTHESES.push(corps);
-    const marques = [...String((corps.input || {}).ssml || "").matchAll(/<mark name="([^"]+)"\/>/g)].map((m, i) => ({ markName: m[1], timeSeconds: Math.min(0.9, i * 0.2) }));
+    const marques = [...String((corps.input || {}).ssml || "").matchAll(/<mark name="([^"]+)"\/>/g)].map((m, i) => ({ markName: m[1], timeSeconds: Math.min(3.6, i * 0.4) }));
     return reponse(200, { audioContent: petitMp3().toString("base64"), timepoints: marques, audioConfig: corps.audioConfig });
   }
   return reponse(404, { error: { message: "inconnu" } });
