@@ -1441,7 +1441,7 @@ var VUES = {
       '<li><a href="tel:' + esc(tel.replace(/[^\d+]/g, '')) + '">' + orbe('tel', 'o-jaune', true) + '<span><b>' + esc(t('appeler')) + '</b><span>' + esc(tel) + '</span></span></a></li>',
       '<li><a href="mailto:' + esc(mail) + '">' + orbe('mail', 'o-rouge', true) + '<span><b>' + esc(t('ecrireMail')) + '</b><span>' + esc(mail) + '</span></span></a></li>'
     ];
-    reseaux().forEach(function (x) { lignes.push('<li><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + logoReseau(x.r, 'petit') + '<span><b>' + esc(x.r.nom) + '</b><span>' + esc(nomCompte(x.url)) + '</span></span></a></li>'); });
+    reseaux().forEach(function (x) { lignes.push('<li><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + logoReseau(x.r, 'petit') + '<span><b>' + esc(x.r.nom) + '</b><span>' + esc(nomCompte(x.url, x.r)) + '</span></span></a></li>'); });
     if (site) lignes.push('<li><a href="' + esc(site) + '" target="_blank" rel="noopener">' + orbe('web', 'o-jaune', true) + '<span><b>' + esc(t('site')) + '</b><span>' + esc(site.replace(/^https?:\/\//, '')) + '</span></span></a></li>');
     var infos = '<div class="ligne"><span>' + esc(t('ville')) + '</span><span>' + esc(reglage('ville') || 'Yaoundé, Cameroun') + '</span></div>' +
       (reglage('horaires') ? '<div class="ligne"><span>' + esc(t('horaires')) + '</span><span>' + esc(reglage('horaires')) + '</span></div>' : '');
@@ -1577,8 +1577,10 @@ function rangeeReseaux() {
     return '<a href="' + esc(x.url) + '" target="_blank" rel="noopener" aria-label="' + esc(t('surReseau', { r: x.r.nom })) + '">' + logoReseau(x.r) + '</a>';
   }).join('') + '</div>';
 }
-// Nom affiché sous le réseau, dans la page Contact : @nom tiré de l'adresse, sinon « APEL Éditions ».
-function nomCompte(url) {
+// Nom affiché sous le réseau, dans la page Contact : @nom tiré de l'adresse (TikTok, Instagram, X),
+// « APEL Éditions » pour Facebook et LinkedIn, dont les adresses sont des numéros.
+function nomCompte(url, r) {
+  if (r && (r.k === 'facebook' || r.k === 'linkedin')) return 'APEL Éditions';
   var m = String(url).replace(/[?#].*$/, '').replace(/\/+$/, '').match(/\/(@?[\w.\-]+)$/);
   return m && !/^(company|in|pages|profile\.php)$/.test(m[1]) ? (m[1].charAt(0) === '@' ? m[1] : '@' + m[1]) : 'APEL Éditions';
 }
