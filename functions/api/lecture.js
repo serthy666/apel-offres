@@ -5,7 +5,7 @@
 //   GET  ?action=media&cle=…                    vidéo ou affiche téléversée (lecture par morceaux pour les téléphones)
 //   POST { action: "activer", code, appareil } un code de lecture donne un pass jusqu'à sa date de fin
 //   POST { action: "reagir", livre, n, emoji, appareil }
-import { Refus, json, erreur, traiter, base, maintenant, signer, lireJeton, jetonDe, cleCode, reglages, estGerant, video, FORMULES, APPAREILS_MAX, EMOJIS, APPAREIL, ID_LIVRE, CLE_MEDIA, JOUR } from "../_lecture.js";
+import { Refus, json, erreur, traiter, base, maintenant, signer, lireJeton, jetonDe, cleCode, reglages, estGerant, video, adresseMedia, FORMULES, APPAREILS_MAX, EMOJIS, APPAREIL, ID_LIVRE, CLE_MEDIA, JOUR } from "../_lecture.js";
 
 export function onRequest({ request, env }) {
   return traiter(async () => {
@@ -29,14 +29,17 @@ export function onRequest({ request, env }) {
 
 async function catalogue(env) {
   const db = await base(env);
-  const [livres, chapitres, r, vids] = await Promise.all([
+  const [livres, chapitres, r, vids, auds] = await Promise.all([
     db.prepare("SELECT id, titre, auteur, resume, genre, gratuits, ordre, maj FROM livres WHERE visible = 1 ORDER BY ordre, titre").all(),
     db.prepare("SELECT livre, n, titre, mots, maj FROM chapitres ORDER BY livre, n").all(),
     reglages(db),
-    db.prepare("SELECT * FROM videos WHERE visible = 1 ORDER BY ordre, cree DESC").all()
+    db.prepare("SELECT * FROM videos WHERE visible = 1 ORDER BY ordre, cree DESC").all(),
+    db.prepare("SELECT livre, n, duree FROM audios").all()
   ]);
+  const ecoute = {};
+  (auds.results || []).forEach(a => { ecoute[a.livre + "/" + a.n] = Math.round(a.duree || 0); });
   const parLivre = {};
-  (chapitres.results || []).forEach(c => { (parLivre[c.livre] = parLivre[c.livre] || []).push({ n: c.n, titre: c.titre || "", mots: c.mots || 0, maj: c.maj || 0 }); });
+  (chapitres.results || []).forEach(c => { (parLivre[c.livre] = parLivre[c.livre] || []).push({ n: c.n, titre: c.titre || "", mots: c.mots || 0, maj: c.maj || 0, audio: ecoute[c.livre + "/" + c.n] || 0 }); });
   const liste = (livres.results || []).map(l => ({ id: l.id, titre: l.titre, auteur: l.auteur || "", resume: l.resume || "", genre: l.genre || "", gratuits: l.gratuits, maj: l.maj || 0, chapitres: parLivre[l.id] || [] }))
     .filter(l => l.chapitres.length);
   return json({
@@ -89,7 +92,10 @@ async function chapitre(url, request, env) {
   if (!c) return erreur(404, "Ce chapitre n'existe pas.");
   const offert = n <= (l.gratuits || 0);
   if (!offert && !(await pass(request, env, db))) return erreur(402, "Ce chapitre est réservé aux abonnés.", { verrou: true });
-  return json({ n: c.n, titre: c.titre || "", mots: c.mots || 0, blocs: JSON.parse(c.blocs || "[]"), offert });
+  // Voix IA du chapitre, s'il y en a une : donnée seulement à qui peut lire le chapitre.
+  const a = await db.prepare("SELECT cle, voix, duree, reperes FROM audios WHERE livre = ? AND n = ?").bind(livre, n).first();
+  const audio = a ? { src: adresseMedia(a.cle), voix: a.voix || "", duree: a.duree || 0, reperes: JSON.parse(a.reperes || "[]") } : null;
+  return json({ n: c.n, titre: c.titre || "", mots: c.mots || 0, blocs: JSON.parse(c.blocs || "[]"), offert, audio });
 }
 
 async function activer(corps, env) {

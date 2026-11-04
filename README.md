@@ -11,9 +11,15 @@ L'ancienne adresse https://serthy666.github.io/apel-offres/ renvoie vers la nouv
 - Ce dépôt est public : il ne doit contenir que les fichiers du site, jamais de manuscrit, de contrat ni de données de client.
 - Avant chaque nouvelle publication des fichiers, changer `VERSION` dans `sw.js`.
 
+## Apparence
+
+Thème sombre par défaut (vert profond, verre fumé) ; le bouton soleil / lune de l'en-tête passe au thème clair (fond vert très pâle, presque blanc, cartes blanches), et le choix reste mémorisé sur l'appareil. Grands titres et beaucoup d'air : l'accueil s'inspire des pages Apple. Chaque univers (Services, Salon, Bibliothèque, Publier) a sa couleur et son objet 3D, pour qu'on le repère sans lire. Pendant la lecture d'un chapitre, c'est le thème de la liseuse (Jour, Sépia, Sombre, Nuit APEL) qui colore la page.
+
+Les cinq grands objets en verre (fusée, livre ouvert, pile de livres, plume, livre et casque) ont été créés sur Canva pour APEL Éditions. Les autres objets 3D de `assets/3d/` (profils et liste « Tout savoir ») viennent de Fluent Emoji de Microsoft, sous licence MIT : le texte de la licence est dans `assets/3d/LICENCE-fluent-emoji.txt` et doit rester à côté des images.
+
 ## Salon de lecture et Espace gérant
 
-Les livres se lisent aussi en ligne, chapitre par chapitre : premiers chapitres offerts, puis codes de lecture de 24 heures, d'une semaine ou d'un mois, et codes promo, créés dans l'**Espace gérant** (https://apel-offres.pages.dev/gerant.html, connexion Google avec apeledition@gmail.com). Les livres arrivent par un fichier (Word, LibreOffice, PDF, EPUB, RTF, HTML, texte, Markdown) ou un texte collé ; de petites vidéos s'y ajoutent. Liseuse avec mode lecture et mode sombre. Mise en route et mode d'emploi : `SALON-LECTURE.md`.
+Les livres se lisent aussi en ligne, chapitre par chapitre : premiers chapitres offerts, puis codes de lecture de 24 heures, d'une semaine ou d'un mois, et codes promo, créés dans l'**Espace gérant** (https://apel-offres.pages.dev/gerant.html, connexion Google avec apeledition@gmail.com). Les livres arrivent par un fichier (Word, LibreOffice, PDF, EPUB, RTF, HTML, texte, Markdown) ou un texte collé ; de petites vidéos s'y ajoutent. Liseuse avec mode lecture, mode sombre et écoute (voix IA Google ou voix du téléphone). Mise en route et mode d'emploi : `SALON-LECTURE.md`.
 
 ## Autre site dans ce dépôt
 

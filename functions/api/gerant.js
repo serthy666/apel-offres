@@ -10,7 +10,9 @@ const CHAPITRE_MAX = 400000; // caractères du chapitre une fois rangé
 const STYLES = ["p", "c", "h", "q", "sep"];
 const VIDEO_MAX = 60 * 1024 * 1024; // octets : une petite vidéo (1 à 3 minutes) filmée au téléphone
 const AFFICHE_MAX = 600 * 1024;
-const TYPES_MEDIA = { "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov", "video/x-m4v": "m4v", "video/3gpp": "3gp", "image/jpeg": "jpg", "image/webp": "webp", "image/png": "png" };
+const AUDIO_MAX = 40 * 1024 * 1024;
+const TTS = "https://texttospeech.googleapis.com/";
+const TYPES_MEDIA = { "audio/mpeg": "mp3", "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov", "video/x-m4v": "m4v", "video/3gpp": "3gp", "image/jpeg": "jpg", "image/webp": "webp", "image/png": "png" };
 
 export function onRequest({ request, env }) {
   return traiter(async () => {
@@ -20,6 +22,7 @@ export function onRequest({ request, env }) {
         drive: env.GOOGLE_API_KEY && env.GOOGLE_PROJET ? { cle: env.GOOGLE_API_KEY, projet: String(env.GOOGLE_PROJET) } : null });
       if (action === "tableau") return tableau(request, env);
       if (action === "chapitres") return chapitresLivre(request, url, env);
+      if (action === "voix") return voixGoogle(request, env);
       return erreur(400, "Action inconnue.");
     }
     if (request.method !== "POST") return erreur(405, "Méthode non acceptée.");
@@ -28,7 +31,7 @@ export function onRequest({ request, env }) {
     if (new URL(request.url).searchParams.get("action") === "televerser") return televerser(request, env);
     let corps;
     try { corps = await request.json(); } catch (e) { return erreur(400, "Requête illisible."); }
-    const actions = { connexion, codes: creerCodes, promo: creerPromo, revoquer, livre: enregistrerLivre, supprimer: supprimerLivre, reglages: enregistrerReglages, inviter, retirer, role: changerRole, pass: passGerant, video: enregistrerVideo, video_supprimer: supprimerVideo };
+    const actions = { connexion, codes: creerCodes, promo: creerPromo, revoquer, livre: enregistrerLivre, supprimer: supprimerLivre, reglages: enregistrerReglages, inviter, retirer, role: changerRole, pass: passGerant, video: enregistrerVideo, video_supprimer: supprimerVideo, tts: synthese, audio: enregistrerAudio, audio_supprimer: supprimerAudio };
     const fn = corps && actions[corps.action];
     if (!fn) return erreur(400, "Action inconnue.");
     return fn(request, corps, env);
@@ -101,7 +104,9 @@ async function tableau(request, env) {
     reglages: r,
     lecteursActifs: lecteurs ? lecteurs.n : 0,
     videos: (vids.results || []).map(v => ({ ...v, apercu: video(v) })),
-    medias: !!env.MEDIAS
+    medias: !!env.MEDIAS,
+    tts: !!(env.GOOGLE_TTS_KEY && env.MEDIAS),
+    audios: (await db.prepare("SELECT livre, n, cle, voix, duree, maj FROM audios").all()).results || []
   });
 }
 async function chapitresLivre(request, url, env) {
@@ -190,13 +195,25 @@ async function enregistrerLivre(request, corps, env) {
     "ON CONFLICT(id) DO UPDATE SET titre = excluded.titre, auteur = excluded.auteur, resume = excluded.resume, genre = excluded.genre, gratuits = excluded.gratuits, visible = excluded.visible, ordre = excluded.ordre" + (Array.isArray(corps.chapitres) ? ", maj = excluded.maj" : ""))
     .bind(id, titre, txt(l.auteur, 120), texteLong(l.resume, 1500), genre, entier(l.gratuits, 0, 50), l.visible === false ? 0 : 1, entier(l.ordre, 0, 9999), t));
   let nb = null;
+  const audiosARetirer = [];
   if (Array.isArray(corps.chapitres)) {
     if (!corps.chapitres.length) throw new Refus(400, "Aucun chapitre à publier.");
     if (corps.chapitres.length > CHAPITRES_MAX) throw new Refus(400, "Trop de chapitres (" + CHAPITRES_MAX + " au plus).");
     const ajout = corps.mode === "ajouter";
     let depart = 0;
     if (ajout) { const m = await db.prepare("SELECT MAX(n) AS n FROM chapitres WHERE livre = ?").bind(id).first(); depart = (m && m.n) || 0; }
-    else ops.push(db.prepare("DELETE FROM chapitres WHERE livre = ?").bind(id));
+    else {
+      ops.push(db.prepare("DELETE FROM chapitres WHERE livre = ?").bind(id));
+      // Voix IA : gardée pour un chapitre dont le texte ne change pas à la même place, retirée sinon.
+      const avant = {}; ((await db.prepare("SELECT n, blocs FROM chapitres WHERE livre = ?").bind(id).all()).results || []).forEach(c => { avant[c.n] = c.blocs; });
+      const auds = (await db.prepare("SELECT n, cle FROM audios WHERE livre = ?").bind(id).all()).results || [];
+      auds.forEach(a => {
+        const c = corps.chapitres[a.n - 1];
+        if (c && JSON.stringify(nettoyerBlocs(c.blocs).blocs) === avant[a.n]) return;
+        ops.push(db.prepare("DELETE FROM audios WHERE livre = ? AND n = ?").bind(id, a.n));
+        audiosARetirer.push(a.cle);
+      });
+    }
     corps.chapitres.forEach((c, i) => {
       const { blocs, mots } = nettoyerBlocs(c && c.blocs);
       const texte = JSON.stringify(blocs);
@@ -208,6 +225,7 @@ async function enregistrerLivre(request, corps, env) {
     nb = depart + corps.chapitres.length;
   } else if (!existant) throw new Refus(400, "Importez d'abord le fichier Word du livre.");
   await db.batch(ops);
+  if (env.MEDIAS) for (const k of audiosARetirer) await env.MEDIAS.delete(k);
   return json({ ok: true, id, chapitres: nb });
 }
 async function supprimerLivre(request, corps, env) {
@@ -215,11 +233,14 @@ async function supprimerLivre(request, corps, env) {
   await session(request, env, db);
   const id = String(corps.id || "");
   if (!ID_LIVRE.test(id)) throw new Refus(400, "Livre inconnu.");
+  const auds = (await db.prepare("SELECT cle FROM audios WHERE livre = ?").bind(id).all()).results || [];
   await db.batch([
+    db.prepare("DELETE FROM audios WHERE livre = ?").bind(id),
     db.prepare("DELETE FROM chapitres WHERE livre = ?").bind(id),
     db.prepare("DELETE FROM reactions WHERE livre = ?").bind(id),
     db.prepare("DELETE FROM livres WHERE id = ?").bind(id)
   ]);
+  if (env.MEDIAS) for (const a of auds) await env.MEDIAS.delete(a.cle);
   return json({ ok: true });
 }
 
@@ -229,11 +250,13 @@ async function televerser(request, env) {
   const db = await base(env);
   await session(request, env, db);
   if (!env.MEDIAS) throw new Refus(503, "Le stockage des vidéos (R2 « MEDIAS ») n'est pas encore relié au site. En attendant, ajoutez la vidéo par un lien YouTube, TikTok ou Facebook.");
-  const sorte = new URL(request.url).searchParams.get("sorte") === "affiche" ? "affiches" : "videos";
+  const demande = new URL(request.url).searchParams.get("sorte");
+  const sorte = demande === "affiche" ? "affiches" : demande === "audio" ? "audios" : "videos";
   const type = String(request.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
   const ext = TYPES_MEDIA[type];
-  if (!ext || (sorte === "videos") !== type.startsWith("video/")) throw new Refus(415, sorte === "videos" ? "Format de vidéo non accepté : choisissez une vidéo MP4 (celles du téléphone conviennent)." : "Image d'affiche non acceptée.");
-  const max = sorte === "videos" ? VIDEO_MAX : AFFICHE_MAX;
+  const attendu = { videos: "video/", affiches: "image/", audios: "audio/" }[sorte];
+  if (!ext || !type.startsWith(attendu)) throw new Refus(415, sorte === "videos" ? "Format de vidéo non accepté : choisissez une vidéo MP4 (celles du téléphone conviennent)." : sorte === "audios" ? "Audio non accepté (MP3 attendu)." : "Image d'affiche non acceptée.");
+  const max = sorte === "videos" ? VIDEO_MAX : sorte === "audios" ? AUDIO_MAX : AFFICHE_MAX;
   if (Number(request.headers.get("content-length") || 0) > max) throw new Refus(413, sorte === "videos" ? "Vidéo trop lourde (60 Mo au plus) : gardez-la courte, 1 à 3 minutes." : "Affiche trop lourde.");
   const donnees = await request.arrayBuffer();
   if (!donnees.byteLength) throw new Refus(400, "Fichier vide.");
@@ -273,6 +296,71 @@ async function supprimerVideo(request, corps, env) {
   if (!v) throw new Refus(404, "Vidéo introuvable.");
   await db.prepare("DELETE FROM videos WHERE id = ?").bind(String(corps.id)).run();
   if (env.MEDIAS) for (const k of [v.cle, v.affiche]) if (k) await env.MEDIAS.delete(k);
+  return json({ ok: true });
+}
+
+/* Voix IA Google (Cloud Text-to-Speech) : la clé reste sur le serveur. La page découpe le chapitre en morceaux,
+   demande chaque morceau ici (réponse transmise telle quelle, sans travail pour le serveur), assemble le MP3,
+   le téléverse (sorte=audio), puis l'enregistre avec la durée et les repères de paragraphes. */
+function cleTts(env) { if (!env.GOOGLE_TTS_KEY) throw new Refus(503, "Les voix IA ne sont pas encore réglées : ajoutez GOOGLE_TTS_KEY dans Cloudflare (voir SALON-LECTURE.md)."); return env.GOOGLE_TTS_KEY; }
+async function relaisGoogle(r) {
+  if (r.ok) return new Response(r.body, { status: 200, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+  let message = "";
+  try { message = ((await r.json()).error || {}).message || ""; } catch (e) { message = ""; }
+  console.log("Google Text-to-Speech :", r.status, message);
+  if (r.status === 403 || r.status === 400 && /API key/i.test(message)) throw new Refus(502, "Google refuse la clé des voix IA : vérifiez que l'API « Cloud Text-to-Speech » est activée et la facturation ouverte sur le projet Google Cloud.");
+  if (r.status === 429) throw new Refus(429, "Google limite les demandes : patientez une minute puis reprenez.");
+  throw new Refus(502, "Google n'a pas pu lire ce passage" + (message ? " (" + message.slice(0, 160) + ")" : "") + ".");
+}
+async function voixGoogle(request, env) {
+  const db = await base(env);
+  await session(request, env, db);
+  const r = await fetch(TTS + "v1/voices?languageCode=fr-FR&key=" + encodeURIComponent(cleTts(env)));
+  if (!r.ok) return relaisGoogle(r);
+  const d = await r.json();
+  const voix = (d.voices || []).filter(v => (v.languageCodes || []).some(l => /^fr-(FR|CA)$/.test(l)))
+    .map(v => ({ nom: v.name, genre: v.ssmlGender || "", langue: (v.languageCodes || [])[0] || "" }));
+  return json({ voix });
+}
+async function synthese(request, corps, env) {
+  const db = await base(env);
+  await session(request, env, db);
+  const voix = String(corps.voix || "");
+  if (!/^fr-(FR|CA)-[A-Za-z0-9-]{2,60}$/.test(voix)) throw new Refus(400, "Voix inconnue.");
+  const ssml = typeof corps.ssml === "string" ? corps.ssml : "";
+  const texte = ssml ? "" : String(corps.texte || "");
+  const taille = new TextEncoder().encode(ssml || texte).length;
+  if (!taille || taille > 5000) throw new Refus(400, "Passage trop long pour Google (5 000 octets au plus).");
+  const vitesse = Math.min(1.5, Math.max(0.7, Number(corps.vitesse) || 1));
+  const audioConfig = { audioEncoding: "MP3" };
+  if (!/Chirp|Journey/i.test(voix)) audioConfig.speakingRate = vitesse;
+  const charge = { input: ssml ? { ssml } : { text: texte }, voice: { languageCode: voix.slice(0, 5), name: voix }, audioConfig };
+  if (ssml) charge.enableTimePointing = ["SSML_MARK"];
+  const r = await fetch(TTS + "v1beta1/text:synthesize?key=" + encodeURIComponent(cleTts(env)), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(charge) });
+  return relaisGoogle(r);
+}
+async function enregistrerAudio(request, corps, env) {
+  const db = await base(env);
+  await session(request, env, db);
+  const livre = String(corps.livre || ""), n = parseInt(corps.n, 10), cle = String(corps.cle || "");
+  if (!ID_LIVRE.test(livre) || !(n >= 1)) throw new Refus(400, "Chapitre inconnu.");
+  if (!CLE_MEDIA.test(cle) || !cle.startsWith("audios/")) throw new Refus(400, "Audio introuvable : générez-le de nouveau.");
+  if (!(await db.prepare("SELECT n FROM chapitres WHERE livre = ? AND n = ?").bind(livre, n).first())) throw new Refus(404, "Ce chapitre n'existe pas.");
+  const reperes = (Array.isArray(corps.reperes) ? corps.reperes : []).slice(0, 5000).map(x => Math.max(0, Math.round(Number(x) * 100) / 100 || 0));
+  const ancien = await db.prepare("SELECT cle FROM audios WHERE livre = ? AND n = ?").bind(livre, n).first();
+  await db.prepare("INSERT OR REPLACE INTO audios (livre, n, cle, voix, duree, reperes, maj) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    .bind(livre, n, cle, txt(corps.voix, 80), Math.max(0, Number(corps.duree) || 0), JSON.stringify(reperes), maintenant()).run();
+  if (ancien && ancien.cle !== cle && env.MEDIAS) await env.MEDIAS.delete(ancien.cle);
+  return json({ ok: true });
+}
+async function supprimerAudio(request, corps, env) {
+  const db = await base(env);
+  await session(request, env, db);
+  const livre = String(corps.livre || ""), n = parseInt(corps.n, 10);
+  const a = await db.prepare("SELECT cle FROM audios WHERE livre = ? AND n = ?").bind(livre, n).first();
+  if (!a) throw new Refus(404, "Pas d'audio pour ce chapitre.");
+  await db.prepare("DELETE FROM audios WHERE livre = ? AND n = ?").bind(livre, n).run();
+  if (env.MEDIAS) await env.MEDIAS.delete(a.cle);
   return json({ ok: true });
 }
 
