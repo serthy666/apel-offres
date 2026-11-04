@@ -1,12 +1,12 @@
 // Mise en cache pour un chargement rapide et un usage hors connexion.
 // Changer VERSION à chaque publication (garder le préfixe apel-offres-) pour que les téléphones récupèrent la nouvelle version.
-const VERSION = 'apel-offres-v15';
+const VERSION = 'apel-offres-v16';
 // Indispensables : sans eux, pas d'installation. Les autres sont mis en cache s'ils existent.
 const ESSENTIELS = ['index.html', 'donnees.js'];
 const SECONDAIRES = ['lecture.js', 'assets/logo-plume.webp', 'assets/logo-96.webp', 'assets/logo-192.webp',
   'polices/inter-Regular.woff2', 'polices/inter-SemiBold.woff2', 'polices/inter-ExtraBold.woff2',
-  // Objets 3D de l'accueil (60 Ko en tout)
-  ...['fusee', 'livre-ouvert', 'livres', 'plume', 'casque', 'auteur', 'enseignant', 'ecole', 'entreprise', 'association', 'particulier',
+  // Objets 3D de l'accueil (70 Ko en tout)
+  ...['fusee', 'livre-ouvert', 'livres', 'plume', 'salon-ecoute', 'auteur', 'enseignant', 'ecole', 'entreprise', 'association', 'particulier',
     'liseuse', 'etapes', 'realisations', 'faq', 'contact'].map(n => 'assets/3d/' + n + '.webp')];
 
 // cache: 'no-cache' : le navigateur revérifie auprès du serveur (réponse 304 légère si rien n'a changé)

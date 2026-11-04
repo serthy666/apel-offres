@@ -418,10 +418,8 @@ details>div{padding:0 16px 16px;color:var(--texte-2)}
 .salon-accueil{position:relative;isolation:isolate;margin-top:40px;padding:22px 20px 20px;border-radius:28px;overflow:hidden;color:#fff;text-align:center;
   background:radial-gradient(90% 60% at 100% 0%,rgba(242,183,5,.30),rgba(242,183,5,0) 60%),radial-gradient(80% 60% at 0% 100%,rgba(226,87,74,.32),rgba(226,87,74,0) 60%),linear-gradient(160deg,#0B6E4F 0%,#063D2C 70%);
   box-shadow:0 26px 44px -26px rgba(6,61,44,.85)}
-.salon-art{position:relative;height:118px;margin:0 auto 10px;width:200px}
-.salon-art img{position:absolute;filter:drop-shadow(0 14px 16px rgba(0,0,0,.35))}
-.salon-art .a-livre{left:24px;top:2px;width:118px;height:118px;animation:flotte 6s ease-in-out infinite}
-.salon-art .a-casque{right:6px;top:24px;width:70px;height:70px;transform:rotate(12deg);animation:flotte 6s ease-in-out -3s infinite}
+.salon-art{display:flex;justify-content:center;margin:-4px 0 8px}
+.salon-art img{width:132px;height:132px;filter:drop-shadow(0 0 22px rgba(255,255,255,.22)) drop-shadow(0 16px 18px rgba(0,0,0,.35));animation:flotte 6s ease-in-out infinite}
 .salon-accueil h2{margin:10px auto 8px;max-width:13em;font-size:26px;line-height:1.12;letter-spacing:-.025em;color:#fff}
 .salon-accueil h2 em{font-style:normal;color:var(--jaune-clair)}
 .salon-accueil p{margin:0 auto 18px;max-width:24em;color:rgba(255,255,255,.9)}
@@ -567,7 +565,7 @@ var IC = {
 };
 function svg(n, taille) { return '<svg viewBox="0 0 24 24"' + (taille ? ' width="' + taille + '" height="' + taille + '"' : '') + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (IC[n] || '') + '</svg>'; }
 function orbe(n, teinte, petit) { return '<span class="orbe ' + (teinte || 'o-vert') + (petit ? ' petit' : '') + '">' + svg(n) + '</span>'; }
-// Objets 3D de l'accueil (Fluent Emoji 3D de Microsoft, licence MIT : assets/3d/LICENCE-fluent-emoji.txt).
+// Objets 3D de l'accueil : les 5 grands en verre ont été créés sur Canva pour APEL ; les autres viennent de Fluent Emoji 3D (Microsoft, licence MIT : assets/3d/LICENCE-fluent-emoji.txt).
 function obj3d(nom, taille, classe) { return '<img class="obj3d' + (classe ? ' ' + classe : '') + '" src="' + srcImage('assets/3d/' + nom + '.webp') + '" width="' + taille + '" height="' + taille + '" alt="" decoding="async">'; }
 
 /* ---------- Textes de l'interface ---------- */
@@ -1195,7 +1193,7 @@ function boutonLire(id) {
 }
 function blocSalon() {
   if (!salonOuvert()) return '';
-  return '<section class="salon-accueil"><div class="salon-art" aria-hidden="true">' + obj3d('livre-ouvert', 118, 'a-livre') + obj3d('casque', 70, 'a-casque') + '</div>' +
+  return '<section class="salon-accueil"><div class="salon-art" aria-hidden="true">' + obj3d('salon-ecoute', 132) + '</div>' +
     '<span class="etiquette">' + esc(t('salonAccroche')) + '</span><h2>' + t('salonTitre') + '</h2><p>' + esc(t('salonTexte')) + '</p>' +
     '<a class="btn btn-primaire btn-plein" href="#/lire">' + svg('ouvert') + '<span>' + esc(t('entrerSalon')) + '</span></a></section>';
 }
