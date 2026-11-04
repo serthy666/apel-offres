@@ -13,7 +13,7 @@ L'ancienne adresse https://serthy666.github.io/apel-offres/ renvoie vers la nouv
 
 ## Apparence
 
-Fond vert très pâle, presque blanc, cartes blanches à ombre douce, grands titres : l'accueil s'inspire des pages Apple. Chaque univers (Services, Salon, Bibliothèque, Publier) a sa couleur et son objet 3D, pour qu'on le repère sans lire. En lecture de nuit (thèmes Nuit APEL et Sombre de la liseuse), toute la page repasse en sombre.
+Thème sombre par défaut (vert profond, verre fumé) ; le bouton soleil / lune de l'en-tête passe au thème clair (fond vert très pâle, presque blanc, cartes blanches), et le choix reste mémorisé sur l'appareil. Grands titres et beaucoup d'air : l'accueil s'inspire des pages Apple. Chaque univers (Services, Salon, Bibliothèque, Publier) a sa couleur et son objet 3D, pour qu'on le repère sans lire. Pendant la lecture d'un chapitre, c'est le thème de la liseuse (Jour, Sépia, Sombre, Nuit APEL) qui colore la page.
 
 Les cinq grands objets en verre (fusée, livre ouvert, pile de livres, plume, livre et casque) ont été créés sur Canva pour APEL Éditions. Les autres objets 3D de `assets/3d/` (profils et liste « Tout savoir ») viennent de Fluent Emoji de Microsoft, sous licence MIT : le texte de la licence est dans `assets/3d/LICENCE-fluent-emoji.txt` et doit rester à côté des images.
 

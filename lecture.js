@@ -159,7 +159,8 @@ function appareil() {
 function pass() { var p = lireJ('apel-pass', null); return p && p.jeton && p.fin * 1000 > Date.now() ? p : null; }
 var prefs = lireJ('apel-liseuse', {});
 prefs.taille = Math.max(15, Math.min(28, parseInt(prefs.taille, 10) || 19));
-if (THEMES.indexOf(prefs.theme) < 0) prefs.theme = window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'sepia' : 'nuit';
+// Liseuse : Nuit APEL par défaut, comme le site ; Sépia si la personne a choisi le thème clair.
+if (THEMES.indexOf(prefs.theme) < 0) prefs.theme = document.documentElement.getAttribute('data-theme') === 'clair' ? 'sepia' : 'nuit';
 if (POLICES.indexOf(prefs.police) < 0) prefs.police = 'serif';
 if (!INTERLIGNES[prefs.interligne]) prefs.interligne = 'normal';
 if (prefs.allume == null) prefs.allume = true;
@@ -563,7 +564,7 @@ function quitterLecture() {
   document.body.classList.remove('outils-caches');
   if (document.body.classList.contains('immersif')) basculerImmersif(false);
   delete document.documentElement.dataset.liseuse;
-  var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', '#F3F9F5');
+  var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', O.couleurTheme ? O.couleurTheme() : '#063D2C');
 }
 // Mode lecture : plein écran, en-tête et barres effacés, seul le texte reste.
 function basculerImmersif(oui) {
@@ -586,7 +587,7 @@ function appliquerFond() {
   var r = O.route(), lecture = r.nom === 'lire' && r.args.length > 1, m = document.querySelector('meta[name="theme-color"]');
   if (lecture) document.documentElement.dataset.liseuse = prefs.theme;
   else delete document.documentElement.dataset.liseuse;
-  if (m) m.setAttribute('content', (lecture && COULEURS_BARRE[prefs.theme]) || '#F3F9F5');
+  if (m) m.setAttribute('content', (lecture && COULEURS_BARRE[prefs.theme]) || (O.couleurTheme ? O.couleurTheme() : '#063D2C'));
 }
 function appliquerPrefs() {
   sauverPrefs();
