@@ -11,6 +11,46 @@
   },
   "produits": [
     {
+      "id": "pmw3n9mea2acb",
+      "nom": "Parfum de poche",
+      "rayon": "parfums",
+      "categorie": "Parfums",
+      "marque": "Sango",
+      "details": "Ça sent trop bon. Homme et femme. Longue tenue",
+      "options": "10ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 1500,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw3n9mea2acb-mw3nbo2j458b.jpg",
+        "photos/pmw3n9mea2acb-mw3nbo4qxl5v.jpg",
+        "photos/pmw3n9mea2acb-mw3nbo6n1lom.jpg"
+      ]
+    },
+    {
+      "id": "pmw3n9eb28zdx",
+      "nom": "Nouvel article",
+      "rayon": "soins",
+      "categorie": "Laits de toilette",
+      "marque": "",
+      "details": "",
+      "options": "",
+      "auteur": "",
+      "lien": "",
+      "prix": 0,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": []
+    },
+    {
       "id": "pmw3n6nc8kpoo",
       "nom": "Crème épilatoire",
       "rayon": "soins",
