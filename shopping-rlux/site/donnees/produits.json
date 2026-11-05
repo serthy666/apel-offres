@@ -11,6 +11,27 @@
   },
   "produits": [
     {
+      "id": "pmw3n6nc8kpoo",
+      "nom": "Crème épilatoire",
+      "rayon": "soins",
+      "categorie": "Gommages corporels",
+      "marque": "",
+      "details": "Épilation efficace",
+      "options": "",
+      "auteur": "",
+      "lien": "",
+      "prix": 1350,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw3n6nc8kpoo-mw3n6ysplgiz.jpg",
+        "photos/pmw3n6nc8kpoo-mw3n6yvsddtm.jpg"
+      ]
+    },
+    {
       "id": "pmw3n5a5ktkvr",
       "nom": "Déodorant",
       "rayon": "parfums",
