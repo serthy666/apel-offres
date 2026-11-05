@@ -54,21 +54,26 @@
     },
     {
       "id": "pmw3n9eb28zdx",
-      "nom": "Nouvel article",
-      "rayon": "soins",
-      "categorie": "Laits de toilette",
+      "nom": "Vulcan",
+      "rayon": "parfums",
+      "categorie": "Parfums",
       "marque": "",
       "details": "",
-      "options": "",
+      "options": "100ml",
       "auteur": "",
       "lien": "",
-      "prix": 0,
+      "prix": 10000,
       "prixPromo": 0,
       "nouveau": false,
       "vedette": false,
       "stock": "ok",
       "visible": true,
-      "photos": []
+      "photos": [
+        "photos/pmw3n9eb28zdx-mw3ni2c1h2ai.jpg",
+        "photos/pmw3n9eb28zdx-mw3ni2f5od1f.jpg",
+        "photos/pmw3n9eb28zdx-mw3ni2m77wkz.jpg",
+        "photos/pmw3n9eb28zdx-mw3ni2pe7ogs.jpg"
+      ]
     },
     {
       "id": "pmw3n6nc8kpoo",
@@ -227,7 +232,7 @@
       "lien": "",
       "prix": 10000,
       "prixPromo": 0,
-      "nouveau": false,
+      "nouveau": true,
       "vedette": false,
       "stock": "ok",
       "visible": true,
