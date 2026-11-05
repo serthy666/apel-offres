@@ -11,6 +11,26 @@
   },
   "produits": [
     {
+      "id": "pmw3nd0dj8acy",
+      "nom": "Huile de parfum",
+      "rayon": "parfums",
+      "categorie": "Huiles de parfum",
+      "marque": "",
+      "details": "Odeur impeccable",
+      "options": "15ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 700,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw3nd0dj8acy-mw3ndvmfdm2k.jpg"
+      ]
+    },
+    {
       "id": "pmw3n9mea2acb",
       "nom": "Parfum de poche",
       "rayon": "parfums",
