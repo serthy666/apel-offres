@@ -11,6 +11,26 @@
   },
   "produits": [
     {
+      "id": "pmw3mshvxpaby",
+      "nom": "Proud of you intense",
+      "rayon": "parfums",
+      "categorie": "Parfums",
+      "marque": "",
+      "details": "Parfum impeccable longue tenue",
+      "options": "100ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 10000,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw3mshvxpaby-mw3msoqoksg5.jpg"
+      ]
+    },
+    {
       "id": "pmw15lums0v09",
       "nom": "Crème mixa cica, Niacinamide, céramide",
       "rayon": "soins",
