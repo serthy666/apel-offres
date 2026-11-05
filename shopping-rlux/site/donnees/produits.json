@@ -11,6 +11,26 @@
   },
   "produits": [
     {
+      "id": "pmw3mu6ipg4na",
+      "nom": "Proud of you tobacco",
+      "rayon": "parfums",
+      "categorie": "Parfums",
+      "marque": "",
+      "details": "Parfum extrêmement bon",
+      "options": "100ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 10000,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw3mu6ipg4na-mw3mubpewewy.jpg"
+      ]
+    },
+    {
       "id": "pmw3mshvxpaby",
       "nom": "Proud of you intense",
       "rayon": "parfums",
