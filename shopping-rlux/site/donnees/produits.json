@@ -11,6 +11,26 @@
   },
   "produits": [
     {
+      "id": "pmw3n5a5ktkvr",
+      "nom": "Déodorant",
+      "rayon": "parfums",
+      "categorie": "Parfums",
+      "marque": "",
+      "details": "Plus de 24h sur le corps et vêtement",
+      "options": "200ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 1350,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmw3n5a5ktkvr-mw3n5ku7hk0t.jpg"
+      ]
+    },
+    {
       "id": "pmw3mu6ipg4na",
       "nom": "Proud of you tobacco",
       "rayon": "parfums",
