@@ -123,7 +123,7 @@
       "lien": "",
       "prix": 10000,
       "prixPromo": 0,
-      "nouveau": false,
+      "nouveau": true,
       "vedette": false,
       "stock": "ok",
       "visible": true,
