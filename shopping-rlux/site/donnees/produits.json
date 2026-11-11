@@ -11,8 +11,8 @@
   },
   "produits": [
     {
-      "id": "pmwcc3be8jg1u",
-      "nom": "Proud of you oud",
+      "id": "pmwcd2t9v4268",
+      "nom": "Proud of you Oud, Tobacco et Intense",
       "rayon": "parfums",
       "categorie": "Parfums",
       "marque": "",
@@ -27,7 +27,7 @@
       "stock": "ok",
       "visible": true,
       "photos": [
-        "photos/pmwcc3be8jg1u-mwcc3hsjy020.jpg"
+        "photos/pmwcd2t9v4268-mwcd31xq4fli.jpg"
       ]
     },
     {
@@ -134,46 +134,6 @@
       "visible": true,
       "photos": [
         "photos/pmw3n5a5ktkvr-mw3n5ku7hk0t.jpg"
-      ]
-    },
-    {
-      "id": "pmw3mu6ipg4na",
-      "nom": "Proud of you tobacco",
-      "rayon": "parfums",
-      "categorie": "Parfums",
-      "marque": "",
-      "details": "Parfum extrêmement bon",
-      "options": "100ml",
-      "auteur": "",
-      "lien": "",
-      "prix": 10000,
-      "prixPromo": 0,
-      "nouveau": true,
-      "vedette": false,
-      "stock": "ok",
-      "visible": true,
-      "photos": [
-        "photos/pmw3mu6ipg4na-mw3mubpewewy.jpg"
-      ]
-    },
-    {
-      "id": "pmw3mshvxpaby",
-      "nom": "Proud of you intense",
-      "rayon": "parfums",
-      "categorie": "Parfums",
-      "marque": "",
-      "details": "Parfum impeccable longue tenue",
-      "options": "100ml",
-      "auteur": "",
-      "lien": "",
-      "prix": 10000,
-      "prixPromo": 0,
-      "nouveau": false,
-      "vedette": false,
-      "stock": "ok",
-      "visible": true,
-      "photos": [
-        "photos/pmw3mshvxpaby-mw3msoqoksg5.jpg"
       ]
     },
     {
