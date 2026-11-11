@@ -11,6 +11,26 @@
   },
   "produits": [
     {
+      "id": "pmwcc3be8jg1u",
+      "nom": "Proud of you oud",
+      "rayon": "parfums",
+      "categorie": "Parfums",
+      "marque": "",
+      "details": "",
+      "options": "100ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 10000,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": [
+        "photos/pmwcc3be8jg1u-mwcc3hsjy020.jpg"
+      ]
+    },
+    {
       "id": "pmw3nd0dj8acy",
       "nom": "Huile de parfum",
       "rayon": "parfums",
