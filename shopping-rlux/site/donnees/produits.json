@@ -11,6 +11,24 @@
   },
   "produits": [
     {
+      "id": "pmwdat8spa8v1",
+      "nom": "Glow oil",
+      "rayon": "soins",
+      "categorie": "Huiles",
+      "marque": "",
+      "details": "Huile essentielle",
+      "options": "200ml",
+      "auteur": "",
+      "lien": "",
+      "prix": 1500,
+      "prixPromo": 0,
+      "nouveau": false,
+      "vedette": false,
+      "stock": "ok",
+      "visible": true,
+      "photos": []
+    },
+    {
       "id": "pmwcd2t9v4268",
       "nom": "Proud of you Oud, Tobacco et Intense",
       "rayon": "parfums",
